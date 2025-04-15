@@ -1,0 +1,27 @@
+# Composer dependencies
+/vendor
+
+# IDE specific files and folders
+.idea/
+*.iml
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files and directories
+/cache/
+/logs/
+/tmp/
+session/
+
+# Environment configuration (if you have separate files)
+.env
+*.ini
+
+# Ignore uploaded files (if applicable and you don't want them in the repo)
+/public/uploads/
+
+# Specific files you might want to ignore
+# example.config.php # If you have a template config file
