@@ -1,78 +1,39 @@
-# Project Roadmap: Vuyani Magibisela Portfolio Website
+# Project Roadmap
 
 ## High-Level Goals
-- [ ] Attract individual clients and showcase Vuyani’s work (digital design, web/app/game dev, makers)
-- [ ] Support YouTube channel with a Blog (tech news, tutorials, embedded videos, downloadable resources)
-- [ ] Implement user authentication for resource downloads and dashboard
-- [ ] Integrate YouTube and social media
-- [ ] Ensure responsive, secure, SEO-optimized, and accessible design
-- [ ] Future-proof for paywall, course management, and 3D features
-
----
-
-## Key Features & Completion Criteria
-
-### Home
-- [ ] Hero section with intro and CTA
-- [ ] Featured projects, recent blog posts, contact CTA
-- [ ] Responsive navigation and footer
-
-### Clients
-- [ ] Display live projects for Sci-Bono and Freelance clients
-- [ ] Filtering by client/category
-- [ ] Responsive grid/cards
-
-### Projects
-- [ ] Tabbed navigation for disciplines
-- [ ] Media display (images, videos, demos)
-- [ ] Project details and “Hire Me” CTA
-
-### Blog
-- [ ] Articles with embedded YouTube/videos
-- [ ] Resources (downloads, login required)
-- [ ] Social sharing buttons
-- [ ] Responsive layout
-
-### Contact
-- [ ] Contact form (Name, Email, Subject, Message)
-- [ ] Social media links (WhatsApp primary)
-- [ ] Email sending and confirmation
-
-### User Accounts
-- [ ] Registration, login, email verification
-- [ ] Dashboard (downloads, profile management)
-- [ ] Secure authentication
-
-### Non-Functional
-- [ ] Responsive design (desktop/mobile)
-- [ ] Security (input validation, password hashing, XSS/SQLi protection)
-- [ ] Performance (optimized assets, lazy loading)
-- [ ] SEO (meta tags, alt text, clean URLs)
-- [ ] Analytics (Google Analytics integration)
-
----
-
-## Progress Tracker
-
-### Phase 1: Project Setup & Documentation
-- [x] Scaffold cline_docs and initialize documentation
-
-### Phase 2: Core Infrastructure
-- [ ] Project folder structure
-- [ ] MVC routing and base layout
-- [ ] Database config
-
-### Phase 3: Main Features
-- [ ] Home, Clients, Projects, Blog, Contact
-- [ ] Authentication and dashboard
-
-### Phase 4: Enhancements & Polish
-- [ ] Responsive, accessibility, SEO, analytics, testing
-
-### Phase 5: Future-Proofing
-- [ ] Paywall, course management, 3D features, newsletter
-
----
+- Create a functional portfolio website for Vuyani Magibisela
+- Implement a contact form with proper email functionality
+- Set up basic routing and navigation
+- Establish a maintainable file structure following MVC principles
 
 ## Completed Tasks
-- 2025-04-14: Project documentation scaffolded and initialized (projectRoadmap.md, currentTask.md, techStack.md, codebaseSummary.md)
+### PHPMailer Integration
+- Installed PHPMailer via Composer (version 6.9.2)
+- Updated contact form to use Composer autoloader
+- Configured SMTP settings for secure email sending
+- Implemented email functionality with error handling
+
+### Initial Setup
+- Created basic database configuration using SQLite
+- Set up route definitions for home and contact pages
+- Established file structure with config, views, and controllers
+- Implemented basic navigation and footer in the base layout
+
+## Future Goals
+### Phase 1: Core Features (Week 1-2)
+1. Implement user authentication system
+2. Create a blog section with article posting
+3. Add resource download functionality with user accounts
+4. Integrate YouTube videos into the blog with embedded player support
+
+### Phase 2: Advanced Features (Week 3-4)
+1. Add course management system
+2. Implement payment gateway for premium resources
+3. Create interactive 3D project demos using Three.js
+4. Add newsletter subscription functionality with email verification
+
+### Phase 3: Quality Improvements (Week 5)
+1. Implement caching mechanism for improved performance
+2. Add comprehensive logging system
+3. Implement backup and restore functionality
+4. Add rate limiting and anti-bot measures
