@@ -1,9 +1,7 @@
 {
-    "name": "vuyani/portfolio-website",
     "autoload": {
         "psr-4": {
             "App\\": "app/"
         }
-    },
-    "require": {}
+    }
 }
