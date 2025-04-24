@@ -1,8 +1,9 @@
 <?php require_once '../app/views/partials/header.php'; ?>
+<div class="container">
 
-<section class="hero">
+    <section class="hero">
       <div class="hero-image">
-        <img src="img/headerImg.jpg" alt="Vuyani Magibisela at a science event wearing a white hat and shirt with a camera">
+        <img src="<?php echo $baseUrl; ?>/images/headerImg.jpg" alt="Vuyani Magibisela at a science event wearing a white hat and shirt with a camera">
       </div>
       <div class="hero-content">
         <h1 class="hero-title">Empowering Technology & Creativity</h1>
@@ -14,7 +15,7 @@
     <section class="services">
       <div class="service-card">
         <div class="service-image">
-          <img src="img/skillsImg01.png" alt="ICT Training">
+          <img src="<?php echo $baseUrl; ?>/images/skillsImg01.png" alt="ICT Training">
         </div>
         <div class="service-content">
           <h3 class="service-title">ICT Training</h3>
@@ -24,7 +25,7 @@
       
       <div class="service-card">
         <div class="service-image">
-          <img src="img/skillsImg02.jpeg" alt="Web/App Development">
+          <img src="<?php echo $baseUrl; ?>/images/skillsImg02.jpeg" alt="Web/App Development">
         </div>
         <div class="service-content">
           <h3 class="service-title">Web/App Development</h3>
@@ -34,7 +35,7 @@
       
       <div class="service-card">
         <div class="service-image">
-          <img src="img/skillsImg03.jpeg" alt="3D Artistry">
+          <img src="<?php echo $baseUrl; ?>/images/skillsImg03.jpeg" alt="3D Artistry">
         </div>
         <div class="service-content">
           <h3 class="service-title">3D Artistry</h3>
@@ -44,7 +45,7 @@
       
       <div class="service-card">
         <div class="service-image">
-          <img src="img/skillsImg04.jpeg" alt="Maker">
+          <img src="<?php echo $baseUrl; ?>/images/skillsImg04.jpeg" alt="Maker">
         </div>
         <div class="service-content">
           <h3 class="service-title">Maker</h3>
@@ -58,4 +59,5 @@
       <p class="about-text">With a passion for technology and an eye for design, I've dedicated my career to helping others discover the power of digital innovation. Let's explore the possibilities together.</p>
     </section>
 
+</div>
 <?php require_once '../app/views/partials/footer.php'; ?>
