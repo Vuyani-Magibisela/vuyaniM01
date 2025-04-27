@@ -11,6 +11,8 @@
 
 ### Recent Significant Changes
 -   Initial project structure setup and documentation creation.
+-   Implemented the Home page view (`app/views/home/index.php`).
+-   Refactored header and footer into partials (`app/views/partials/header.php`, `app/views/partials/footer.php`) included in the main layout (`app/views/layouts/main.php`).
 
 ### User Feedback Integration and Its Impact on Development
 -   Not applicable yet.

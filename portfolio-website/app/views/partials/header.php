@@ -19,7 +19,7 @@
       <div class="logo">Vuyani Magibisela</div>
         <nav class="navigation">
             <a href="#" class="active">Home</a>
-            <a href="#">Clients</a>
+            <a href="<?php echo $baseUrl; ?>/clients">Clients</a>
             <a href="#">Projects</a>
             <a href="#">Blog</a>
             <a href="#">Contact</a>
