@@ -26,7 +26,7 @@
                 <div class="expertise-card mobile-friendly">
                     <div class="expertise-icon">
                         <div class="icon-circle">
-                            <img src="<?php echo $baseUrl; ?>/images/clients/design-icon.svg" alt="Design Icon" onerror="this.src='<?php echo $baseUrl; ?>/images/skillsImg03.jpeg'; this.style.width='100%'; this.style.height='100%'; this.style.borderRadius='50%';">
+                            <img src="<?php echo $baseUrl; ?>/images/clients/design-icon.svg" alt="Design Icon" onerror="this.src='<?php echo $baseUrl; ?>/images/digitaldesignIcon.jpeg'; this.style.width='100%'; this.style.height='100%'; this.style.borderRadius='50%';">
                         </div>
                     </div>
                     <div class="expertise-content">
@@ -44,7 +44,7 @@
                 <div class="expertise-card mobile-friendly">
                     <div class="expertise-icon">
                         <div class="icon-circle">
-                            <img src="<?php echo $baseUrl; ?>/images/clients/webdev-icon.svg" alt="Web Dev Icon" onerror="this.src='<?php echo $baseUrl; ?>/images/skillsImg02.jpeg'; this.style.width='100%'; this.style.height='100%'; this.style.borderRadius='50%';">
+                            <img src="<?php echo $baseUrl; ?>/images/clients/webdev-icon.svg" alt="Web Dev Icon" onerror="this.src='<?php echo $baseUrl; ?>/images/webDev.jpeg'; this.style.width='100%'; this.style.height='100%'; this.style.borderRadius='50%';">
                         </div>
                     </div>
                     <div class="expertise-content">
@@ -62,7 +62,7 @@
                 <div class="expertise-card mobile-friendly">
                     <div class="expertise-icon">
                         <div class="icon-circle">
-                            <img src="<?php echo $baseUrl; ?>/images/clients/gamedev-icon.svg" alt="Game Dev Icon" onerror="this.src='<?php echo $baseUrl; ?>/images/skillsImg01.png'; this.style.width='100%'; this.style.height='100%'; this.style.borderRadius='50%';">
+                            <img src="<?php echo $baseUrl; ?>/images/clients/gamedev-icon.svg" alt="Game Dev Icon" onerror="this.src='<?php echo $baseUrl; ?>/images/gameDev.jpeg'; this.style.width='100%'; this.style.height='100%'; this.style.borderRadius='50%';">
                         </div>
                     </div>
                     <div class="expertise-content">
@@ -80,7 +80,7 @@
                 <div class="expertise-card mobile-friendly">
                     <div class="expertise-icon">
                         <div class="icon-circle">
-                            <img src="<?php echo $baseUrl; ?>/images/clients/maker-icon.svg" alt="Maker Icon" onerror="this.src='<?php echo $baseUrl; ?>/images/skillsImg04.jpeg'; this.style.width='100%'; this.style.height='100%'; this.style.borderRadius='50%';">
+                            <img src="<?php echo $baseUrl; ?>/images/clients/maker-icon.svg" alt="Maker Icon" onerror="this.src='<?php echo $baseUrl; ?>/images/maker.jpeg'; this.style.width='100%'; this.style.height='100%'; this.style.borderRadius='50%';">
                         </div>
                     </div>
                     <div class="expertise-content">

@@ -328,28 +328,37 @@ header {
   background-color: #f5b642;
 }
 
-.expertise-container {
+/* .expertise-container {
   display: flex;
   flex-direction: column;
   gap: 25px;
   max-width: 1000px;
   margin: 0 auto;
+} */
+
+.expertise-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .expertise-areas {
-  display: flex;
-  gap: 25px;
+  /* display: flex; */
+  /* gap: 25px;   */
+  display: contents;
 }
 
 .expertise-card {
-  flex: 1;
-  display: flex;
-  background-color: #fff;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 80px 1fr; /* Icon area width | Content area */
+  background-color: #3a3a3a;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
-  position: relative;
 }
 
 .expertise-card:hover {
@@ -374,22 +383,35 @@ header {
 }
 
 .expertise-icon {
-  padding: 25px 15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 100%;
+  position: relative;
+  padding: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
+  overflow: hidden;
 }
 
 .icon-circle {
-  width: 60px;
-  height: 60px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.15);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 12px;
-  transition: background-color 0.3s;
+  z-index: 2;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.icon-circle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .expertise-card:hover .icon-circle {
@@ -397,14 +419,15 @@ header {
 }
 
 .expertise-content {
-  flex: 1;
-  padding: 25px 20px 25px 0;
+  padding: 25px 20px;
+  background-color: #3a3a3a;
 }
 
 .expertise-content h3 {
   font-size: 1.3rem;
   margin-bottom: 10px;
   transition: color 0.3s;
+  color: #f9f9f9;
 }
 
 .expertise-card:hover .expertise-content h3 {
@@ -413,7 +436,7 @@ header {
 
 .expertise-content p {
   font-size: 0.95rem;
-  color: #666;
+  color: #ccc;
   margin-bottom: 15px;
   line-height: 1.5;
 }
@@ -505,6 +528,28 @@ body.dark-mode .expertise-tag {
 body.dark-mode .expertise-card:hover .expertise-tag {
   background-color: rgba(245, 182, 66, 0.3);
   color: #f5b642;
+}
+
+/* Light mode overrides */
+body:not(.dark-mode) .expertise-card {
+  background-color: #fff;
+}
+
+body:not(.dark-mode) .expertise-content {
+  background-color: #fff;
+}
+
+body:not(.dark-mode) .expertise-content h3 {
+  color: #333;
+}
+
+body:not(.dark-mode) .expertise-content p {
+  color: #666;
+}
+
+body:not(.dark-mode) .expertise-tag {
+  background-color: #f5f5f5;
+  color: #555;
 }
 
 /* Mobile Navigation Styles */
@@ -690,6 +735,9 @@ body.dark-mode .copyright {
 
 /* Responsive styles */
 @media (max-width: 992px) {
+  .expertise-container {
+    grid-template-columns: 1fr; /* Change to single column on tablet */
+  }
   .services {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -736,9 +784,11 @@ body.dark-mode .copyright {
   .expertise-heading {
     font-size: 1.5rem;
   }
+
   
   /* Mobile-specific expertise cards */
   .expertise-container {
+    grid-template-columns: 1fr; /* Change to single column on tablet */
     padding: 0 10px;
   }
   
@@ -750,6 +800,30 @@ body.dark-mode .copyright {
     border-radius: 10px;
     background-color: #f9f9f9;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .expertise-card {
+    grid-template-columns: 60px 1fr; /* Smaller icon area on mobile */
+    margin-bottom: 15px;
+  }
+  
+  .expertise-content {
+    padding: 15px;
+  }
+  
+  .expertise-content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+  
+  .expertise-content p {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+  
+  .icon-circle {
+    width: 40px;
+    height: 40px;
   }
   
   body.dark-mode .expertise-card.mobile-friendly {
@@ -918,8 +992,7 @@ body.dark-mode .copyright {
   }
   
   .expertise-card {
-    flex-direction: column;
-    text-align: center;
+    grid-template-columns: 50px 1fr; /* Even smaller icon area on tiny screens */
   }
   
   .expertise-content {
@@ -949,5 +1022,10 @@ body.dark-mode .copyright {
   .expertise-icon {
     margin-right: 0;
     margin-bottom: 15px;
+  }
+  
+  .icon-circle {
+    width: 35px;
+    height: 35px;
   }
 }
