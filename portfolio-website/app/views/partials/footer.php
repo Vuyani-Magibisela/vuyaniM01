@@ -1,4 +1,3 @@
-
 <div class="container">
     <section class="connect">
       <h2 class="section-title">Connect with me</h2>
@@ -30,9 +29,12 @@
         </a>
       </div>
     </section>
+    
+    <footer class="main-footer">
+      <p class="copyright">© <?php echo date('Y'); ?> Vuyani Magibisela</p>
+    </footer>
 </div>
-
- <!-- #region -->
-
+  <script src="<?php echo $baseUrl; ?>/js/theme.js"></script>
+  <script src="<?php echo $baseUrl; ?>/js/mobile-nav.js"></script>
 </body>
 </html>

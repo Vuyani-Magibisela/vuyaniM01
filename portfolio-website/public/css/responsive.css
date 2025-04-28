@@ -1,0 +1,713 @@
+/* Mobile Navigation Styles */
+.mobile-menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .mobile-menu-toggle:hover {
+    color: #f5b642;
+  }
+  
+  .mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .mobile-nav-overlay.active {
+    display: block;
+    opacity: 1;
+  }
+  
+  .mobile-nav-container {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100%;
+    background-color: #f9f9f9;
+    box-shadow: -5px 0px 15px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s;
+    overflow-y: auto;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mobile-nav-overlay.active .mobile-nav-container {
+    right: 0;
+  }
+  
+  .mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .mobile-nav-header span {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  .close-mobile-nav {
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .close-mobile-nav:hover {
+    color: #f5b642;
+  }
+  
+  .theme-toggles {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    gap: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .theme-toggle-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f1f1f1;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .theme-toggle-btn:hover {
+    background-color: #f5b642;
+    color: white;
+  }
+  
+  .mobile-navigation {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+  }
+  
+  .mobile-navigation a {
+    text-decoration: none;
+    color: #333;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+    text-align: center;
+  }
+  
+  .mobile-navigation a:hover,
+  .mobile-navigation a.active {
+    background-color: #f5b642;
+    color: white;
+  }
+  
+  /* Dark mode styles for mobile navigation */
+  body.dark-mode .mobile-nav-container {
+    background-color: #333;
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .mobile-nav-header {
+    border-bottom-color: #444;
+  }
+  
+  body.dark-mode .theme-toggles {
+    border-bottom-color: #444;
+  }
+  
+  body.dark-mode .theme-toggle-btn {
+    background-color: #444;
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .mobile-navigation a {
+    background-color: #444;
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .close-mobile-nav:hover,
+  body.dark-mode .mobile-menu-toggle:hover {
+    color: #f5b642;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .desktop-navigation {
+      display: none;
+    }
+    
+    .mobile-menu-toggle {
+      display: block;
+    }
+  }
+
+  /* Enhanced Mobile-Friendly Expertise Cards */
+.expertise-card.mobile-friendly {
+  margin-bottom: 20px;
+  width: 100%;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .expertise-container {
+    padding: 0 10px;
+  }
+  
+  .expertise-card.mobile-friendly {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  body.dark-mode .expertise-card.mobile-friendly {
+    background-color: #333;
+  }
+  
+  .expertise-icon {
+    padding: 0;
+    margin-right: 15px;
+  }
+  
+  .icon-circle {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .expertise-content {
+    padding: 0;
+  }
+  
+  .expertise-content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+  
+  .expertise-content p {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+  
+  .expertise-details {
+    flex-wrap: wrap;
+  }
+  
+  .expertise-tag {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    margin-bottom: 3px;
+  }
+  
+  /* Remove the vertical accent bar on mobile */
+  .expertise-card.mobile-friendly:before {
+    display: none;
+  }
+  
+  /* Custom yellow background for header area */
+  .clients-section h1,
+  .current-role,
+  .main-employment {
+    background-color: #f5ce42;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  .clients-section h1 {
+    padding-top: 20px;
+    margin-top: -20px;
+    margin-bottom: 0;
+    padding-bottom: 15px;
+    color: #333;
+  }
+  
+  .current-role {
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+  
+  .role-tag {
+    background-color: #27ae60;
+    margin-bottom: 15px;
+  }
+  
+  .main-employment {
+    border-radius: 0;
+    box-shadow: none;
+    padding-bottom: 30px;
+    margin-bottom: 20px;
+  }
+  
+  /* Dark mode adjustments */
+  body.dark-mode .clients-section h1,
+  body.dark-mode .current-role,
+  body.dark-mode .main-employment {
+    background-color: #444;
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .clients-section h1 {
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .expertise-heading {
+    color: #f9f9f9;
+  }
+  
+  /* Adjust the expertise heading */
+  .expertise-heading {
+    padding-top: 15px;
+    margin-top: 0;
+  }
+  
+  /* Specialty design for mobile menu */
+  .mobile-navigation a {
+    position: relative;
+    overflow: hidden;
+    background-color: #f1f1f1;
+    border: none;
+    transform: translateZ(0);
+    transition: color 0.3s, background-color 0.3s;
+  }
+  
+  .mobile-navigation a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background-color: #f5b642;
+    transform: translateX(-5px);
+    transition: transform 0.3s;
+  }
+  
+  .mobile-navigation a:hover::before,
+  .mobile-navigation a.active::before {
+    transform: translateX(0);
+  }
+  
+  .mobile-navigation a.active {
+    background-color: #f1f1f1;
+    color: #333;
+  }
+  
+  body.dark-mode .mobile-navigation a.active {
+    background-color: #444;
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .mobile-navigation a::before {
+    background-color: #f5b642;
+  }
+}
+
+/* Super small screens */
+@media (max-width: 576px) {
+  .expertise-card.mobile-friendly {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 15px;
+  }
+  
+  .expertise-icon {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+  
+  .expertise-details {
+    justify-content: center;
+  }
+}
+
+/* Enhanced Mobile-Friendly Expertise Cards */
+.expertise-card.mobile-friendly {
+  margin-bottom: 20px;
+  width: 100%;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .expertise-container {
+    padding: 0 10px;
+  }
+  
+  .expertise-card.mobile-friendly {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  body.dark-mode .expertise-card.mobile-friendly {
+    background-color: #333;
+  }
+  
+  .expertise-icon {
+    padding: 0;
+    margin-right: 15px;
+  }
+  
+  .icon-circle {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .expertise-content {
+    padding: 0;
+  }
+  
+  .expertise-content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+  
+  .expertise-content p {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+  
+  .expertise-details {
+    flex-wrap: wrap;
+  }
+  
+  .expertise-tag {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    margin-bottom: 3px;
+  }
+  
+  /* Remove the vertical accent bar on mobile */
+  .expertise-card.mobile-friendly:before {
+    display: none;
+  }
+  
+  /* Custom yellow background for header area */
+  .clients-section h1,
+  .current-role,
+  .main-employment {
+    background-color: #f5ce42;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  .clients-section h1 {
+    padding-top: 20px;
+    margin-top: -20px;
+    margin-bottom: 0;
+    padding-bottom: 15px;
+    color: #333;
+  }
+  
+  .current-role {
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+  
+  .role-tag {
+    background-color: #27ae60;
+    margin-bottom: 15px;
+  }
+  
+  .main-employment {
+    border-radius: 0;
+    box-shadow: none;
+    padding-bottom: 30px;
+    margin-bottom: 20px;
+  }
+  
+  /* Dark mode adjustments */
+  body.dark-mode .clients-section h1,
+  body.dark-mode .current-role,
+  body.dark-mode .main-employment {
+    background-color: #444;
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .clients-section h1 {
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .expertise-heading {
+    color: #f9f9f9;
+  }
+  
+  /* Adjust the expertise heading */
+  .expertise-heading {
+    padding-top: 15px;
+    margin-top: 0;
+  }
+  
+  /* Specialty design for mobile menu */
+  .mobile-navigation a {
+    position: relative;
+    overflow: hidden;
+    background-color: #f1f1f1;
+    border: none;
+    transform: translateZ(0);
+    transition: color 0.3s, background-color 0.3s;
+  }
+  
+  .mobile-navigation a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background-color: #f5b642;
+    transform: translateX(-5px);
+    transition: transform 0.3s;
+  }
+  
+  .mobile-navigation a:hover::before,
+  .mobile-navigation a.active::before {
+    transform: translateX(0);
+  }
+  
+  .mobile-navigation a.active {
+    background-color: #f1f1f1;
+    color: #333;
+  }
+  
+  body.dark-mode .mobile-navigation a.active {
+    background-color: #444;
+    color: #f9f9f9;
+  }
+  
+  body.dark-mode .mobile-navigation a::before {
+    background-color: #f5b642;
+  }
+}
+
+/* Super small screens */
+@media (max-width: 576px) {
+  .expertise-card.mobile-friendly {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 15px;
+  }
+  
+  .expertise-icon {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+  
+  .expertise-details {
+    justify-content: center;
+  }
+}
+
+/* Enhanced Mobile-Friendly Expertise Cards */
+.expertise-card.mobile-friendly {
+    margin-bottom: 20px;
+    width: 100%;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  /* Mobile-specific styles */
+  @media (max-width: 768px) {
+    .expertise-container {
+      padding: 0 10px;
+    }
+    
+    .expertise-card.mobile-friendly {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 15px;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.dark-mode .expertise-card.mobile-friendly {
+      background-color: #333;
+    }
+    
+    .expertise-icon {
+      padding: 0;
+      margin-right: 15px;
+    }
+    
+    .icon-circle {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .expertise-content {
+      padding: 0;
+    }
+    
+    .expertise-content h3 {
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+    
+    .expertise-content p {
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+    }
+    
+    .expertise-details {
+      flex-wrap: wrap;
+    }
+    
+    .expertise-tag {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      margin-bottom: 3px;
+    }
+    
+    /* Remove the vertical accent bar on mobile */
+    .expertise-card.mobile-friendly:before {
+      display: none;
+    }
+    
+    /* Custom yellow background for header area */
+    .clients-section h1,
+    .current-role,
+    .main-employment {
+      background-color: #f5ce42;
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    
+    .clients-section h1 {
+      padding-top: 20px;
+      margin-top: -20px;
+      margin-bottom: 0;
+      padding-bottom: 15px;
+      color: #333;
+    }
+    
+    .current-role {
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+    
+    .role-tag {
+      background-color: #27ae60;
+      margin-bottom: 15px;
+    }
+    
+    .main-employment {
+      border-radius: 0;
+      box-shadow: none;
+      padding-bottom: 30px;
+      margin-bottom: 20px;
+    }
+    
+    /* Dark mode adjustments */
+    body.dark-mode .clients-section h1,
+    body.dark-mode .current-role,
+    body.dark-mode .main-employment {
+      background-color: #444;
+      color: #f9f9f9;
+    }
+    
+    body.dark-mode .clients-section h1 {
+      color: #f9f9f9;
+    }
+    
+    body.dark-mode .expertise-heading {
+      color: #f9f9f9;
+    }
+    
+    /* Adjust the expertise heading */
+    .expertise-heading {
+      padding-top: 15px;
+      margin-top: 0;
+    }
+    
+    /* Specialty design for mobile menu */
+    .mobile-navigation a {
+      position: relative;
+      overflow: hidden;
+      background-color: #f1f1f1;
+      border: none;
+      transform: translateZ(0);
+      transition: color 0.3s, background-color 0.3s;
+    }
+    
+    .mobile-navigation a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background-color: #f5b642;
+      transform: translateX(-5px);
+      transition: transform 0.3s;
+    }
+    
+    .mobile-navigation a:hover::before,
+    .mobile-navigation a.active::before {
+      transform: translateX(0);
+    }
+    
+    .mobile-navigation a.active {
+      background-color: #f1f1f1;
+      color: #333;
+    }
+    
+    body.dark-mode .mobile-navigation a.active {
+      background-color: #444;
+      color: #f9f9f9;
+    }
+    
+    body.dark-mode .mobile-navigation a::before {
+      background-color: #f5b642;
+    }
+  }
+  
+  /* Super small screens */
+  @media (max-width: 576px) {
+    .expertise-card.mobile-friendly {
+      flex-direction: column;
+      text-align: center;
+      padding: 20px 15px;
+    }
+    
+    .expertise-icon {
+      margin-right: 0;
+      margin-bottom: 15px;
+    }
+    
+    .expertise-details {
+      justify-content: center;
+    }
+  }

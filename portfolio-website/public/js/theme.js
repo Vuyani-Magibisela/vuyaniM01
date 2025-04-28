@@ -1,97 +1,105 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Light mode toggle
-    const lightModeToggle = document.querySelector('.light-mode');
-    let isLightMode = true;
+    // Light/Dark mode toggle - select by class since that's what's in the header.php
+    const themeToggle = document.querySelector('.light-mode');
     
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        enableDarkMode();
-        isLightMode = false;
+    if (!themeToggle) {
+        console.error("Theme toggle element not found");
+        return;
     }
     
-    lightModeToggle.addEventListener('click', (e) => {
+    // Check if dark mode is active by seeing if body has the dark-mode class
+    let isDarkMode = document.body.classList.contains('dark-mode');
+    
+    themeToggle.addEventListener('click', (e) => {
         e.preventDefault();
         
-        if (isLightMode) {
-            enableDarkMode();
-        } else {
+        if (isDarkMode) {
             enableLightMode();
+        } else {
+            enableDarkMode();
         }
         
-        isLightMode = !isLightMode;
+        isDarkMode = !isDarkMode;
         
-        // Save theme preference
-        localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+        // Save theme preference in cookie
+        setCookie('theme', isDarkMode ? 'dark' : 'light', 365);
     });
     
     function enableDarkMode() {
+        // Add dark-mode class to body
         document.body.classList.add('dark-mode');
-        document.body.style.backgroundColor = "#333";
-        document.body.style.color = "#f9f9f9";
-        lightModeToggle.textContent = "🌙";
         
-        // Adjust links and other elements for dark mode
-        document.querySelectorAll('.navigation a').forEach(link => {
-            if (!link.classList.contains('active') && !link.classList.contains('light-mode')) {
-                link.style.color = "#f9f9f9";
-            }
-        });
+        // Update the toggle icon
+        themeToggle.textContent = "🌙";
         
-        // Update text colors
-        document.querySelectorAll('.service-description, .about-text, .connect-intro, .social-description, .role-description').forEach(text => {
-            text.style.color = "#ccc";
-        });
-        
-        // Update border colors
-        document.querySelectorAll('.social-link, .client-card').forEach(item => {
-            item.style.color = "#f9f9f9";
-            item.style.borderColor = "#555";
-        });
-        
-        // Update client card backgrounds
-        document.querySelectorAll('.client-card').forEach(card => {
-            card.style.backgroundColor = "#444";
-        });
-        
-        // Update bullet points in role achievements
-        document.querySelectorAll('.role-achievements li:before').forEach(bullet => {
-            bullet.style.color = "#f9f9f9";
-        });
+        // Update navigation links color
+        updateElementColors();
     }
     
     function enableLightMode() {
+        // Remove dark-mode class from body
         document.body.classList.remove('dark-mode');
-        document.body.style.backgroundColor = "#f9f9f9";
-        document.body.style.color = "#333";
-        lightModeToggle.textContent = "🌞";
         
-        // Reset link colors
-        document.querySelectorAll('.navigation a').forEach(link => {
-            if (!link.classList.contains('active') && !link.classList.contains('light-mode')) {
-                link.style.color = "#000000";
+        // Update the toggle icon
+        themeToggle.textContent = "🌞";
+        
+        // Update navigation links color
+        updateElementColors();
+    }
+    
+    function updateElementColors() {
+        // Update the colors of various elements based on theme
+        const isDark = document.body.classList.contains('dark-mode');
+        
+        // Update desktop navigation links
+        const desktopNavLinks = document.querySelectorAll('.desktop-navigation a:not(.active)');
+        desktopNavLinks.forEach(link => {
+            if (!link.classList.contains('light-mode')) {
+                link.style.color = isDark ? "#f9f9f9" : "#000000";
             }
         });
         
-        // Reset text colors
-        document.querySelectorAll('.service-description, .about-text, .connect-intro, .social-description, .role-description').forEach(text => {
-            text.style.color = "#666";
+        // Update text elements
+        const textElements = document.querySelectorAll('.service-description, .about-text, .connect-intro, .social-description, .role-description, .expertise-content p');
+        textElements.forEach(el => {
+            el.style.color = isDark ? "#ccc" : "#666";
         });
         
-        // Reset border colors
-        document.querySelectorAll('.social-link, .client-card').forEach(item => {
-            item.style.color = "#333";
-            item.style.borderColor = "#ddd";
+        // Update card elements
+        const cardElements = document.querySelectorAll('.social-link, .client-card, .expertise-card');
+        cardElements.forEach(card => {
+            if (isDark) {
+                card.style.backgroundColor = card.classList.contains('expertise-card') ? "#3a3a3a" : "#444";
+                card.style.borderColor = "#555";
+                card.style.color = "#f9f9f9";
+            } else {
+                card.style.backgroundColor = card.classList.contains('expertise-card') ? "#fff" : "";
+                card.style.borderColor = "#ddd";
+                card.style.color = "#333";
+            }
         });
         
-        // Reset client card backgrounds
-        document.querySelectorAll('.client-card').forEach(card => {
-            card.style.backgroundColor = "transparent";
+        // Update tag elements
+        const tagElements = document.querySelectorAll('.expertise-tag');
+        tagElements.forEach(tag => {
+            tag.style.backgroundColor = isDark ? "#444" : "#f5f5f5";
+            tag.style.color = isDark ? "#ddd" : "#555";
         });
-        
-        // Reset bullet points in role achievements
-        document.querySelectorAll('.role-achievements li:before').forEach(bullet => {
-            bullet.style.color = "#333";
-        });
+    }
+    
+    // Helper function to set a cookie
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    }
+    
+    // Initialize element colors based on current theme
+    if (isDarkMode) {
+        updateElementColors();
     }
 });
