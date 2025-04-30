@@ -41,5 +41,18 @@
     <script src="<?php echo $baseUrl; ?>/js/mobile-nav.js"></script>
     <!-- Then load app.js for page-specific animations -->
     <script src="<?php echo $baseUrl; ?>/js/app.js"></script>
+
+    <!-- Load javascript for projects and projects details pages -->
+    <?php if (isset($_GET['url']) && strpos($_GET['url'], 'projects') === 0): ?>
+    <?php if (strpos($_GET['url'], 'projects/web-dev') !== false || 
+             strpos($_GET['url'], 'projects/app-dev') !== false ||
+             strpos($_GET['url'], 'projects/game-dev') !== false ||
+             strpos($_GET['url'], 'projects/digital-design') !== false ||
+             strpos($_GET['url'], 'projects/maker') !== false): ?>
+        <script src="<?php echo $baseUrl; ?>/js/project-detail.js"></script>
+    <?php else: ?>
+        <script src="<?php echo $baseUrl; ?>/js/projects.js"></script>
+    <?php endif; ?>
+    <?php endif; ?>
 </body>
 </html>
