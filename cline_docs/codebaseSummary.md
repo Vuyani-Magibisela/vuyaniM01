@@ -1,7 +1,7 @@
 ## Codebase Summary
 
 ### Key Components and Their Interactions
--   The application uses a custom MVC pattern. `public/index.php` bootstraps the application, loading core classes and initializing the `Router`. The `Router` parses the URL (from `$_GET['url']`, handled by `.htaccess`) and dispatches requests to Controllers (`app/controllers/`). Controllers interact with Models (`app/models/`) which use the `Database` class (`app/core/Database.php`) for PDO-based MySQL interactions. Controllers then load Views (`app/views/`). `BaseController` and `BaseModel` provide common functionality.
+The application follows a custom MVC pattern. `public/index.php` initializes the core components, including the `Router`, which handles URL routing through `.htaccess`. Controllers in `app/controllers/` interact with Models in `app/models/`, utilizing the `Database` class (`app/core/Database.php`) for MySQL operations. Views are rendered through `app/views/`, with partials like `header.php` and `footer.php` included in the main layout (`main.php`). `BaseController` and `BaseModel` provide reusable functionality across the application.
 
 ### Data Flow
 -   Request -> `index.php` -> `App` -> `Router` -> Controller -> Model -> Database -> Model -> Controller -> View -> Response.

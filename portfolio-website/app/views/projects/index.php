@@ -157,4 +157,7 @@
         </div>
     </section>
 </div>
+
+<script src="<?php echo $baseUrl; ?>/js/projects.js"></script>
+
 <?php require_once '../app/views/partials/footer.php'; ?>
