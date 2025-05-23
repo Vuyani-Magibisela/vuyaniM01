@@ -1,5 +1,5 @@
 <?php 
-require_once __DIR__ . '/../../config/config.php'; 
+require_once dirname(__DIR__, 2) . '/config/config.php'; 
 
 // Function to check if current page matches the given path
 function isActivePage($pageName) {
@@ -71,8 +71,8 @@ function isActivePage($pageName) {
             <a href="<?php echo $baseUrl; ?>/home" class="<?php echo isActivePage('home') ? 'active' : ''; ?>">Home</a>
             <a href="<?php echo $baseUrl; ?>/clients" class="<?php echo isActivePage('clients') ? 'active' : ''; ?>">Clients</a>
             <a href="<?php echo $baseUrl; ?>/projects" class="<?php echo isActivePage('projects') ? 'active' : ''; ?>">Projects</a>
-            <a href="<?php echo $baseUrl; ?>/blog" class="<?php echo isActivePage('blog') ? 'active' : ''; ?>">Blog</a>
-            <a href="<?php echo $baseUrl; ?>/contact" class="<?php echo isActivePage('contact') ? 'active' : ''; ?>">Contact</a>
+            <a href="<?php echo $baseUrl; ?>/blog" class="<?php echo isActivePage('blog') ? 'active' : ''; ?>">Blogs</a>
+            <a href="<?php echo $baseUrl; ?>/contact" class="<?php echo isActivePage('contact') ? 'active' : ''; ?>">Contacts</a>
         </nav>
     </div>
 </div>

@@ -73,9 +73,9 @@ class BlogPost extends BaseModel {
                           JOIN blog_post_tags pt ON t.id = pt.tag_id
                           WHERE pt.post_id = :post_id";
                           
-            // Execute the query and assign the result to post['tags']
-            $tags = $this->query($tagsQuery, ['post_id' => $post['id']]);
-            $post['tags'] = $tags;
+            // Execute the query and assign the result to post->tags
+            $tags = $this->query($tagsQuery, ['post_id' => $post->id]);
+            $post->tags = $tags;
         }
         
         return $post;

@@ -1,3 +1,17 @@
+## Summary of Recent Fixes
+
+### Problem
+The error was caused by an incorrect path resolution in `main.php`. The original path `__DIR__ . '/../../config/config.php'` was creating an invalid path with mixed directory separators, causing a "Permission denied" error.
+
+### Solution
+Replaced the problematic path resolution with `dirname(__DIR__, 2) . '/config/config.php'`. This is more reliable, cross-platform compatible, and has cleaner syntax.
+
+### Key Changes
+- `main.php`: Changed `require_once __DIR__ . '/../../config/config.php';` to `require_once dirname(__DIR__, 2) . '/config/config.php';`
+- `header.php`: Same path fix applied for consistency
+- `footer.php`: Added a safety check to ensure `$baseUrl` is available
+- Consistent path handling: Used `dirname(__DIR__)` for relative paths to partials and other view files
+
 ## Current Objectives
 
 - Implement the "Projects" page functionality and view.
@@ -8,7 +22,8 @@
 - The Clients page has been successfully implemented with both desktop and mobile views.
 - Mobile navigation with burger menu has been implemented across the site.
 - Dark/light mode switching now functions correctly on all existing pages.
-- The next section to develop according to the roadmap is the "Projects" page, which will showcase different project categories based on skill sets.
+- The projects section has been successfully implemented with both desktop and mobile views.
+- Currently working on the Blog section
 
 ## Next Steps
 

@@ -30,6 +30,7 @@
 - [x] Implement Clients page with responsive design
 - [x] Implement mobile burger menu navigation
 - [x] Configure proper dark/light mode switching
+- [x] Fixed path resolution error in main.php and header.php
 
 ### Progress Tracker
 - [x] Task 1 (Home Page): [ ] In Progress / [x] Completed
