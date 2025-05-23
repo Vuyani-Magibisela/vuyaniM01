@@ -36,5 +36,17 @@
 </div>
   <script src="<?php echo $baseUrl; ?>/js/theme.js"></script>
   <script src="<?php echo $baseUrl; ?>/js/mobile-nav.js"></script>
+
+  <?php 
+  // Load the blog.js script only if we're on a blog page
+  $url = $_GET['url'] ?? 'home/index';
+  $urlParts = explode('/', $url);
+  $currentPage = $urlParts[0];
+
+  if ($currentPage === 'blog') {
+      echo '<script src="' . $baseUrl . '/js/blog.js"></script>';
+  }
+  ?>
+
 </body>
 </html>
