@@ -5,15 +5,16 @@
 - [x] Design the user interface and user experience
 - [x] Implement core features (Home) - Completed
 - [x] Restructure frontend for better navigation and user experience
-- [ ] Implement core features (Clients, Projects, Blog, Contact, Admin, Auth)
+- [x] Implement core features (Clients)
+- [ ] Implement core features (Projects, Blog, Contact, Admin, Auth)
 - [ ] Integrate with external APIs (if applicable)
 - [ ] Deploy the application
 
 ### Key Features
 - [x] Feature 1 - Home - Completed on April 28, 2025
 - [x] Feature 2 - Clients - Completed on April 28, 2025
-- [x] Feature 3 - Projects 
-- [ ] Feature 4 - Blog (In Progress)
+- [ ] Feature 3 - Projects (On Hold)
+- [x] Feature 4 - Blog (In Progress)
 - [ ] Feature 5 - Contact
 - [ ] Feature 6 - Auth
 - [ ] Feature 7 - Admin
@@ -35,8 +36,8 @@
 ### Progress Tracker
 - [x] Task 1 (Home Page): [ ] In Progress / [x] Completed
 - [x] Task 2 (Clients Page): [ ] In Progress / [x] Completed
-- [ ] Task 3 (Projects Page): [ ] In Progress / [x] Completed
-- [ ] Task 4 (Blog Page): [x] In Progress / [ ] Completed
+- [ ] Task 3 (Projects Page): [ ] In Progress / [ ] On Hold
+- [x] Task 4 (Blog Page): [x] In Progress / [ ] Completed
 - [ ] Task 5 (Contact Page): [ ] In Progress / [ ] Completed
 - [ ] Task 6 (Authentication): [ ] In Progress / [ ] Completed
 - [ ] Task 7 (Admin Panel): [ ] In Progress / [ ] Completed
