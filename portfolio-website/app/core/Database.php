@@ -20,13 +20,23 @@ class Database {
      * @var array
      */
     private static $config = null;
+    
+    /**
+     * Connection status
+     * @var bool
+     */
+    private static $connectionFailed = false;
 
     /**
      * Get a database connection, creating one if it doesn't exist
-     * @return PDO Database connection
-     * @throws PDOException If connection fails
+     * @return PDO|null Database connection or null if connection fails
      */
     public static function connect() {
+        // If connection previously failed, return null immediately
+        if (self::$connectionFailed) {
+            return null;
+        }
+        
         if (self::$instance === null) {
             self::loadConfig();
             
@@ -54,16 +64,37 @@ class Database {
                         PDO::ATTR_EMULATE_PREPARES => false
                     ]
                 );
+                
+                // Test the connection with a simple query
+                self::$instance->query('SELECT 1');
+                
             } catch (PDOException $e) {
                 // Log error message
                 error_log("Database Connection Error: " . $e->getMessage());
                 
-                // Rethrow the exception
-                throw $e;
+                // Mark connection as failed
+                self::$connectionFailed = true;
+                self::$instance = null;
+                
+                // Return null instead of throwing exception (for dummy data fallback)
+                return null;
             }
         }
 
         return self::$instance;
+    }
+    
+    /**
+     * Check if database connection is available
+     * @return bool
+     */
+    public static function isConnected() {
+        try {
+            $connection = self::connect();
+            return $connection !== null && !self::$connectionFailed;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
     
     /**
@@ -97,6 +128,7 @@ class Database {
      */
     public static function close() {
         self::$instance = null;
+        self::$connectionFailed = false;
     }
     
     /**

@@ -37,3 +37,6 @@ xampp/
 
 # Uploaded files (if any)
 public/uploads/
+
+# backup directories
+vuyanimOriginalBackup/

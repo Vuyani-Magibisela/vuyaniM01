@@ -1,0 +1,11 @@
+# Redirect all requests to public folder
+RewriteEngine On
+
+# Handle requests to the public folder
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ /public/$1 [L,QSA]
+
+# Handle the main index
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /public/index.php?url=$1 [L,QSA]
