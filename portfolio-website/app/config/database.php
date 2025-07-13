@@ -8,8 +8,8 @@ if ($_SERVER['HTTP_HOST'] === 'localhost' ||
     return [
         'host' => 'localhost',
         'dbname' => 'vuyanim',
-        'user' => 'root',
-        'password' => '',
+        'user' => 'vuksDev',
+        'password' => 'Vu13#k*s3D3V',
         'charset' => 'utf8mb4',
         'options' => [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
