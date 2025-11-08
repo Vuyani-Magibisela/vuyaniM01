@@ -42,7 +42,7 @@ php -S localhost:8000
 ### Database Management
 ```bash
 # Connect to local MySQL
-mysql -u vuksDev -p vuyanim
+mysql -u vuksDev -p Vu13#k*s3D3V
 
 # Test database connection
 php public/test-db.php

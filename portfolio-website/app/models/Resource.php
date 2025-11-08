@@ -53,7 +53,7 @@ class Resource extends BaseModel {
         }
         
         // Use database if available
-        return $this->getById($this->table, $id);
+        return parent::getById($this->table, $id);
     }
     
     public function incrementDownloads($id) {
