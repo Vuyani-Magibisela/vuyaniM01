@@ -1,20 +1,33 @@
 vuyaniM01/
-├── cline_docs/
+├── docs/
 │   ├── userInstructions/
-│   └── project_page_Implementation.md # Projects Page Implementation Instructions
-├── codebaseSummary.md
-├── currentTask.md
-├── projectRoadmap.md
-├── styleAesthetic.md
-└── techStack.md
+│   │   └── project_page_Implementation.md # Projects Page Implementation Instructions
+│   ├── AUTHENTICATION_SYSTEM.md # Complete authentication documentation (CREATED Nov 9, 2025)
+│   ├── BLOG_ADMIN_IMPLEMENTATION_SUMMARY.md # Blog admin summary (CREATED Nov 17, 2025)
+│   ├── PROGRESS_TRACKER.md # Chronological development log (UPDATED Nov 17, 2025)
+│   ├── ProjectStructure.txt # This file (UPDATED Nov 17, 2025)
+│   ├── codebaseSummary.md # Updated with admin panel section (UPDATED Nov 17, 2025)
+│   ├── currentTask.md # Updated with completion status (UPDATED Nov 17, 2025)
+│   ├── migrationSetUp.md # Database migration system
+│   ├── projectRoadmap.md # Updated with all features completed (UPDATED Nov 17, 2025)
+│   ├── session-summary-2025-01-28.md # Session summary
+│   ├── Shared_Hosting_QuickSetup_Guide.md # Deployment guide
+│   ├── styleAesthetic.md
+│   └── techStack.md # Updated with Quill.js (UPDATED Nov 17, 2025)
+├── AUTHENTICATION_IMPLEMENTATION.md # Auth implementation notes (DELETED - moved to docs/)
+├── CLAUDE.md # Claude Code instructions
+├── COMMIT_MESSAGE.md # Commit message draft
+├── composer.json
+├── README.md
 ├── portfolio-website/
+│   ├── .htaccess # Updated for subdirectory routing (FIXED Nov 9, 2025)
 │   ├── app/
 │   │   ├── config/
 │   │	 │ 		├── config.php
 │   │   │		└── database.php #Database Configuration
 │   │   ├── controllers/
-│   │   │		├── AdminController.php
-│   │   │		├── AuthController.php
+│   │   │		├── AdminController.php # Admin dashboard (IMPLEMENTED)
+│   │   │		├── AuthController.php # Authentication (IMPLEMENTED)
 │   │   │		├── BaseController.php
 │   │   │		├── BlogController.php
 │   │   │		├── ClientsController.php # Corrected namespace
@@ -25,25 +38,34 @@ vuyaniM01/
 │   │   │		├── App.php
 │   │   │		├── Database.php
 │   │   │		├── Helpers.php
-│   │   │		└── Router.php
+│   │   │		├── Router.php
+│   │   │		└── Session.php # Session management with security features (IMPLEMENTED)
 │   │   ├── data/
 │   │   │		└── blog_dummy_data.php # Dummy data for blog posts
 │   │   ├── models/
 │   │   │		├── BaseModel.php
-│   │   │		├── BlogPost.php
+│   │   │		├── BlogPost.php # Enhanced with admin CRUD methods
+│   │   │		├── Category.php # Category management (CREATED Nov 17, 2025)
 │   │   │		├── Client.php
 │   │   │		├── Contact.php
-│   │   │		├── Project.php
-│   │   │		├── Resource.php
-│   │   │		└── User.php
+│   │   │		├── Project.php # Complete project CRUD (CREATED Nov 17, 2025)
+│   │   │		├── Resource.php # Enhanced with file management (Nov 17, 2025)
+│   │   │		├── Tag.php # Tag management (CREATED Nov 17, 2025)
+│   │   │		└── User.php # User authentication + management (ENHANCED Nov 17, 2025)
 │   │   └── views/
 │   │       ├── admin/
-│   │       │		├── blog.php
-│   │       │		├── dashboard.php
-│   │       │		├── projects.php
-│   │       │		└── resources.php
+│   │       │		├── blog.php # Blog listing (ENHANCED Nov 17, 2025)
+│   │       │		├── blog_form.php # Blog create/edit with Quill (CREATED Nov 17, 2025)
+│   │       │		├── categories.php # Category management (CREATED Nov 17, 2025)
+│   │       │		├── contacts.php # Contact submissions (CREATED Nov 17, 2025)
+│   │       │		├── dashboard.php # Enhanced dashboard with stats (UPDATED Nov 17, 2025)
+│   │       │		├── project_form.php # Project create/edit with gallery (CREATED Nov 17, 2025)
+│   │       │		├── projects.php # Project listing (CREATED Nov 17, 2025)
+│   │       │		├── resource_form.php # Resource upload form (CREATED Nov 17, 2025)
+│   │       │		├── resources.php # Resource listing (CREATED Nov 17, 2025)
+│   │       │		└── users.php # User management (CREATED Nov 17, 2025)
 │   │       ├── auth/
-│   │       │		├── login.php
+│   │       │		├── login.php # Login page (IMPLEMENTED)
 │   │       │		└── register.php
 │   │       ├── blog/
 │   │       │		├── article.php
@@ -58,12 +80,13 @@ vuyaniM01/
 │   │       ├── home/
 │   │       │		└── index.php
 │   │       ├── layouts/
-│   │       │		├── admin.php
+│   │       │		├── admin.php # Unified admin layout (CREATED Nov 17, 2025)
 │   │       │		└── main.php
 │   │       ├── partials/
+│   │       │		├── admin_sidebar.php # Admin navigation sidebar (CREATED Nov 17, 2025)
 │   │       │		├── footer.php # Make sure $baseUrl is available
 │   │       │		└── header.php # Function to check if current page matches the given path
-│   │       │		└── projects/
+│   │       └── projects/
 │   │       ├── app_dev.php
 │   │       		├── digital_design.php
 │   │       		├── game_dev.php
@@ -77,13 +100,15 @@ vuyaniM01/
 │   ├── public/
 │   │   ├── css/
 │   │   │   ├── themes/
-│   │   │   ├── dark.css
-│   │   │   └── light.css
-│   │   ├── main.css # Reset and base styles
-│   │   └── responsive.css # Mobile Navigation Styles
+│   │   │   │   ├── dark.css
+│   │   │   │   └── light.css
+│   │   │   ├── admin.css # Complete admin panel styling (CREATED Nov 17, 2025)
+│   │   │   ├── main.css # Reset and base styles
+│   │   │   └── responsive.css # Mobile Navigation Styles
 │   │   ├── fonts/
 │   │   ├── images/
 │   │   │   ├── blog/
+│   │   │   │   └── uploads/ # Blog featured images
 │   │   │   ├── clients/
 │   │   │   ├── favicon/
 │   │   │   │		├── about.txt # fonts.gstatic.com/s/ojuju/v4/7r3bqXF7v9ApbrMih3jYQBVm9-n_rZ4552FRLYeruQ.ttf
@@ -96,6 +121,8 @@ vuyaniM01/
 │   │   │   │		└── site.webmanifest
 │   │   │   ├── logo/
 │   │   │   └── projects/
+│   │   │   │   ├── uploads/ # Project featured images (CREATED Nov 17, 2025)
+│   │   │   │   └── gallery/ # Project gallery images (CREATED Nov 17, 2025)
 │   │   ├── digitaldesignIcon.jpeg
 │   │   ├── gameDev.jpeg
 │   │   ├── headerImg.jpg
@@ -118,6 +145,7 @@ vuyaniM01/
 │   │   │   ├── components/
 │   │   │   │		├── animations.js
 │   │   │   │		└── navigation.js
+│   │   │	 ├── admin.js # Admin panel interactive features (CREATED Nov 17, 2025)
 │   │   │	 ├── app.js # Animation for the hero section
 │   │   │	 ├── blog.js # Animation for blog elements
 │   │   │	 ├── mobile-nav.js # Mobile navigation toggling
@@ -125,7 +153,11 @@ vuyaniM01/
 │   │   │	 ├── projects.js # Project filtering functionality
 │   │   │	 └── theme.js # Light/Dark mode toggle - select by class since that's what's in the header.php
 │   │   ├── resources/
+│   │   ├── uploads/
+│   │   │   └── resources/ # Uploaded resource files (CREATED Nov 17, 2025)
 │   └── index.php # File: public/index.php
+│   ├── create_test_user.php # Test script to create admin users (IMPLEMENTED)
+│   ├── test_auth.php # Authentication testing script (IMPLEMENTED)
 │   ├── vendor/
 │   │   ├── composer/
 │   │   	├── ClassLoader.php

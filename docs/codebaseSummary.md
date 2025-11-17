@@ -16,6 +16,10 @@ The application follows a custom MVC pattern. `public/index.php` initializes the
 -   Fixed a path resolution error in `main.php` and `header.php` by replacing `__DIR__ . '/../../config/config.php'` with `dirname(__DIR__, 2) . '/config/config.php'`. This ensures cross-platform compatibility and resolves "Permission denied" errors.
 -   Added a safety check in `footer.php` to ensure `$baseUrl` is available.
 -   Ensured consistent path handling by using `dirname(__DIR__)` for relative paths to partials and other view files.
+-   **Implemented complete authentication system (November 9, 2025)** - See "Authentication & Session Management" section below.
+-   **Fixed localhost routing** - Updated `.htaccess` to support subdirectory access at `localhost/vuyaniM01/portfolio-website/`.
+-   **Fixed Resource.php method signature error** - Corrected to use `parent::getById()` for proper inheritance.
+-   **Implemented complete admin panel (November 17, 2025)** - See "Admin Panel & Content Management" section below.
 
 ### Blog Section Implementation
 -   **Controllers Created:**
@@ -89,6 +93,304 @@ The application follows a custom MVC pattern. `public/index.php` initializes the
         -   Featured posts selection
         -   Categories and tags structure
         -   Author information and publication dates
+
+### Authentication & Session Management (Implemented November 9, 2025)
+-   **Core Components:**
+    -   `Session.php` (`app/core/Session.php`) - Comprehensive session management class
+        -   Session initialization with secure cookie configuration
+        -   CSRF token generation and validation
+        -   Session timeout management (30-minute inactivity timeout)
+        -   Login attempt tracking with brute force protection
+        -   Flash message system for user feedback
+        -   Remember Me token handling
+        -   Session fixation prevention via regeneration
+    -   `AuthController.php` (`app/controllers/AuthController.php`) - Authentication controller
+        -   Login form display with CSRF protection
+        -   Secure authentication with username/email support
+        -   Password verification using password_verify()
+        -   Remember Me cookie handling (30-day expiration)
+        -   Auto-login via remember token validation
+        -   Logout functionality with token cleanup
+        -   Access control middleware (requireAuth, requireAdmin)
+    -   `AdminController.php` (`app/controllers/AdminController.php`) - Admin dashboard controller
+        -   Protected routes requiring authentication
+        -   Dashboard interface with user information
+        -   User management interface (admin only)
+        -   Blog, projects, and contact submissions management placeholders
+    -   `User.php` (`app/models/User.php`) - User data model
+        -   User lookup by username, email, ID, or remember token
+        -   Secure password hashing with bcrypt (cost factor 12)
+        -   Password verification
+        -   Remember token management (SHA-256 hashing)
+        -   Last login timestamp tracking
+        -   User activation/deactivation
+        -   Admin user listing
+-   **Views (Templates) Created:**
+    -   `auth/login.php` (`app/views/auth/login.php`) - Login interface
+        -   Modern, responsive design with theme support
+        -   Password visibility toggle
+        -   Remember Me checkbox
+        -   CSRF token hidden field
+        -   Error and success message display
+        -   Accessible form controls
+    -   `admin/dashboard.php` (`app/views/admin/dashboard.php`) - Admin dashboard
+        -   Clean interface with user greeting
+        -   Navigation to admin features
+        -   Logout button
+        -   Success message display
+-   **Security Features:**
+    -   Password Security:
+        -   Bcrypt hashing with cost factor 12
+        -   Automatic salt generation
+        -   Secure password verification
+    -   CSRF Protection:
+        -   Token generation using random_bytes(32)
+        -   Timing-safe comparison with hash_equals()
+        -   Token validation on all state-changing operations
+    -   Session Security:
+        -   HttpOnly cookies (no JavaScript access)
+        -   Secure cookies in HTTPS environments
+        -   SameSite=Lax for CSRF protection
+        -   30-minute inactivity timeout
+        -   Session regeneration on login
+    -   Brute Force Protection:
+        -   Login attempt tracking per username
+        -   5 failed attempts = 15-minute lockout
+        -   Automatic lockout expiration
+        -   User feedback on remaining attempts
+    -   Remember Me Security:
+        -   Cryptographically secure token generation (64 characters)
+        -   SHA-256 hashing before database storage
+        -   Token regeneration on each use
+        -   30-day cookie expiration
+        -   Secure cookie configuration
+-   **Database Schema:**
+    -   `users` table with fields:
+        -   id, username, email, password (bcrypt hash)
+        -   first_name, last_name, role (admin/user)
+        -   remember_token (SHA-256 hash or NULL)
+        -   is_active (account status)
+        -   created_at, updated_at (timestamps)
+-   **Testing Scripts:**
+    -   `create_test_user.php` - Utility to create test admin users
+    -   `test_auth.php` - Authentication logic testing script
+-   **Documentation:**
+    -   `AUTHENTICATION_IMPLEMENTATION.md` - Implementation notes
+    -   `docs/AUTHENTICATION_SYSTEM.md` - Complete system documentation
+
+### Localhost Routing Fix (November 9, 2025)
+-   **Problem:** Application not accessible via `localhost/vuyaniM01/portfolio-website/`
+-   **Root Cause:** `.htaccess` using absolute paths assuming DocumentRoot
+-   **Solution:** Updated `portfolio-website/.htaccess`
+    -   Added `RewriteBase /vuyaniM01/portfolio-website/`
+    -   Changed rewrite rules from absolute paths (`/public/`) to relative paths (`public/`)
+    -   Updated RewriteCond to check for full subdirectory path
+-   **Result:** Application now works correctly at `localhost/vuyaniM01/portfolio-website/`
+
+### Admin Panel & Content Management (Implemented November 17, 2025)
+-   **Infrastructure Files:**
+    -   `public/css/admin.css` (1000+ lines) - Complete admin panel styling
+        -   Layout structure (sidebar, main content, header)
+        -   UI components (buttons, cards, alerts, forms, tables, modals)
+        -   Statistics grid and dashboard widgets
+        -   Pagination and filtering controls
+        -   Responsive design for mobile admin access
+        -   Theme-aware styling (light/dark mode support)
+    -   `public/js/admin.js` (600+ lines) - Interactive admin features
+        -   Theme toggle functionality
+        -   Modal dialog system (open, close, data handling)
+        -   Form validation and submission handling
+        -   Slug generation from titles
+        -   Image upload with preview (drag & drop support)
+        -   Gallery management (add, remove, reorder)
+        -   AJAX featured toggle
+        -   Character counters for text fields
+        -   File upload progress tracking
+    -   `app/views/layouts/admin.php` - Unified admin layout template
+    -   `app/views/partials/admin_sidebar.php` - Reusable navigation sidebar
+    -   Upload directories created:
+        -   `public/images/projects/uploads/` - Project featured images
+        -   `public/images/projects/gallery/` - Project gallery images
+        -   `public/uploads/resources/` - Downloadable resource files
+
+-   **Models Enhanced/Created:**
+    -   `Project.php` (580 lines) - Complete project management
+        -   `getAllProjects()` - Listing with filters (status, category, search, pagination)
+        -   `getProjectCount()` - Total count for pagination
+        -   `getProjectById()` - Single project with all details
+        -   `createProject()` - Create with validation
+        -   `updateProject()` - Update existing project
+        -   `deleteProject()` - Remove project and associated images
+        -   `toggleFeatured()` - Toggle featured status
+        -   `generateSlug()` - URL-friendly slug with uniqueness check
+        -   `getProjectImages()` - Get gallery images
+        -   `addProjectImage()` - Add to gallery with ordering
+        -   `deleteProjectImage()` - Remove gallery image
+        -   `getAllPublished()` - Public-facing method
+        -   `getFeaturedProjects()` - Featured projects for homepage
+    -   `Resource.php` (Enhanced with 380+ lines) - Resource file management
+        -   `getAllResources()` - Admin listing with search and pagination
+        -   `getResourceCount()` - Total count
+        -   `getResourceById()` - Admin version (includes drafts)
+        -   `createResource()` - Create with file metadata
+        -   `updateResource()` - Update resource details
+        -   `deleteResource()` - Remove resource and file
+        -   `generateSlug()` - Unique slug generation
+        -   `validateFileType()` - Check allowed file types (15+ supported)
+        -   `formatFileSize()` - Human-readable file sizes
+        -   `getFileIcon()` - Font Awesome icon mapping
+        -   Supported file types: PDF, DOCX, TXT, ZIP, RAR, TAR, GZIP, JSON, CSV, SQL, PHP, JS, HTML, CSS, images
+    -   `User.php` (Enhanced with 90+ lines) - User management
+        -   `create()` - Create new user with password hashing
+        -   `update()` - Update user details (username, email, role)
+        -   `delete()` - Remove user account
+        -   Existing methods: findByUsername, findByEmail, findById, activate, deactivate, getAllAdmins
+    -   `Category.php` - Blog/project category management
+    -   `Tag.php` - Content tagging system
+    -   `BlogPost.php` - Enhanced with admin methods (from previous session)
+
+-   **Controller Expansion:**
+    -   `AdminController.php` (Enhanced from 522 to 1300+ lines, 43 total methods)
+        -   **Dashboard Methods:**
+            -   `index()` - Dashboard with 12 statistics and recent activity
+        -   **Blog Management (10 methods):**
+            -   `blog()` - Blog post listing with filters
+            -   `createBlogPost()` - Show creation form
+            -   `storeBlogPost()` - Handle post creation with validation
+            -   `editBlogPost()` - Show edit form
+            -   `updateBlogPost()` - Handle post update
+            -   `deleteBlogPost()` - Remove post
+            -   `uploadBlogImage()` - AJAX image upload
+            -   `toggleFeatured()` - Toggle featured status (posts and projects)
+        -   **Category Management (5 methods):**
+            -   `categories()` - Category listing
+            -   `createCategory()` - AJAX category creation
+            -   `updateCategory()` - AJAX category update
+            -   `deleteCategory()` - AJAX category deletion
+        -   **Project Management (10 methods):**
+            -   `projects()` - Project listing with filters
+            -   `createProject()` - Show creation form
+            -   `storeProject()` - Handle creation with gallery
+            -   `editProject()` - Show edit form with gallery
+            -   `updateProject()` - Handle update with gallery changes
+            -   `deleteProject()` - Remove project and images
+            -   `uploadProjectImage()` - AJAX upload (featured & gallery)
+            -   `validateProject()` - Server-side validation
+        -   **Resource Management (10 methods):**
+            -   `resources()` - Resource listing with search
+            -   `createResource()` - Show upload form
+            -   `storeResource()` - Handle file upload and creation
+            -   `editResource()` - Show edit form
+            -   `updateResource()` - Handle resource update
+            -   `deleteResource()` - Remove resource and file
+            -   `uploadResourceFile()` - AJAX file upload (50MB max)
+            -   `validateResource()` - Server-side validation
+        -   **User Management (5 methods):**
+            -   `users()` - User listing (admin only)
+            -   `createUser()` - AJAX user creation with validation
+            -   `updateUser()` - AJAX user update with uniqueness checks
+            -   `resetUserPassword()` - AJAX password reset (8 char min)
+            -   `deleteUser()` - AJAX deletion with self-deletion prevention
+        -   **Contact Management (3 methods):**
+            -   `contacts()` - View all submissions
+            -   `markContactRead()` - AJAX mark as read
+            -   `deleteContact()` - AJAX deletion
+
+-   **Admin Views Created:**
+    -   `admin/dashboard.php` (480 lines) - Enhanced dashboard
+        -   Welcome banner with user greeting
+        -   Statistics grid: 4 cards (Blog, Projects, Resources, Messages)
+        -   Quick actions: 4 buttons for common tasks
+        -   Recent activity: 3 sections (Posts, Projects, Messages)
+        -   System information card
+    -   `admin/blog.php` (from previous session) - Blog post listing
+        -   Filters: status, category, search
+        -   Bulk actions and featured toggle
+        -   Pagination with 20 posts per page
+    -   `admin/blog_form.php` (from previous session) - Blog post form
+        -   Quill rich text editor (v1.3.6)
+        -   Featured image upload
+        -   Category and tag selection
+        -   SEO metadata fields
+        -   Status and visibility controls
+    -   `admin/categories.php` (from previous session) - Category management
+        -   AJAX create, update, delete
+        -   Post count per category
+        -   Slug auto-generation
+    -   `admin/projects.php` (340 lines) - Project listing
+        -   Filters: status, category, search
+        -   Featured toggle with AJAX
+        -   Gallery image count display
+        -   Pagination and sorting
+    -   `admin/project_form.php` (850 lines) - Project creation/editing
+        -   Quill rich text editor for description
+        -   Featured image upload with preview
+        -   Multi-image gallery management (drag & drop)
+        -   Client information fields
+        -   Technology tags
+        -   Project URL and repository links
+        -   Status and visibility controls
+        -   Gallery image reordering
+    -   `admin/resources.php` (320 lines) - Resource listing
+        -   File type badges and icons
+        -   Download count tracking
+        -   File size display
+        -   Login requirement indicator
+        -   Search and pagination
+    -   `admin/resource_form.php` (650 lines) - Resource upload
+        -   File upload with drag & drop (50MB max)
+        -   Thumbnail image upload
+        -   File type detection and validation
+        -   Supported formats grid display
+        -   Login requirement toggle
+        -   Status control
+    -   `admin/contacts.php` (360 lines) - Contact submissions
+        -   Unread highlighting
+        -   Mark as read functionality
+        -   Delete submissions
+        -   Email reply links
+        -   Expandable message view
+        -   Statistics: total and unread counts
+    -   `admin/users.php` (500 lines) - User management
+        -   User listing with role badges
+        -   Current user highlighting
+        -   Create user modal
+        -   Edit user modal
+        -   Reset password modal
+        -   Delete with confirmation
+        -   Self-deletion prevention
+        -   Role management (admin/editor)
+
+-   **Features Implemented:**
+    -   Rich text editing with Quill.js (v1.3.6)
+    -   Multi-image gallery management with ordering
+    -   File upload system (images: 5MB, resources: 50MB)
+    -   AJAX operations for seamless user experience
+    -   Featured content toggle for posts and projects
+    -   Automatic slug generation with uniqueness validation
+    -   Search and filtering across all content types
+    -   Pagination (20 items per page)
+    -   Role-based access control (admin/editor)
+    -   Statistics dashboard with real-time counts
+    -   Responsive admin design with theme support
+    -   Drag & drop file/image uploads
+    -   Character counters for validation
+    -   Modal-based operations for quick edits
+    -   Flash message system for user feedback
+
+-   **Security Measures:**
+    -   CSRF protection on all forms
+    -   File type validation on uploads
+    -   File size limits enforced
+    -   SQL injection prevention via prepared statements
+    -   XSS prevention via htmlspecialchars()
+    -   Role-based authorization checks
+    -   Self-deletion prevention for users
+    -   Secure file upload directories
+
+### Test Scripts & Development Utilities
+-   `portfolio-website/create_test_user.php` - Create test admin users for authentication testing
+-   `portfolio-website/test_auth.php` - Test authentication logic, password hashing, and user lookup
 
 ### User Feedback Integration and Its Impact on Development
 -   Not applicable yet.

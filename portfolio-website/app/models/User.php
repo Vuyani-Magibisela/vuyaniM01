@@ -239,4 +239,85 @@ class User extends BaseModel {
             return false;
         }
     }
+
+    /**
+     * Create new user
+     */
+    public function create($data) {
+        if (!$this->isConnected()) {
+            return false;
+        }
+
+        try {
+            $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT, ['cost' => 12]);
+
+            $query = "INSERT INTO {$this->table} (username, email, password, role, created_at, updated_at)
+                      VALUES (:username, :email, :password, :role, NOW(), NOW())";
+
+            $params = [
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'password' => $hashedPassword,
+                'role' => $data['role'] ?? 'editor'
+            ];
+
+            $result = $this->query($query, $params, false);
+
+            if ($result !== false) {
+                return $this->db->lastInsertId();
+            }
+
+            return false;
+        } catch (Exception $e) {
+            error_log('User creation error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Update user information
+     */
+    public function update($userId, $data) {
+        if (!$this->isConnected()) {
+            return false;
+        }
+
+        try {
+            $query = "UPDATE {$this->table}
+                      SET username = :username,
+                          email = :email,
+                          role = :role,
+                          updated_at = NOW()
+                      WHERE id = :id";
+
+            $params = [
+                'id' => $userId,
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'role' => $data['role'] ?? 'editor'
+            ];
+
+            return $this->query($query, $params, false) !== false;
+        } catch (Exception $e) {
+            error_log('User update error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Delete user
+     */
+    public function delete($userId) {
+        if (!$this->isConnected()) {
+            return false;
+        }
+
+        try {
+            $query = "DELETE FROM {$this->table} WHERE id = :id";
+            return $this->query($query, ['id' => $userId], false) !== false;
+        } catch (Exception $e) {
+            error_log('User deletion error: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
