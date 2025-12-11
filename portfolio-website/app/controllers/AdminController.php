@@ -4,11 +4,33 @@ namespace App\Controllers;
 
 use App\Core\Session;
 
+// Explicitly require AuthController since it's not auto-loaded
+require_once dirname(__DIR__) . '/controllers/AuthController.php';
+
+use App\Controllers\AuthController;
+
 class AdminController extends BaseController {
 
     public function __construct() {
         // Require authentication for all admin pages
         AuthController::requireAuth();
+    }
+
+    /**
+     * Override view method to automatically include baseUrl
+     */
+    protected function view(string $view, array $data = []) {
+        // Detect environment and set base URL
+        if ($_SERVER['HTTP_HOST'] === 'localhost' ||
+            strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+            strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
+            $baseUrl = '/vuyaniM01/portfolio-website/public';
+        } else {
+            $baseUrl = '/public';
+        }
+
+        $data['baseUrl'] = $baseUrl;
+        parent::view($view, $data);
     }
 
     /**
@@ -171,7 +193,7 @@ class AdminController extends BaseController {
         }
 
         // Update user
-        $success = $userModel->update($id, [
+        $success = $userModel->updateUser($id, [
             'username' => $data['username'],
             'email' => $data['email'],
             'role' => $data['role'] ?? 'editor'
@@ -244,7 +266,7 @@ class AdminController extends BaseController {
 
         $userModel = $this->model('User');
 
-        $success = $userModel->delete($id);
+        $success = $userModel->deleteUser($id);
 
         if ($success) {
             echo json_encode(['success' => true]);

@@ -241,9 +241,9 @@ class User extends BaseModel {
     }
 
     /**
-     * Create new user
+     * Create new user (basic registration)
      */
-    public function create($data) {
+    public function createBasicUser($data) {
         if (!$this->isConnected()) {
             return false;
         }
@@ -277,7 +277,7 @@ class User extends BaseModel {
     /**
      * Update user information
      */
-    public function update($userId, $data) {
+    public function updateUser($userId, $data) {
         if (!$this->isConnected()) {
             return false;
         }
@@ -307,7 +307,7 @@ class User extends BaseModel {
     /**
      * Delete user
      */
-    public function delete($userId) {
+    public function deleteUser($userId) {
         if (!$this->isConnected()) {
             return false;
         }

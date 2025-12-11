@@ -68,7 +68,7 @@ class BlogController extends BaseController {
         $isLoggedIn = isset($_SESSION['user_id']);
         
         $resourceModel = $this->model('Resource');
-        $resource = $resourceModel->getById($resourceId);
+        $resource = $resourceModel->findById($resourceId);
         
         if (!$resource) {
             // Resource not found

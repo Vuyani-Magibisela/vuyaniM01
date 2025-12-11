@@ -41,7 +41,7 @@ class Resource extends BaseModel {
         return $this->query($query);
     }
     
-    public function getById($id) {
+    public function findById($id) {
         // Check if we're using dummy data
         if (isset($this->dummyData)) {
             foreach ($this->dummyData['resources'] as $resource) {
@@ -51,7 +51,7 @@ class Resource extends BaseModel {
             }
             return null;
         }
-        
+
         // Use database if available
         return parent::getById($this->table, $id);
     }

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Core\BaseModel;
 use PDO;
 
 class Project extends BaseModel

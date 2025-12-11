@@ -16,9 +16,11 @@ class AuthController extends BaseController {
      * Display login form
      */
     public function index() {
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
         // Check if already authenticated
         if (Session::isAuthenticated()) {
-            header('Location: /admin');
+            header('Location: ' . $baseUrl . '/admin');
             exit;
         }
 
@@ -31,7 +33,8 @@ class AuthController extends BaseController {
                 'title' => 'Login - Vuyani Magibisela',
                 'error' => Session::getFlash('error'),
                 'success' => Session::getFlash('success'),
-                'csrf_token' => Session::generateCsrfToken()
+                'csrf_token' => Session::generateCsrfToken(),
+                'baseUrl' => $baseUrl
             ];
 
             $this->view('auth/login', $data);
@@ -42,9 +45,11 @@ class AuthController extends BaseController {
      * Process login attempt
      */
     public function authenticate() {
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
         // Only accept POST requests
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /auth');
+            header('Location: ' . $baseUrl . '/auth');
             exit;
         }
 
@@ -52,7 +57,7 @@ class AuthController extends BaseController {
         $csrfToken = $_POST['csrf_token'] ?? '';
         if (!Session::verifyCsrfToken($csrfToken)) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header('Location: /auth');
+            header('Location: ' . $baseUrl . '/auth');
             exit;
         }
 
@@ -64,7 +69,7 @@ class AuthController extends BaseController {
         // Validate input
         if (empty($username) || empty($password)) {
             Session::setFlash('error', 'Please provide both username and password.');
-            header('Location: /auth');
+            header('Location: ' . $baseUrl . '/auth');
             exit;
         }
 
@@ -73,7 +78,7 @@ class AuthController extends BaseController {
             $remaining = Session::getLockoutRemaining($username);
             $minutes = ceil($remaining / 60);
             Session::setFlash('error', "Too many failed login attempts. Please try again in {$minutes} minute(s).");
-            header('Location: /auth');
+            header('Location: ' . $baseUrl . '/auth');
             exit;
         }
 
@@ -95,7 +100,7 @@ class AuthController extends BaseController {
                 Session::setFlash('error', 'Too many failed attempts. Account locked for 15 minutes.');
             }
 
-            header('Location: /auth');
+            header('Location: ' . $baseUrl . '/auth');
             exit;
         }
 
@@ -113,7 +118,7 @@ class AuthController extends BaseController {
 
         // Redirect to admin dashboard
         Session::setFlash('success', 'Welcome back, ' . $user->first_name . '!');
-        header('Location: /admin');
+        header('Location: ' . $baseUrl . '/admin');
         exit;
     }
 
@@ -191,6 +196,8 @@ class AuthController extends BaseController {
      * Check and process remember me cookie
      */
     private function checkRememberMe() {
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
         // Skip if already authenticated
         if (Session::isAuthenticated()) {
             return;
@@ -216,11 +223,135 @@ class AuthController extends BaseController {
             $this->setRememberMeCookie($user->id);
 
             // Redirect to admin
-            header('Location: /admin');
+            header('Location: ' . $baseUrl . '/admin');
             exit;
         } else {
             // Invalid token, clear cookie
             $this->clearRememberMeCookie();
+        }
+    }
+
+    /**
+     * Display registration form
+     */
+    public function register() {
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
+        // Check if already authenticated
+        if (Session::isAuthenticated()) {
+            header('Location: ' . $baseUrl . '/admin');
+            exit;
+        }
+
+        $data = [
+            'title' => 'Sign Up - Vuyani Magibisela',
+            'error' => Session::getFlash('error'),
+            'success' => Session::getFlash('success'),
+            'csrf_token' => Session::generateCsrfToken(),
+            'baseUrl' => $baseUrl
+        ];
+
+        $this->view('auth/register', $data);
+    }
+
+    /**
+     * Process registration form submission
+     */
+    public function processRegistration() {
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
+        // Only accept POST requests
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . $baseUrl . '/auth/register');
+            exit;
+        }
+
+        // Verify CSRF token
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (!Session::verifyCsrfToken($csrfToken)) {
+            Session::setFlash('error', 'Invalid request. Please try again.');
+            header('Location: ' . $baseUrl . '/auth/register');
+            exit;
+        }
+
+        // Get registration data
+        $username = trim($_POST['username'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        $firstName = trim($_POST['first_name'] ?? '');
+        $lastName = trim($_POST['last_name'] ?? '');
+
+        // Validate input
+        $errors = [];
+
+        if (empty($username)) {
+            $errors[] = 'Username is required.';
+        } elseif (strlen($username) < 3) {
+            $errors[] = 'Username must be at least 3 characters.';
+        }
+
+        if (empty($email)) {
+            $errors[] = 'Email is required.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Invalid email format.';
+        }
+
+        if (empty($password)) {
+            $errors[] = 'Password is required.';
+        } elseif (strlen($password) < 8) {
+            $errors[] = 'Password must be at least 8 characters.';
+        }
+
+        if ($password !== $confirmPassword) {
+            $errors[] = 'Passwords do not match.';
+        }
+
+        if (empty($firstName)) {
+            $errors[] = 'First name is required.';
+        }
+
+        if (empty($lastName)) {
+            $errors[] = 'Last name is required.';
+        }
+
+        // Check if username already exists
+        if ($this->userModel->findByUsername($username)) {
+            $errors[] = 'Username already taken.';
+        }
+
+        // Check if email already exists
+        if ($this->userModel->findByEmail($email)) {
+            $errors[] = 'Email already registered.';
+        }
+
+        // If validation errors, redirect back
+        if (!empty($errors)) {
+            Session::setFlash('error', implode(' ', $errors));
+            header('Location: ' . $baseUrl . '/auth/register');
+            exit;
+        }
+
+        // Create new user
+        $userData = [
+            'username' => $username,
+            'email' => $email,
+            'password' => $password,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'role' => 'user' // Default role
+        ];
+
+        $userId = $this->userModel->createBasicUser($userData);
+
+        if ($userId) {
+            Session::setFlash('success', 'Registration successful! Please login.');
+            header('Location: ' . $baseUrl . '/auth');
+            exit;
+        } else {
+            Session::setFlash('error', 'Registration failed. Please try again.');
+            header('Location: ' . $baseUrl . '/auth/register');
+            exit;
         }
     }
 
