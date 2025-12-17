@@ -1,14 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Light/Dark mode toggle - select by class since that's what's in the header.php
     const themeToggle = document.querySelector('.light-mode');
-    
+
     if (!themeToggle) {
         console.error("Theme toggle element not found");
         return;
     }
-    
-    // Check if dark mode is active by seeing if body has the dark-mode class
-    let isDarkMode = document.body.classList.contains('dark-mode');
+
+    // Get theme from localStorage (consistent with all pages)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    let isDarkMode = savedTheme === 'dark';
+
+    // Apply saved theme on page load
+    if (isDarkMode) {
+        enableDarkMode();
+    } else {
+        enableLightMode();
+    }
     
     themeToggle.addEventListener('click', (e) => {
         e.preventDefault();
@@ -20,9 +28,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         isDarkMode = !isDarkMode;
-        
-        // Save theme preference in cookie
-        setCookie('theme', isDarkMode ? 'dark' : 'light', 365);
+
+        // Save theme preference in localStorage (consistent with all pages)
+        const newTheme = isDarkMode ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
     });
     
     function enableDarkMode() {
@@ -87,19 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     
-    // Helper function to set a cookie
-    function setCookie(name, value, days) {
-        let expires = "";
-        if (days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + date.toUTCString();
-        }
-        document.cookie = name + "=" + (value || "") + expires + "; path=/";
-    }
-    
-    // Initialize element colors based on current theme
-    if (isDarkMode) {
-        updateElementColors();
-    }
+    // Update colors on page load based on saved theme
+    updateElementColors();
 });

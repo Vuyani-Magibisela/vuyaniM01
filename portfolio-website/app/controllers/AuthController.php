@@ -126,6 +126,8 @@ class AuthController extends BaseController {
      * Logout user
      */
     public function logout() {
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
         // Clear remember me cookie
         $this->clearRememberMeCookie();
 
@@ -140,9 +142,9 @@ class AuthController extends BaseController {
         // Destroy session
         Session::logout();
 
-        // Redirect to login
+        // Redirect to home page
         Session::setFlash('success', 'You have been logged out successfully.');
-        header('Location: /auth');
+        header('Location: ' . $baseUrl);
         exit;
     }
 

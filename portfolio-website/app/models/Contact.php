@@ -74,10 +74,10 @@ class Contact extends BaseModel {
         if (!$this->isConnected()) {
             return 0;
         }
-        
+
         $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE is_read = 0";
         $result = $this->query($query, [], false);
-        return $result ? $result->count : 0;
+        return $result ? (int)$result['count'] : 0;
     }
     
     public function deleteSubmission($id) {

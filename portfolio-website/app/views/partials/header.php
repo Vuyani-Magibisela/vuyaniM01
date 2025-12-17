@@ -29,9 +29,12 @@ function isActivePage($pageName) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Custom Stylesheets -->
-    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/main.css">
-    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/responsive.css">
-    
+    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/main.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/responsive.css?v=<?php echo time(); ?>">
+
+    <!-- Theme Initializer - Load immediately to prevent flash -->
+    <script src="<?php echo $baseUrl; ?>/js/theme-init.js"></script>
+
     <!-- Analytics and Tracking Scripts -->
     <!-- Consent Manager for GDPR Compliance -->
     <script type="text/javascript" data-cmp-ab="1" src="https://cdn.consentmanager.net/delivery/autoblocking/6e62a22472408.js" data-cmp-host="b.delivery.consentmanager.net" data-cmp-cdn="cdn.consentmanager.net" data-cmp-codesrc="16"></script>
@@ -66,6 +69,7 @@ function isActivePage($pageName) {
             <a href="<?php echo $baseUrl; ?>/blog" class="<?php echo isActivePage('blog') ? 'active' : ''; ?>">Blog</a>
             <a href="<?php echo $baseUrl; ?>/contact" class="<?php echo isActivePage('contact') ? 'active' : ''; ?>">Contact</a>
             <a href="#" class="light-mode" id="theme-toggle"><?php echo isset($_COOKIE['theme']) && $_COOKIE['theme'] === 'dark' ? '🌙' : '🌞'; ?></a>
+            <a href="<?php echo $baseUrl; ?>/auth" class="nav-login-btn">Login</a>
         </nav>
     </header>
 </div>
@@ -95,6 +99,7 @@ function isActivePage($pageName) {
             <a href="<?php echo $baseUrl; ?>/projects" class="<?php echo isActivePage('projects') ? 'active' : ''; ?>">Projects</a>
             <a href="<?php echo $baseUrl; ?>/blog" class="<?php echo isActivePage('blog') ? 'active' : ''; ?>">Blogs</a>
             <a href="<?php echo $baseUrl; ?>/contact" class="<?php echo isActivePage('contact') ? 'active' : ''; ?>">Contacts</a>
+            <a href="<?php echo $baseUrl; ?>/auth" class="mobile-login-btn">Login</a>
         </nav>
     </div>
 </div>

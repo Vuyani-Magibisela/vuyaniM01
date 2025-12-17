@@ -1,9 +1,55 @@
-/* Reset and base styles */
+/* ========================================
+   CSS CUSTOM PROPERTIES (Variables)
+   ======================================== */
+:root {
+  /* Colors */
+  --color-primary: #f5b642;
+  --color-bg-light: #f9f9f9;
+  --color-bg-dark: #1a1a1a;
+  --color-text-light: #333;
+  --color-text-dark: #f9f9f9;
+  --color-gray: #666;
+  --color-gray-light: #ccc;
+  --color-dark: #3a3a3a;
+  --color-white: #fff;
+  --color-black: #000;
+
+  /* Spacing */
+  --spacing-xs: 5px;
+  --spacing-sm: 10px;
+  --spacing-md: 20px;
+  --spacing-lg: 40px;
+  --spacing-xl: 60px;
+
+  /* Typography */
+  --font-main: 'Courier New', monospace;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.5rem;
+  --font-size-xl: 2.5rem;
+
+  /* Border radius */
+  --radius-sm: 5px;
+  --radius-md: 10px;
+  --radius-lg: 20px;
+  --radius-round: 50%;
+
+  /* Transitions */
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+  --transition-slow: 0.5s;
+
+  /* Container width */
+  --container-max-width: 1200px;
+}
+
+/* ========================================
+   RESET AND BASE STYLES
+   ======================================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-main);
 }
 
 /* Global link style */
@@ -12,15 +58,15 @@ a {
 }
 
 body {
-  background-color: #f9f9f9;
-  color: #333;
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
   overflow-x: hidden;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 var(--spacing-md);
 }
 
 /* Header styles */
@@ -51,14 +97,27 @@ header {
 }
 
 .desktop-navigation a:hover {
-  color: #f5b642;
+  color: var(--color-primary);
 }
 
 .desktop-navigation a.active {
-  background-color: #f5b642;
-  color: #fff;
-  border-radius: 20px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-radius: var(--radius-lg);
   padding: 5px 15px;
+}
+
+.nav-login-btn {
+  background-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  border-radius: var(--radius-lg);
+  padding: 5px 15px !important;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.nav-login-btn:hover {
+  background-color: #e0a535 !important;
+  transform: translateY(-2px);
 }
 
 /* Hero section */
@@ -100,7 +159,8 @@ header {
 .hero-subtitle {
   font-size: 1rem;
   margin-bottom: 20px;
-  color: #555;
+  color: #8d8d8d;
+  font-weight: 500;
 }
 
 .cta-button {
@@ -214,7 +274,8 @@ header {
 
 .service-description {
   font-size: 0.8rem;
-  color: #666;
+  color: #4a4a4a;
+  font-weight: 500;
 }
 
 /* About section */
@@ -231,6 +292,8 @@ header {
 .about-text {
   line-height: 1.6;
   margin-bottom: 20px;
+  color: #2d2d2d;
+  font-weight: 400;
 }
 
 /* Connect section */
@@ -241,6 +304,7 @@ header {
 .connect-intro {
   line-height: 1.6;
   margin-bottom: 20px;
+  color: #3a3a3a;
 }
 
 .social-links {
@@ -255,7 +319,7 @@ header {
   align-items: center;
   padding: 15px;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 5%;
   text-decoration: none;
   color: #333;
   transition: transform 0.3s, box-shadow 0.3s;
@@ -278,7 +342,7 @@ header {
 
 .social-description {
   font-size: 0.8rem;
-  color: #666;
+  color: #4a4a4a;
   text-align: center;
 }
 
@@ -328,11 +392,14 @@ header {
   font-weight: bold;
   margin-bottom: 15px;
   text-align: center;
+  color: #1a1a1a;
 }
 
 .role-description {
   margin-bottom: 15px;
   text-align: center;
+  color: rgb(80, 80, 75) !important;
+  font-weight: 500;
 }
 
 .role-achievements {
@@ -344,13 +411,14 @@ header {
   position: relative;
   padding-left: 15px;
   margin-bottom: 8px;
+  color: #1a1a1a;
 }
 
 .role-achievements li:before {
   content: "•";
   position: absolute;
   left: 0;
-  color: #333;
+  color: #1a1a1a;
 }
 
 /* Improved Freelance Expertise Section Styles */
@@ -376,14 +444,6 @@ header {
   background-color: #f5b642;
 }
 
-/* .expertise-container {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  max-width: 1000px;
-  margin: 0 auto;
-} */
-
 .expertise-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -393,8 +453,6 @@ header {
 }
 
 .expertise-areas {
-  /* display: flex; */
-  /* gap: 25px;   */
   display: contents;
 }
 
@@ -526,13 +584,16 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80px;
+  justify-content: center;
+  padding: 35px 75px;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 5%;
   text-decoration: none;
   color: #333;
   transition: transform 0.3s, box-shadow 0.3s;
   background-color: #fff;
+  min-width: 200px;
+  min-height: 140px;
 }
 
 .social-link:hover {
@@ -562,7 +623,7 @@ header {
 
 .social-description {
   font-size: 0.8rem;
-  color: #666;
+  color: #4a4a4a;
   text-align: center;
 }
 
@@ -625,11 +686,19 @@ body.dark-mode .desktop-navigation a:not(.active):not(.light-mode) {
   color: #f9f9f9;
 }
 
+body.dark-mode .nav-login-btn {
+  background-color: #f5b642 !important;
+  color: #1a1a1a !important;
+}
+
+body.dark-mode .nav-login-btn:hover {
+  background-color: #e0a535 !important;
+}
+
 body.dark-mode .service-description,
 body.dark-mode .about-text,
 body.dark-mode .connect-intro,
 body.dark-mode .social-description,
-body.dark-mode .role-description,
 body.dark-mode .expertise-content p {
   color: #ccc;
 }
@@ -652,8 +721,17 @@ body.dark-mode .main-employment {
   background-color: #e5b52d;
 }
 
+body.dark-mode .main-employment h2,
+body.dark-mode .role-achievements li {
+  color: #1a1a1a;
+}
+
+body.dark-mode .role-description {
+  color: rgb(80, 80, 75) !important;
+}
+
 body.dark-mode .role-achievements li:before {
-  color: #f9f9f9;
+  color: #1a1a1a;
 }
 
 /* Dark mode styles for expertise section */
@@ -824,6 +902,19 @@ body:not(.dark-mode) .expertise-tag {
   color: white;
 }
 
+.mobile-login-btn {
+  background-color: #f5b642 !important;
+  color: white !important;
+  margin-top: 10px !important;
+  border: 2px solid #f5b642 !important;
+  font-weight: bold !important;
+}
+
+.mobile-login-btn:hover {
+  background-color: #e0a535 !important;
+  border-color: #e0a535 !important;
+}
+
 /* Dark mode styles for mobile navigation */
 body.dark-mode .mobile-nav-container {
   background-color: #333;
@@ -846,6 +937,17 @@ body.dark-mode .theme-toggle-btn {
 body.dark-mode .mobile-navigation a {
   background-color: #444;
   color: #f9f9f9;
+}
+
+body.dark-mode .mobile-login-btn {
+  background-color: #f5b642 !important;
+  color: #1a1a1a !important;
+  border-color: #f5b642 !important;
+}
+
+body.dark-mode .mobile-login-btn:hover {
+  background-color: #e0a535 !important;
+  border-color: #e0a535 !important;
 }
 
 body.dark-mode .close-mobile-nav:hover,
@@ -1061,11 +1163,15 @@ body.dark-mode .copyright {
     background-color: #444;
     color: #f9f9f9;
   }
-  
+
   body.dark-mode .clients-section h1 {
     color: #f9f9f9;
   }
-  
+
+  body.dark-mode .role-description {
+    color: #d0d0d0 !important;
+  }
+
   body.dark-mode .expertise-heading {
     color: #f9f9f9;
   }
@@ -2269,7 +2375,7 @@ body.dark-mode .no-results {
   justify-content: center;
   width: 30px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: 5%;
   background-color: #f1f1f1;
   color: #555;
   text-decoration: none;
@@ -3026,8 +3132,13 @@ body.dark-mode .social-link:hover {
   color: #fff;
 }
 
+body.dark-mode .category-list li a {
+  color: #e0e0e0;
+}
+
 body.dark-mode .category-list li a:hover {
   background-color: rgba(245, 182, 66, 0.2);
+  color: #f5b642;
 }
 
 body.dark-mode .resource-link {

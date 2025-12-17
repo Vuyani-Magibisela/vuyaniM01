@@ -21,8 +21,35 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/main.css">
+    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/admin.css">
+
+    <!-- Theme Initializer - Load immediately to prevent flash -->
+    <script src="<?php echo $baseUrl; ?>/js/theme-init.js"></script>
 
     <style>
+        /* Ensure CSS variables are defined */
+        :root {
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #d1d5db;
+            --input-border: #9ca3af;
+            --input-bg: #ffffff;
+            --primary-color: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #f9f9f9;
+            --text-muted: #9ca3af;
+            --border-color: #404040;
+            --input-border: #555555;
+            --input-bg: #1f1f1f;
+            --primary-color: #3b82f6;
+        }
+
         .admin-container {
             min-height: 100vh;
             background: var(--bg-color);
@@ -87,18 +114,37 @@
         .form-control {
             width: 100%;
             padding: 0.875rem;
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--input-border) !important;
             border-radius: 8px;
             font-size: 1rem;
-            background: var(--bg-color);
-            color: var(--text-color);
+            background: var(--input-bg) !important;
+            color: var(--text-color) !important;
             transition: all 0.3s;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .form-control:hover {
+            border-color: var(--text-muted) !important;
         }
 
         .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none !important;
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 12px 12px;
+            padding-right: 2.5rem !important;
+            cursor: pointer;
+        }
+
+        select.form-control:hover {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233b82f6' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
         }
 
         textarea.form-control {
@@ -115,19 +161,21 @@
 
         .editor-container {
             background: var(--bg-color);
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--input-border) !important;
             border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
         }
 
         .editor-container .ql-toolbar {
-            background: var(--card-bg);
-            border: none;
-            border-bottom: 1px solid var(--border-color);
+            background: var(--card-bg) !important;
+            border: none !important;
+            border-bottom: 2px solid var(--input-border) !important;
         }
 
         .editor-container .ql-container {
-            border: none;
+            border: none !important;
+            background: var(--input-bg) !important;
             min-height: 400px;
             font-size: 1rem;
         }

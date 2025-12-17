@@ -8,10 +8,6 @@
       <div class="hero-content">
         <h1 class="hero-title">Empowering Technology & Creativity</h1>
         <p class="hero-subtitle">Vuyani Magibisela - ICT Trainer, Web/App Developer, Maker and 3D Artist</p>
-        <div class="hero-buttons">
-          <a href="<?php echo $baseUrl; ?>/auth" class="btn-login">Login</a>
-          <a href="<?php echo $baseUrl; ?>/auth/register" class="btn-signup">Sign Up</a>
-        </div>
       </div>
     </section>
     

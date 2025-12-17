@@ -17,8 +17,35 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/main.css">
+    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/admin.css">
+
+    <!-- Theme Initializer - Load immediately to prevent flash -->
+    <script src="<?php echo $baseUrl; ?>/js/theme-init.js"></script>
 
     <style>
+        /* Ensure CSS variables are defined */
+        :root {
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #d1d5db;
+            --input-border: #9ca3af;
+            --input-bg: #ffffff;
+            --primary-color: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #f9f9f9;
+            --text-muted: #9ca3af;
+            --border-color: #404040;
+            --input-border: #555555;
+            --input-bg: #1f1f1f;
+            --primary-color: #3b82f6;
+        }
+
         .admin-container {
             min-height: 100vh;
             background: var(--bg-color);
@@ -43,7 +70,7 @@
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
-            border: none;
+            border: none !important;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -51,11 +78,18 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
         }
 
         .btn-primary {
-            background: var(--primary-color);
-            color: white;
+            background: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
         }
 
         .btn-sm {
@@ -64,8 +98,14 @@
         }
 
         .btn-danger {
-            background: #ef4444;
-            color: white;
+            background: #ef4444 !important;
+            color: white !important;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
         }
 
         .alert {
@@ -111,17 +151,29 @@
         .form-control {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--input-border) !important;
             border-radius: 8px;
             font-size: 1rem;
-            background: var(--bg-color);
-            color: var(--text-color);
+            background: var(--input-bg) !important;
+            color: var(--text-color) !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s;
+        }
+
+        .form-control:hover {
+            border-color: var(--text-muted) !important;
         }
 
         .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none !important;
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
         }
 
         .table-container {

@@ -21,7 +21,29 @@
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/main.css">
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/responsive.css">
 
+    <!-- Theme Initializer - Load immediately to prevent flash -->
+    <script src="<?php echo $baseUrl; ?>/js/theme-init.js"></script>
+
     <style>
+        /* CSS Variables for Login Page */
+        :root {
+            --bg-color: #f9f9f9;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --primary-color: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #f9f9f9;
+            --text-muted: #9ca3af;
+            --border-color: #404040;
+            --primary-color: #3b82f6;
+        }
+
         /* Login Page Specific Styles */
         .login-container {
             min-height: 100vh;
@@ -340,14 +362,13 @@
     </div>
 
     <script>
-        // Theme Management
+        // Theme Management - Already applied by theme-init.js
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
         const html = document.documentElement;
 
-        // Get saved theme or default to light
+        // Get current theme from localStorage
         const savedTheme = localStorage.getItem('theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
 
         themeToggle.addEventListener('click', () => {

@@ -17,8 +17,35 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/main.css">
+    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/admin.css">
+
+    <!-- Theme Initializer - Load immediately to prevent flash -->
+    <script src="<?php echo $baseUrl; ?>/js/theme-init.js"></script>
 
     <style>
+        /* Ensure CSS variables are defined */
+        :root {
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #d1d5db;
+            --input-border: #9ca3af;
+            --input-bg: #ffffff;
+            --primary-color: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #f9f9f9;
+            --text-muted: #9ca3af;
+            --border-color: #404040;
+            --input-border: #555555;
+            --input-bg: #1f1f1f;
+            --primary-color: #3b82f6;
+        }
+
         .admin-container {
             min-height: 100vh;
             background: var(--bg-color);
@@ -41,7 +68,7 @@
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
-            border: none;
+            border: none !important;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -49,16 +76,18 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
         }
 
         .btn-primary {
-            background: var(--primary-color);
-            color: white;
+            background: var(--primary-color) !important;
+            color: white !important;
         }
 
         .btn-primary:hover {
-            background: #2563eb;
+            background: #2563eb !important;
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
         }
 
         .btn-sm {
@@ -67,13 +96,25 @@
         }
 
         .btn-success {
-            background: #10b981;
-            color: white;
+            background: #10b981 !important;
+            color: white !important;
+        }
+
+        .btn-success:hover {
+            background: #059669 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
         }
 
         .btn-danger {
-            background: #ef4444;
-            color: white;
+            background: #ef4444 !important;
+            color: white !important;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
         }
 
         .alert {
@@ -122,10 +163,38 @@
         .filter-group select {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--input-border) !important;
             border-radius: 8px;
-            background: var(--bg-color);
-            color: var(--text-color);
+            background: var(--input-bg) !important;
+            color: var(--text-color) !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s;
+        }
+
+        .filter-group input:hover,
+        .filter-group select:hover {
+            border-color: var(--text-muted) !important;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none !important;
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .filter-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 12px 12px;
+            padding-right: 2.5rem !important;
+            cursor: pointer;
+        }
+
+        .filter-group select:hover {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233b82f6' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
         }
 
         .table-container {
