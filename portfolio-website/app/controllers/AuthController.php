@@ -361,6 +361,8 @@ class AuthController extends BaseController {
      * Password reset request (future implementation)
      */
     public function forgotPassword() {
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
         $data = [
             'title' => 'Forgot Password - Vuyani Magibisela',
             'csrf_token' => Session::generateCsrfToken()
@@ -368,7 +370,7 @@ class AuthController extends BaseController {
 
         // TODO: Implement password reset view
         Session::setFlash('info', 'Password reset functionality will be available soon.');
-        header('Location: /auth');
+        header('Location: ' . $baseUrl . '/auth');
         exit;
     }
 
@@ -379,17 +381,20 @@ class AuthController extends BaseController {
     public static function requireAuth() {
         Session::init();
 
+        // Get baseUrl for redirects
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
         // Check session timeout
         if (!Session::checkTimeout()) {
             Session::setFlash('error', 'Your session has expired. Please login again.');
-            header('Location: /auth');
+            header('Location: ' . $baseUrl . '/auth');
             exit;
         }
 
         // Check if authenticated
         if (!Session::isAuthenticated()) {
             Session::setFlash('error', 'Please login to access this page.');
-            header('Location: /auth');
+            header('Location: ' . $baseUrl . '/auth');
             exit;
         }
     }
@@ -400,9 +405,12 @@ class AuthController extends BaseController {
     public static function requireAdmin() {
         self::requireAuth();
 
+        // Get baseUrl for redirects
+        require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
+
         if (!Session::isAdmin()) {
             Session::setFlash('error', 'Access denied. Admin privileges required.');
-            header('Location: /');
+            header('Location: ' . $baseUrl . '/');
             exit;
         }
     }

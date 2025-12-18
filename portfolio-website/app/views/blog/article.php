@@ -20,7 +20,7 @@
             
             <?php if(!empty($post['featured_image'])): ?>
                 <div class="article-featured-image">
-                    <img src="<?php echo $baseUrl; ?>/images/blog/<?php echo $post['featured_image']; ?>" alt="<?php echo $post['title']; ?>">
+                    <img src="<?php echo $post['featured_image']; ?>" alt="<?php echo $post['title']; ?>">
                 </div>
             <?php endif; ?>
         </div>

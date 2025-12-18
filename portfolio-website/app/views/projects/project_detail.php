@@ -35,7 +35,7 @@
         <div class="project-gallery">
             <?php if (!empty($project['featured_image'])): ?>
                 <div class="project-main-image">
-                    <img id="main-image" src="<?php echo $baseUrl . htmlspecialchars($project['featured_image']); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>">
+                    <img id="main-image" src="<?php echo htmlspecialchars($project['featured_image']); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>">
                 </div>
             <?php endif; ?>
 
@@ -43,7 +43,7 @@
                 <div class="project-thumbnails">
                     <?php foreach($project['images'] as $image): ?>
                         <div class="thumbnail" data-image="<?php echo htmlspecialchars($image['image_path']); ?>">
-                            <img src="<?php echo $baseUrl . htmlspecialchars($image['image_path']); ?>"
+                            <img src="<?php echo htmlspecialchars($image['image_path']); ?>"
                                  alt="<?php echo htmlspecialchars($image['caption'] ?? $project['title']); ?>"
                                  onclick="document.getElementById('main-image').src = this.src;">
                         </div>

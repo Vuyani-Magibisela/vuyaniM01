@@ -108,7 +108,7 @@
                     <div class="info-content">
                         <h3>Email Me</h3>
                         <p>For general inquiries and project discussions</p>
-                        <a href="mailto:vuyani@example.com" class="info-link">vuyani@example.com</a>
+                        <a href="mailto:admin@vuyanimagibisela.com" class="info-link">admin@vuyanimagibisela.com</a>
                     </div>
                 </div>
                 
@@ -119,7 +119,7 @@
                     <div class="info-content">
                         <h3>Call Me</h3>
                         <p>Available for urgent matters and consultations</p>
-                        <a href="tel:+27123456789" class="info-link">+27 12 345 6789</a>
+                        <a href="tel:+27123456789" class="info-link">+27 63 839 3157</a>
                     </div>
                 </div>
                 
@@ -129,7 +129,7 @@
                     </div>
                     <div class="info-content">
                         <h3>Location</h3>
-                        <p>Based in Midrand, Gauteng</p>
+                        <p>Based in Soweto Protea Glen, Gauteng</p>
                         <span class="info-text">South Africa</span>
                     </div>
                 </div>

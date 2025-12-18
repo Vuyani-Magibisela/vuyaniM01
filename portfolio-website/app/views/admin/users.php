@@ -237,10 +237,10 @@ if (Session::get('user_role') !== 'admin') {
                                             <i class="fas fa-calendar"></i>
                                             Joined <?php echo date('M d, Y', strtotime($user['created_at'])); ?>
                                         </span>
-                                        <?php if ($user['last_login']): ?>
+                                        <?php if ($user['updated_at']): ?>
                                             <span class="user-meta-item">
                                                 <i class="fas fa-clock"></i>
-                                                Last login: <?php echo date('M d, Y g:i A', strtotime($user['last_login'])); ?>
+                                                Last activity: <?php echo date('M d, Y g:i A', strtotime($user['updated_at'])); ?>
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -305,8 +305,8 @@ if (Session::get('user_role') !== 'admin') {
                     <div class="form-group">
                         <label for="create_role" class="required">Role</label>
                         <select id="create_role" class="form-control" required>
+                            <option value="user">User</option>
                             <option value="admin">Admin</option>
-                            <option value="editor">Editor</option>
                         </select>
                     </div>
                 </form>
@@ -345,8 +345,8 @@ if (Session::get('user_role') !== 'admin') {
                     <div class="form-group">
                         <label for="edit_role" class="required">Role</label>
                         <select id="edit_role" class="form-control" required>
+                            <option value="user">User</option>
                             <option value="admin">Admin</option>
-                            <option value="editor">Editor</option>
                         </select>
                     </div>
                 </form>

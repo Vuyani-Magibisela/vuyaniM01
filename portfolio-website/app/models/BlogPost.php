@@ -65,19 +65,19 @@ class BlogPost extends BaseModel {
                   WHERE p.slug = :slug AND p.status = 'published' AND p.published_at <= NOW()";
                   
         $post = $this->query($query, ['slug' => $slug], false);
-        
+
         if ($post) {
             // Get tags for this post
-            $tagsQuery = "SELECT t.name, t.slug 
+            $tagsQuery = "SELECT t.name, t.slug
                           FROM tags t
                           JOIN blog_post_tags pt ON t.id = pt.tag_id
                           WHERE pt.post_id = :post_id";
-                          
-            // Execute the query and assign the result to post->tags
-            $tags = $this->query($tagsQuery, ['post_id' => $post->id]);
-            $post->tags = $tags;
+
+            // Execute the query and add tags to post array
+            $tags = $this->query($tagsQuery, ['post_id' => $post['id']]);
+            $post['tags'] = $tags;
         }
-        
+
         return $post;
     }
     
@@ -275,11 +275,13 @@ class BlogPost extends BaseModel {
         $post = $this->query($query, ['id' => $id], false);
 
         if ($post) {
-            // Get tags
-            $post->tags = $this->getPostTags($id);
+            // Get tags and add to post array
+            $post['tags'] = $this->getPostTags($id);
+            // Convert to object for admin editing
+            return (object)$post;
         }
 
-        return $post ? (object)$post : null;
+        return null;
     }
 
     /**

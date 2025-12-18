@@ -34,6 +34,19 @@ class AdminController extends BaseController {
     }
 
     /**
+     * Get the base URL based on environment
+     */
+    private function getBaseUrl() {
+        if ($_SERVER['HTTP_HOST'] === 'localhost' ||
+            strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+            strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
+            return '/vuyaniM01/portfolio-website/public';
+        } else {
+            return '/public';
+        }
+    }
+
+    /**
      * Admin dashboard home
      */
     public function index() {
@@ -140,11 +153,11 @@ class AdminController extends BaseController {
         }
 
         // Create user
-        $userId = $userModel->create([
+        $userId = $userModel->createBasicUser([
             'username' => $data['username'],
             'email' => $data['email'],
             'password' => $data['password'],
-            'role' => $data['role'] ?? 'editor'
+            'role' => $data['role'] ?? 'user'
         ]);
 
         if ($userId) {
@@ -161,48 +174,57 @@ class AdminController extends BaseController {
     public function updateUser($id) {
         header('Content-Type: application/json');
 
-        AuthController::requireAdmin();
+        try {
+            AuthController::requireAdmin();
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'error' => 'Invalid request method']);
-            exit;
-        }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['success' => false, 'error' => 'Invalid request method']);
+                exit;
+            }
 
-        $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents('php://input'), true);
+            error_log("UpdateUser - ID: $id, Data: " . json_encode($data));
 
-        // Validate
-        if (empty($data['username']) || empty($data['email'])) {
-            echo json_encode(['success' => false, 'error' => 'Username and email are required']);
-            exit;
-        }
+            // Validate
+            if (empty($data['username']) || empty($data['email'])) {
+                echo json_encode(['success' => false, 'error' => 'Username and email are required']);
+                exit;
+            }
 
-        $userModel = $this->model('User');
+            $userModel = $this->model('User');
 
-        // Check if username exists for different user
-        $existingUser = $userModel->findByUsername($data['username']);
-        if ($existingUser && $existingUser['id'] != $id) {
-            echo json_encode(['success' => false, 'error' => 'Username already exists']);
-            exit;
-        }
+            // Check if username exists for different user
+            $existingUser = $userModel->findByUsername($data['username']);
+            error_log("UpdateUser - Existing user by username: " . json_encode($existingUser));
+            if ($existingUser && $existingUser->id != $id) {
+                echo json_encode(['success' => false, 'error' => 'Username already exists']);
+                exit;
+            }
 
-        // Check if email exists for different user
-        $existingUser = $userModel->findByEmail($data['email']);
-        if ($existingUser && $existingUser['id'] != $id) {
-            echo json_encode(['success' => false, 'error' => 'Email already exists']);
-            exit;
-        }
+            // Check if email exists for different user
+            $existingUser = $userModel->findByEmail($data['email']);
+            error_log("UpdateUser - Existing user by email: " . json_encode($existingUser));
+            if ($existingUser && $existingUser->id != $id) {
+                echo json_encode(['success' => false, 'error' => 'Email already exists']);
+                exit;
+            }
 
-        // Update user
-        $success = $userModel->updateUser($id, [
-            'username' => $data['username'],
-            'email' => $data['email'],
-            'role' => $data['role'] ?? 'editor'
-        ]);
+            // Update user
+            $success = $userModel->updateUser($id, [
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'role' => $data['role'] ?? 'user'
+            ]);
+            error_log("UpdateUser - Success result: " . ($success ? 'true' : 'false'));
 
-        if ($success) {
-            echo json_encode(['success' => true]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Failed to update user']);
+            if ($success) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to update user']);
+            }
+        } catch (Exception $e) {
+            error_log("UpdateUser - Exception: " . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);
         }
         exit;
     }
@@ -213,34 +235,41 @@ class AdminController extends BaseController {
     public function resetUserPassword($id) {
         header('Content-Type: application/json');
 
-        AuthController::requireAdmin();
+        try {
+            AuthController::requireAdmin();
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'error' => 'Invalid request method']);
-            exit;
-        }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['success' => false, 'error' => 'Invalid request method']);
+                exit;
+            }
 
-        $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents('php://input'), true);
+            error_log("ResetPassword - ID: $id");
 
-        if (empty($data['password'])) {
-            echo json_encode(['success' => false, 'error' => 'Password is required']);
-            exit;
-        }
+            if (empty($data['password'])) {
+                echo json_encode(['success' => false, 'error' => 'Password is required']);
+                exit;
+            }
 
-        if (strlen($data['password']) < 8) {
-            echo json_encode(['success' => false, 'error' => 'Password must be at least 8 characters']);
-            exit;
-        }
+            if (strlen($data['password']) < 8) {
+                echo json_encode(['success' => false, 'error' => 'Password must be at least 8 characters']);
+                exit;
+            }
 
-        $userModel = $this->model('User');
+            $userModel = $this->model('User');
 
-        // Update password
-        $success = $userModel->updatePassword($id, $data['password']);
+            // Update password
+            $success = $userModel->updatePassword($id, $data['password']);
+            error_log("ResetPassword - Success result: " . ($success ? 'true' : 'false'));
 
-        if ($success) {
-            echo json_encode(['success' => true]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Failed to reset password']);
+            if ($success) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to reset password']);
+            }
+        } catch (Exception $e) {
+            error_log("ResetPassword - Exception: " . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);
         }
         exit;
     }
@@ -330,16 +359,18 @@ class AdminController extends BaseController {
      * Store new blog post - Handle form submission
      */
     public function storeBlogPost() {
+        $baseUrl = $this->getBaseUrl();
+
         // Only accept POST requests
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/blog');
+            header('Location: ' . $baseUrl . '/admin/blog');
             exit;
         }
 
         // Verify CSRF token
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header('Location: /admin/createBlogPost');
+            header('Location: ' . $baseUrl . '/admin/createBlogPost');
             exit;
         }
 
@@ -348,7 +379,7 @@ class AdminController extends BaseController {
 
         if (!empty($errors)) {
             Session::setFlash('error', implode('<br>', $errors));
-            header('Location: /admin/createBlogPost');
+            header('Location: ' . $baseUrl . '/admin/createBlogPost');
             exit;
         }
 
@@ -381,10 +412,10 @@ class AdminController extends BaseController {
             }
 
             Session::setFlash('success', 'Blog post created successfully!');
-            header('Location: /admin/blog');
+            header('Location: ' . $baseUrl . '/admin/blog');
         } else {
             Session::setFlash('error', 'Failed to create blog post. Please try again.');
-            header('Location: /admin/createBlogPost');
+            header('Location: ' . $baseUrl . '/admin/createBlogPost');
         }
         exit;
     }
@@ -393,6 +424,7 @@ class AdminController extends BaseController {
      * Edit blog post - Show form
      */
     public function editBlogPost($id) {
+        $baseUrl = $this->getBaseUrl();
         $blogPostModel = $this->model('BlogPost');
         $categoryModel = $this->model('Category');
 
@@ -400,7 +432,7 @@ class AdminController extends BaseController {
 
         if (!$post) {
             Session::setFlash('error', 'Blog post not found.');
-            header('Location: /admin/blog');
+            header('Location: ' . $baseUrl . '/admin/blog');
             exit;
         }
 
@@ -428,16 +460,18 @@ class AdminController extends BaseController {
      * Update blog post - Handle form submission
      */
     public function updateBlogPost($id) {
+        $baseUrl = $this->getBaseUrl();
+
         // Only accept POST requests
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/blog');
+            header('Location: ' . $baseUrl . '/admin/blog');
             exit;
         }
 
         // Verify CSRF token
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header("Location: /admin/editBlogPost/$id");
+            header('Location: ' . $baseUrl . "/admin/editBlogPost/$id");
             exit;
         }
 
@@ -446,7 +480,7 @@ class AdminController extends BaseController {
 
         if (!empty($errors)) {
             Session::setFlash('error', implode('<br>', $errors));
-            header("Location: /admin/editBlogPost/$id");
+            header('Location: ' . $baseUrl . "/admin/editBlogPost/$id");
             exit;
         }
 
@@ -478,10 +512,10 @@ class AdminController extends BaseController {
             }
 
             Session::setFlash('success', 'Blog post updated successfully!');
-            header('Location: /admin/blog');
+            header('Location: ' . $baseUrl . '/admin/blog');
         } else {
             Session::setFlash('error', 'Failed to update blog post. Please try again.');
-            header("Location: /admin/editBlogPost/$id");
+            header('Location: ' . $baseUrl . "/admin/editBlogPost/$id");
         }
         exit;
     }
@@ -490,6 +524,7 @@ class AdminController extends BaseController {
      * Delete blog post
      */
     public function deleteBlogPost($id) {
+        $baseUrl = $this->getBaseUrl();
         $blogPostModel = $this->model('BlogPost');
 
         $success = $blogPostModel->deletePost($id);
@@ -500,7 +535,7 @@ class AdminController extends BaseController {
             Session::setFlash('error', 'Failed to delete blog post.');
         }
 
-        header('Location: /admin/blog');
+        header('Location: ' . $baseUrl . '/admin/blog');
         exit;
     }
 
@@ -566,8 +601,9 @@ class AdminController extends BaseController {
 
         // Move uploaded file
         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            // Return relative URL
-            $imageUrl = '/images/blog/uploads/' . $filename;
+            // Return relative URL with baseUrl prefix
+            $baseUrl = $this->getBaseUrl();
+            $imageUrl = $baseUrl . '/images/blog/uploads/' . $filename;
 
             echo json_encode([
                 'success' => true,
@@ -649,14 +685,16 @@ class AdminController extends BaseController {
      * Create category
      */
     public function storeCategory() {
+        $baseUrl = $this->getBaseUrl();
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/categories');
+            header('Location: ' . $baseUrl . '/admin/categories');
             exit;
         }
 
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             Session::setFlash('error', 'Invalid request');
-            header('Location: /admin/categories');
+            header('Location: ' . $baseUrl . '/admin/categories');
             exit;
         }
 
@@ -676,7 +714,7 @@ class AdminController extends BaseController {
             Session::setFlash('error', 'Failed to create category.');
         }
 
-        header('Location: /admin/categories');
+        header('Location: ' . $baseUrl . '/admin/categories');
         exit;
     }
 
@@ -684,14 +722,16 @@ class AdminController extends BaseController {
      * Update category
      */
     public function updateCategory($id) {
+        $baseUrl = $this->getBaseUrl();
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/categories');
+            header('Location: ' . $baseUrl . '/admin/categories');
             exit;
         }
 
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             Session::setFlash('error', 'Invalid request');
-            header('Location: /admin/categories');
+            header('Location: ' . $baseUrl . '/admin/categories');
             exit;
         }
 
@@ -711,7 +751,7 @@ class AdminController extends BaseController {
             Session::setFlash('error', 'Failed to update category.');
         }
 
-        header('Location: /admin/categories');
+        header('Location: ' . $baseUrl . '/admin/categories');
         exit;
     }
 
@@ -719,6 +759,7 @@ class AdminController extends BaseController {
      * Delete category
      */
     public function deleteCategory($id) {
+        $baseUrl = $this->getBaseUrl();
         $categoryModel = $this->model('Category');
 
         $success = $categoryModel->deleteCategory($id);
@@ -729,7 +770,7 @@ class AdminController extends BaseController {
             Session::setFlash('error', 'Cannot delete category. It may have blog posts associated with it.');
         }
 
-        header('Location: /admin/categories');
+        header('Location: ' . $baseUrl . '/admin/categories');
         exit;
     }
 
@@ -793,14 +834,16 @@ class AdminController extends BaseController {
      * Store new project - Handle form submission
      */
     public function storeProject() {
+        $baseUrl = $this->getBaseUrl();
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/projects');
+            header('Location: ' . $baseUrl . '/admin/projects');
             exit;
         }
 
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header('Location: /admin/createProject');
+            header('Location: ' . $baseUrl . '/admin/createProject');
             exit;
         }
 
@@ -809,7 +852,7 @@ class AdminController extends BaseController {
 
         if (!empty($errors)) {
             Session::setFlash('error', implode('<br>', $errors));
-            header('Location: /admin/createProject');
+            header('Location: ' . $baseUrl . '/admin/createProject');
             exit;
         }
 
@@ -848,10 +891,10 @@ class AdminController extends BaseController {
             }
 
             Session::setFlash('success', 'Project created successfully!');
-            header('Location: /admin/projects');
+            header('Location: ' . $baseUrl . '/admin/projects');
         } else {
             Session::setFlash('error', 'Failed to create project. Please try again.');
-            header('Location: /admin/createProject');
+            header('Location: ' . $baseUrl . '/admin/createProject');
         }
         exit;
     }
@@ -860,13 +903,14 @@ class AdminController extends BaseController {
      * Edit project - Show form
      */
     public function editProject($id) {
+        $baseUrl = $this->getBaseUrl();
         $projectModel = $this->model('Project');
 
         $project = $projectModel->getProjectById($id);
 
         if (!$project) {
             Session::setFlash('error', 'Project not found.');
-            header('Location: /admin/projects');
+            header('Location: ' . $baseUrl . '/admin/projects');
             exit;
         }
 
@@ -887,14 +931,16 @@ class AdminController extends BaseController {
      * Update project - Handle form submission
      */
     public function updateProject($id) {
+        $baseUrl = $this->getBaseUrl();
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/projects');
+            header('Location: ' . $baseUrl . '/admin/projects');
             exit;
         }
 
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header("Location: /admin/editProject/$id");
+            header('Location: ' . $baseUrl . "/admin/editProject/$id");
             exit;
         }
 
@@ -903,7 +949,7 @@ class AdminController extends BaseController {
 
         if (!empty($errors)) {
             Session::setFlash('error', implode('<br>', $errors));
-            header("Location: /admin/editProject/$id");
+            header('Location: ' . $baseUrl . "/admin/editProject/$id");
             exit;
         }
 
@@ -931,10 +977,10 @@ class AdminController extends BaseController {
 
         if ($success) {
             Session::setFlash('success', 'Project updated successfully!');
-            header('Location: /admin/projects');
+            header('Location: ' . $baseUrl . '/admin/projects');
         } else {
             Session::setFlash('error', 'Failed to update project. Please try again.');
-            header("Location: /admin/editProject/$id");
+            header('Location: ' . $baseUrl . "/admin/editProject/$id");
         }
         exit;
     }
@@ -943,6 +989,7 @@ class AdminController extends BaseController {
      * Delete project
      */
     public function deleteProject($id) {
+        $baseUrl = $this->getBaseUrl();
         $projectModel = $this->model('Project');
 
         $success = $projectModel->deleteProject($id);
@@ -953,7 +1000,7 @@ class AdminController extends BaseController {
             Session::setFlash('error', 'Failed to delete project.');
         }
 
-        header('Location: /admin/projects');
+        header('Location: ' . $baseUrl . '/admin/projects');
         exit;
     }
 
@@ -1008,10 +1055,11 @@ class AdminController extends BaseController {
 
         // Move uploaded file
         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            // Return relative URL
+            // Return relative URL with baseUrl prefix
+            $baseUrl = $this->getBaseUrl();
             $imageUrl = ($type === 'gallery')
-                ? '/images/projects/gallery/' . $filename
-                : '/images/projects/uploads/' . $filename;
+                ? $baseUrl . '/images/projects/gallery/' . $filename
+                : $baseUrl . '/images/projects/uploads/' . $filename;
 
             echo json_encode([
                 'success' => true,
@@ -1108,14 +1156,16 @@ class AdminController extends BaseController {
      * Store new resource - Handle form submission
      */
     public function storeResource() {
+        $baseUrl = $this->getBaseUrl();
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/resources');
+            header('Location: ' . $baseUrl . '/admin/resources');
             exit;
         }
 
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header('Location: /admin/createResource');
+            header('Location: ' . $baseUrl . '/admin/createResource');
             exit;
         }
 
@@ -1124,7 +1174,7 @@ class AdminController extends BaseController {
 
         if (!empty($errors)) {
             Session::setFlash('error', implode('<br>', $errors));
-            header('Location: /admin/createResource');
+            header('Location: ' . $baseUrl . '/admin/createResource');
             exit;
         }
 
@@ -1149,10 +1199,10 @@ class AdminController extends BaseController {
 
         if ($resourceId) {
             Session::setFlash('success', 'Resource created successfully!');
-            header('Location: /admin/resources');
+            header('Location: ' . $baseUrl . '/admin/resources');
         } else {
             Session::setFlash('error', 'Failed to create resource. Please try again.');
-            header('Location: /admin/createResource');
+            header('Location: ' . $baseUrl . '/admin/createResource');
         }
         exit;
     }
@@ -1161,13 +1211,14 @@ class AdminController extends BaseController {
      * Edit resource - Show form
      */
     public function editResource($id) {
+        $baseUrl = $this->getBaseUrl();
         $resourceModel = $this->model('Resource');
 
         $resource = $resourceModel->getResourceById($id);
 
         if (!$resource) {
             Session::setFlash('error', 'Resource not found.');
-            header('Location: /admin/resources');
+            header('Location: ' . $baseUrl . '/admin/resources');
             exit;
         }
 
@@ -1185,14 +1236,16 @@ class AdminController extends BaseController {
      * Update resource - Handle form submission
      */
     public function updateResource($id) {
+        $baseUrl = $this->getBaseUrl();
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/resources');
+            header('Location: ' . $baseUrl . '/admin/resources');
             exit;
         }
 
         if (!Session::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header("Location: /admin/editResource/$id");
+            header('Location: ' . $baseUrl . "/admin/editResource/$id");
             exit;
         }
 
@@ -1201,7 +1254,7 @@ class AdminController extends BaseController {
 
         if (!empty($errors)) {
             Session::setFlash('error', implode('<br>', $errors));
-            header("Location: /admin/editResource/$id");
+            header('Location: ' . $baseUrl . "/admin/editResource/$id");
             exit;
         }
 
@@ -1225,10 +1278,10 @@ class AdminController extends BaseController {
 
         if ($success) {
             Session::setFlash('success', 'Resource updated successfully!');
-            header('Location: /admin/resources');
+            header('Location: ' . $baseUrl . '/admin/resources');
         } else {
             Session::setFlash('error', 'Failed to update resource. Please try again.');
-            header("Location: /admin/editResource/$id");
+            header('Location: ' . $baseUrl . "/admin/editResource/$id");
         }
         exit;
     }
@@ -1237,6 +1290,7 @@ class AdminController extends BaseController {
      * Delete resource
      */
     public function deleteResource($id) {
+        $baseUrl = $this->getBaseUrl();
         $resourceModel = $this->model('Resource');
 
         $success = $resourceModel->deleteResource($id);
@@ -1247,7 +1301,7 @@ class AdminController extends BaseController {
             Session::setFlash('error', 'Failed to delete resource.');
         }
 
-        header('Location: /admin/resources');
+        header('Location: ' . $baseUrl . '/admin/resources');
         exit;
     }
 
@@ -1293,8 +1347,9 @@ class AdminController extends BaseController {
 
         // Move uploaded file
         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            // Return file info
-            $fileUrl = '/uploads/resources/' . $filename;
+            // Return file info with baseUrl prefix
+            $baseUrl = $this->getBaseUrl();
+            $fileUrl = $baseUrl . '/uploads/resources/' . $filename;
 
             echo json_encode([
                 'success' => true,

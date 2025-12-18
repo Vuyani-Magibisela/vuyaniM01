@@ -39,7 +39,7 @@ class BlogController extends BaseController {
         
         // Increment view count
         $blogModel->incrementViews($post['id']);
-        
+
         // Get related posts
         $relatedPosts = $blogModel->getRelatedPosts($post['id'], $post['category_id'], 3);
         

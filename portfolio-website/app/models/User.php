@@ -171,6 +171,7 @@ class User extends BaseModel {
      */
     public function updatePassword($userId, $newPassword) {
         if (!$this->isConnected()) {
+            error_log('Password update error: No database connection');
             return false;
         }
 
@@ -178,9 +179,18 @@ class User extends BaseModel {
             $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT, ['cost' => 12]);
 
             $query = "UPDATE {$this->table} SET password = :password, updated_at = NOW() WHERE id = :id";
-            return $this->query($query, ['password' => $hashedPassword, 'id' => $userId], false) !== false;
+            $params = ['password' => $hashedPassword, 'id' => $userId];
+
+            error_log('Password update query: ' . $query);
+            error_log('Password update params (id only): ' . $userId);
+
+            $result = $this->query($query, $params, false);
+            error_log('Password update result: ' . json_encode($result));
+
+            return $result !== false;
         } catch (Exception $e) {
             error_log('Password update error: ' . $e->getMessage());
+            error_log('Password update stack trace: ' . $e->getTraceAsString());
             return false;
         }
     }
@@ -194,7 +204,7 @@ class User extends BaseModel {
             return [];
         }
 
-        $query = "SELECT id, username, email, first_name, last_name, created_at
+        $query = "SELECT id, username, email, first_name, last_name, role, created_at, updated_at
                   FROM {$this->table}
                   WHERE role = 'admin' AND is_active = 1
                   ORDER BY created_at DESC";
@@ -258,7 +268,7 @@ class User extends BaseModel {
                 'username' => $data['username'],
                 'email' => $data['email'],
                 'password' => $hashedPassword,
-                'role' => $data['role'] ?? 'editor'
+                'role' => $data['role'] ?? 'user'
             ];
 
             $result = $this->query($query, $params, false);
@@ -279,6 +289,7 @@ class User extends BaseModel {
      */
     public function updateUser($userId, $data) {
         if (!$this->isConnected()) {
+            error_log('User update error: No database connection');
             return false;
         }
 
@@ -297,9 +308,16 @@ class User extends BaseModel {
                 'role' => $data['role'] ?? 'editor'
             ];
 
-            return $this->query($query, $params, false) !== false;
+            error_log('User update query: ' . $query);
+            error_log('User update params: ' . json_encode($params));
+
+            $result = $this->query($query, $params, false);
+            error_log('User update result: ' . json_encode($result));
+
+            return $result !== false;
         } catch (Exception $e) {
             error_log('User update error: ' . $e->getMessage());
+            error_log('User update stack trace: ' . $e->getTraceAsString());
             return false;
         }
     }

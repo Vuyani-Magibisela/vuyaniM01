@@ -253,15 +253,23 @@ abstract class BaseModel {
         if (!$this->dbConnected) {
             return $fetchAll ? [] : false;
         }
-        
+
         $stmt = $this->db->prepare($query);
-        
+
         foreach ($params as $param => $value) {
             $stmt->bindValue(":{$param}", $value);
         }
-        
-        $stmt->execute();
-        
+
+        $executeResult = $stmt->execute();
+
+        // Check if this is a write query (UPDATE, INSERT, DELETE)
+        $queryType = strtoupper(trim(explode(' ', $query)[0]));
+        if (in_array($queryType, ['UPDATE', 'INSERT', 'DELETE'])) {
+            // For write queries, return the execute result
+            return $executeResult;
+        }
+
+        // For SELECT queries, return the fetched data
         if ($fetchAll) {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {

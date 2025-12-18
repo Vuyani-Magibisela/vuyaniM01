@@ -45,7 +45,7 @@
                     <div class="project-card" data-category="<?php echo htmlspecialchars($categorySlug); ?>">
                         <div class="project-image">
                             <?php if (!empty($project['featured_image'])): ?>
-                                <img src="<?php echo $baseUrl . htmlspecialchars($project['featured_image']); ?>"
+                                <img src="<?php echo htmlspecialchars($project['featured_image']); ?>"
                                      alt="<?php echo htmlspecialchars($project['title']); ?>"
                                      onerror="this.src='<?php echo $fallbackImage; ?>'; this.style.width='100%'; this.style.height='100%'; this.style.objectFit='cover';">
                             <?php else: ?>
