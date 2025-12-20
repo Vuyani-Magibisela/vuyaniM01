@@ -1,0 +1,4 @@
+# Prevent PHP execution in blog upload directory
+<FilesMatch "\.php$|\.php3$|\.php4$|\.php5$|\.phtml$">
+    Deny from all
+</FilesMatch>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo ucfirst(isset($_GET['url']) ? explode('/', $_GET['url'])[0] : 'Home'); ?> | Vuyani Magibisela</title>
+    <title><?php echo htmlspecialchars(ucfirst(isset($_GET['url']) ? explode('/', $_GET['url'])[0] : 'Home'), ENT_QUOTES, 'UTF-8'); ?> | Vuyani Magibisela</title>
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/main.css">
     <!-- Add GSAP for animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>

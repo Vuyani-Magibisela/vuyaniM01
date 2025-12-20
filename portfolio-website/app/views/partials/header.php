@@ -17,7 +17,7 @@ function isActivePage($pageName) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo ucfirst(isset($_GET['url']) ? explode('/', $_GET['url'])[0] : 'Home'); ?> | Vuyani Magibisela</title>
+    <title><?php echo htmlspecialchars(ucfirst(isset($_GET['url']) ? explode('/', $_GET['url'])[0] : 'Home'), ENT_QUOTES, 'UTF-8'); ?> | Vuyani Magibisela</title>
     
     <!-- Favicon and App Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $baseUrl; ?>/images/favicon/apple-touch-icon.png">

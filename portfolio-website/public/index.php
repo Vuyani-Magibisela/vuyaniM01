@@ -1,9 +1,11 @@
 <?php
 // File: public/index.php
 
-// Error reporting for debugging (remove in production)
+// Production error handling - errors logged to file, not displayed to users
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../logs/php-errors.log');
 
 // Determine the correct path based on server structure
 $basePath = dirname(__DIR__);

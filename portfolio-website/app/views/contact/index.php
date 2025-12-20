@@ -108,7 +108,7 @@
                     <div class="info-content">
                         <h3>Email Me</h3>
                         <p>For general inquiries and project discussions</p>
-                        <a href="mailto:admin@vuyanimagibisela.com" class="info-link">admin@vuyanimagibisela.com</a>
+                        <a href="mailto:admin@vuyanimagibisela.co.za" class="info-link">admin@vuyanimagibisela.co.za</a>
                     </div>
                 </div>
                 

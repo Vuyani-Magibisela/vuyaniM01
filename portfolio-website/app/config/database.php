@@ -20,12 +20,12 @@ if ($_SERVER['HTTP_HOST'] === 'localhost' ||
     
 } else {
     
-    // Live server configuration - UPDATE THESE VALUES
+    // Production server configuration
     return [
-        'host' => 'localhost', // Usually 'localhost' for shared hosting
-        'dbname' => 'vuyanjcb_portfolio', //for production : 'vuyanjcb_vuyanim' - remove this comment
-        'user' => 'vuyanjcb_user',  //for production : 'vuyanjcb_vuyaniM' - remove this comment
-        'password' => 'your_database_password', //for production : '=bQw^WUglto@IhRJ' - remove this comment
+        'host' => 'localhost',
+        'dbname' => 'vuyanjcb_vuyanim',
+        'user' => 'vuyanjcb_vuyaniM',
+        'password' => '=bQw^WUglto@IhRJ',
         'charset' => 'utf8mb4',
         'options' => [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
