@@ -1,9 +1,9 @@
 <?php
 // File: public/index.php
 
-// Production error handling - errors logged to file, not displayed to users
+// Temporary: Enable error display for debugging
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/php-errors.log');
 
@@ -16,6 +16,7 @@ require_once $basePath . '/app/core/Router.php';
 require_once $basePath . '/app/core/Database.php';
 require_once $basePath . '/app/core/Helpers.php';
 require_once $basePath . '/app/core/Session.php';
+require_once $basePath . '/app/core/Email.php';
 
 use App\core\Router;
 use App\Core\Session;

@@ -87,6 +87,13 @@
                             <span class="nav-badge"><?php echo $stats['unread_contacts']; ?></span>
                         <?php endif; ?>
                     </a>
+                    <a href="<?php echo $baseUrl; ?>/admin/subscribers" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Newsletter Subscribers</span>
+                        <?php if (isset($stats['pending_subscribers']) && $stats['pending_subscribers'] > 0): ?>
+                            <span class="nav-badge nav-badge-info"><?php echo $stats['pending_subscribers']; ?></span>
+                        <?php endif; ?>
+                    </a>
                 </div>
 
                 <!-- Settings -->

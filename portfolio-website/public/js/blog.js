@@ -39,20 +39,126 @@ document.addEventListener("DOMContentLoaded", () => {
     // Handle newsletter form submission
     const newsletterForm = document.querySelector('.newsletter-form');
     if (newsletterForm) {
-      newsletterForm.addEventListener('submit', (e) => {
+      newsletterForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const emailInput = newsletterForm.querySelector('input[type="email"]');
         const email = emailInput.value.trim();
-        
-        if (email) {
-          // Show success message
-          newsletterForm.innerHTML = '<p class="success-message">Thank you for subscribing!</p>';
-          
-          // In a real app, you would send this to the server via AJAX
-          console.log('Newsletter subscription for:', email);
+        const submitButton = newsletterForm.querySelector('button[type="submit"]');
+
+        if (!email) {
+          showSubscriptionToast('Please enter your email address.', 'error');
+          return;
+        }
+
+        // Disable button during request
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subscribing...';
+
+        try {
+          // Get base URL from window or default
+          const baseUrl = window.baseUrl || '';
+
+          const response = await fetch(`${baseUrl}/subscription/subscribe`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Show success message in form
+            newsletterForm.innerHTML = `
+              <div class="success-message">
+                <i class="fas fa-check-circle"></i>
+                <p>${data.message}</p>
+              </div>`;
+            showSubscriptionToast(data.message, 'success');
+          } else {
+            // Show error message
+            showSubscriptionToast(data.message, 'error');
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+          }
+        } catch (error) {
+          console.error('Subscription error:', error);
+          showSubscriptionToast('An error occurred. Please try again later.', 'error');
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalButtonText;
         }
       });
     }
+
+    // Toast notification function for subscriptions
+    function showSubscriptionToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `subscription-toast subscription-toast-${type}`;
+      toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${message}</span>`;
+
+      document.body.appendChild(toast);
+
+      // Animate in
+      setTimeout(() => toast.classList.add('show'), 10);
+
+      // Remove after 5 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          if (document.body.contains(toast)) {
+            document.body.removeChild(toast);
+          }
+        }, 300);
+      }, 5000);
+    }
+
+    // Add toast CSS dynamically
+    const toastStyle = document.createElement('style');
+    toastStyle.textContent = `
+      .subscription-toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        z-index: 9999;
+      }
+      .subscription-toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .subscription-toast-success {
+        border-left: 4px solid #10b981;
+      }
+      .subscription-toast-success i {
+        color: #10b981;
+        font-size: 20px;
+      }
+      .subscription-toast-error {
+        border-left: 4px solid #ef4444;
+      }
+      .subscription-toast-error i {
+        color: #ef4444;
+        font-size: 20px;
+      }
+      .subscription-toast span {
+        color: #333;
+        font-size: 14px;
+      }
+    `;
+    document.head.appendChild(toastStyle);
     
     // Handle resource filtering
     const filterButtons = document.querySelectorAll('.filter-btn');

@@ -15,7 +15,7 @@ class ContactController extends BaseController {
     public function submit() {
         // Handle form submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $contactModel = new Contact();
+            $contactModel = $this->model('Contact');
             
             // Sanitize input data
             $data = [
@@ -48,8 +48,34 @@ class ContactController extends BaseController {
             // If no errors, save to database
             if (empty($errors)) {
                 $result = $contactModel->saveSubmission($data);
-                
+
                 if ($result) {
+                    // Send email notifications
+                    try {
+                        $emailService = new \App\Core\Email();
+
+                        // Send confirmation email to visitor
+                        $emailService->sendContactConfirmation([
+                            'name' => $data['name'],
+                            'email' => $data['email'],
+                            'subject' => $data['subject'],
+                            'message' => $data['message']
+                        ]);
+
+                        // Send notification email to admin
+                        $emailService->sendContactNotification([
+                            'name' => $data['name'],
+                            'email' => $data['email'],
+                            'subject' => $data['subject'],
+                            'message' => $data['message'],
+                            'ip_address' => $data['ip_address'],
+                            'timestamp' => date('Y-m-d H:i:s')
+                        ]);
+                    } catch (\Exception $e) {
+                        // Log email error but don't prevent form success
+                        error_log('Contact form email error: ' . $e->getMessage());
+                    }
+
                     // Return JSON response for AJAX
                     if (isset($_POST['ajax'])) {
                         header('Content-Type: application/json');

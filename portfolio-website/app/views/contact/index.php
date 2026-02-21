@@ -5,17 +5,7 @@
             <h1 class="page-title">Get In Touch</h1>
             <p class="page-subtitle">Have a project in mind or just want to say hello? I'd love to hear from you. Let's start a conversation and explore how we can work together.</p>
         </div>
-        
-        <?php if (isset($_GET['success']) && $_GET['success'] == '1'): ?>
-            <div class="success-message">
-                <div class="message-icon">✓</div>
-                <div class="message-content">
-                    <h3>Message Sent Successfully!</h3>
-                    <p>Thank you for reaching out. I'll get back to you as soon as possible.</p>
-                </div>
-            </div>
-        <?php endif; ?>
-        
+
         <div class="contact-content">
             <!-- Contact Form -->
             <div class="contact-form-container">
@@ -23,7 +13,17 @@
                     <h2>Send Me a Message</h2>
                     <p>Fill out the form below and I'll respond within 24 hours.</p>
                 </div>
-                
+
+                <?php if (isset($_GET['success']) && $_GET['success'] == '1'): ?>
+                    <div class="success-message" style="margin: 20px 0; padding: 20px; background: #d1fae5; border-left: 4px solid #10b981; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
+                        <div class="message-icon" style="font-size: 2rem; color: #10b981;">✓</div>
+                        <div class="message-content">
+                            <h3 style="margin: 0 0 5px; color: #065f46; font-size: 1.2rem;">Message Sent Successfully!</h3>
+                            <p style="margin: 0; color: #047857;">Thank you for your message! I'll get back to you soon.</p>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <?php if (isset($errors) && !empty($errors)): ?>
                     <div class="error-messages">
                         <div class="error-icon">⚠</div>

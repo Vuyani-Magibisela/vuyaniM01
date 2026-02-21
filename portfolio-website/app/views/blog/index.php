@@ -105,4 +105,9 @@
     </section>
 </div>
 
+<script>
+    // Set base URL for JavaScript
+    window.baseUrl = '<?php echo $baseUrl; ?>';
+</script>
+
 <?php require_once '../app/views/partials/footer.php'; ?>

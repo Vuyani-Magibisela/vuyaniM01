@@ -17,7 +17,7 @@ class AdminController extends BaseController {
     }
 
     /**
-     * Override view method to automatically include baseUrl
+     * Override view method to automatically include baseUrl and stats
      */
     protected function view(string $view, array $data = []) {
         // Detect environment and set base URL
@@ -30,6 +30,17 @@ class AdminController extends BaseController {
         }
 
         $data['baseUrl'] = $baseUrl;
+
+        // Add sidebar badge stats if not already present
+        if (!isset($data['stats'])) {
+            $contactModel = $this->model('Contact');
+            $subscriberModel = $this->model('Subscriber');
+            $data['stats'] = [
+                'unread_contacts' => $contactModel->getUnreadCount(),
+                'pending_subscribers' => $subscriberModel->getCount('pending')
+            ];
+        }
+
         parent::view($view, $data);
     }
 
@@ -1431,6 +1442,86 @@ class AdminController extends BaseController {
 
         $contactModel = $this->model('Contact');
         $success = $contactModel->deleteSubmission($id);
+
+        echo json_encode(['success' => $success]);
+        exit;
+    }
+
+    /**
+     * Manage newsletter subscribers
+     */
+    public function subscribers() {
+        $subscriberModel = $this->model('Subscriber');
+
+        $subscribers = $subscriberModel->getAllSubscribers();
+
+        // Convert objects to arrays for easier view access
+        $subscribersArray = array_map(function($subscriber) {
+            return (array) $subscriber;
+        }, $subscribers);
+
+        $stats = [
+            'total' => $subscriberModel->getCount(),
+            'verified' => $subscriberModel->getCount('verified'),
+            'pending' => $subscriberModel->getCount('pending'),
+            'unsubscribed' => $subscriberModel->getCount('unsubscribed')
+        ];
+
+        $data = [
+            'title' => 'Newsletter Subscribers - Admin Dashboard',
+            'subscribers' => $subscribersArray,
+            'stats' => array_merge($stats, [
+                'unread_contacts' => $this->model('Contact')->getUnreadCount(),
+                'pending_subscribers' => $stats['pending']
+            ]),
+            'success' => Session::getFlash('success'),
+            'error' => Session::getFlash('error')
+        ];
+
+        $this->view('admin/subscribers', $data);
+    }
+
+    /**
+     * Export verified subscribers to CSV
+     */
+    public function exportSubscribers() {
+        $subscriberModel = $this->model('Subscriber');
+        $subscribers = $subscriberModel->getAllVerified();
+
+        // Set headers for CSV download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="subscribers_' . date('Y-m-d') . '.csv"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $output = fopen('php://output', 'w');
+
+        // Header row
+        fputcsv($output, ['Email', 'Status', 'Subscribed Date', 'Verified Date']);
+
+        // Data rows
+        foreach ($subscribers as $subscriber) {
+            fputcsv($output, [
+                $subscriber->email ?? '',
+                $subscriber->status ?? '',
+                $subscriber->subscribed_at ?? '',
+                $subscriber->verified_at ?? ''
+            ]);
+        }
+
+        fclose($output);
+        exit;
+    }
+
+    /**
+     * Delete subscriber (AJAX)
+     */
+    public function deleteSubscriber($id) {
+        header('Content-Type: application/json');
+
+        $subscriberModel = $this->model('Subscriber');
+        $success = $subscriberModel->delete($id);
 
         echo json_encode(['success' => $success]);
         exit;
