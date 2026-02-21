@@ -35,3 +35,6 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Commit files
+docs/Commit_Messages
