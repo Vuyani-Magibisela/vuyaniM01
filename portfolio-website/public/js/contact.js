@@ -108,8 +108,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     ease: "power2.out"
                 });
             }
+
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                if (typeof gsap !== 'undefined') {
+                    gsap.to(successDiv, {
+                        duration: 0.5,
+                        opacity: 0,
+                        y: -20,
+                        ease: "power2.in",
+                        onComplete: () => successDiv.remove()
+                    });
+                } else {
+                    successDiv.style.transition = 'opacity 0.5s ease-out';
+                    successDiv.style.opacity = '0';
+                    setTimeout(() => successDiv.remove(), 500);
+                }
+            }, 3000);
         }
-        
+
         function showErrorMessage(errors) {
             // Remove any existing messages
             removeExistingMessages();

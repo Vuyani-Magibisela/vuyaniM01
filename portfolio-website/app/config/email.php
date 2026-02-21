@@ -18,7 +18,7 @@ if ($httpHost === 'localhost' ||
         'smtp_host' => 'mail.vuyanimagibisela.co.za',
         'smtp_port' => 465, // SSL port
         'smtp_username' => 'admin@vuyanimagibisela.co.za',
-        'smtp_password' => '0q;pC7*.T*5*gYWS',
+        'smtp_password' => '@*7.dQ.I=NkO7X]v',
         'smtp_encryption' => 'ssl',
         'from_email' => 'admin@vuyanimagibisela.co.za',
         'from_name' => 'Vuyani Magibisela',
@@ -34,7 +34,7 @@ if ($httpHost === 'localhost' ||
         'smtp_host' => 'mail.vuyanimagibisela.co.za',
         'smtp_port' => 465, // SSL port
         'smtp_username' => 'admin@vuyanimagibisela.co.za',
-        'smtp_password' => '0q;pC7*.T*5*gYWS',
+        'smtp_password' => '@*7.dQ.I=NkO7X]v',
         'smtp_encryption' => 'ssl',
         'from_email' => 'admin@vuyanimagibisela.co.za',
         'from_name' => 'Vuyani Magibisela',

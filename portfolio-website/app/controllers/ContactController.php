@@ -51,19 +51,23 @@ class ContactController extends BaseController {
 
                 if ($result) {
                     // Send email notifications
+                    $logFile = dirname(dirname(__DIR__)) . '/logs/email-debug.log';
                     try {
+                        file_put_contents($logFile, date('Y-m-d H:i:s') . " Creating Email service...\n", FILE_APPEND);
                         $emailService = new \App\Core\Email();
+                        file_put_contents($logFile, date('Y-m-d H:i:s') . " Email service created. Last error: " . $emailService->getLastError() . "\n", FILE_APPEND);
 
                         // Send confirmation email to visitor
-                        $emailService->sendContactConfirmation([
+                        $confResult = $emailService->sendContactConfirmation([
                             'name' => $data['name'],
                             'email' => $data['email'],
                             'subject' => $data['subject'],
                             'message' => $data['message']
                         ]);
+                        file_put_contents($logFile, date('Y-m-d H:i:s') . " Confirmation email result: " . ($confResult ? 'SUCCESS' : 'FAILED') . " Error: " . $emailService->getLastError() . "\n", FILE_APPEND);
 
                         // Send notification email to admin
-                        $emailService->sendContactNotification([
+                        $notifResult = $emailService->sendContactNotification([
                             'name' => $data['name'],
                             'email' => $data['email'],
                             'subject' => $data['subject'],
@@ -71,9 +75,10 @@ class ContactController extends BaseController {
                             'ip_address' => $data['ip_address'],
                             'timestamp' => date('Y-m-d H:i:s')
                         ]);
+                        file_put_contents($logFile, date('Y-m-d H:i:s') . " Admin notification result: " . ($notifResult ? 'SUCCESS' : 'FAILED') . " Error: " . $emailService->getLastError() . "\n", FILE_APPEND);
+
                     } catch (\Exception $e) {
-                        // Log email error but don't prevent form success
-                        error_log('Contact form email error: ' . $e->getMessage());
+                        file_put_contents($logFile, date('Y-m-d H:i:s') . " EXCEPTION: " . $e->getMessage() . "\n", FILE_APPEND);
                     }
 
                     // Return JSON response for AJAX
