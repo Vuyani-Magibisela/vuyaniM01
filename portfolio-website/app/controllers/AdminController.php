@@ -422,6 +422,11 @@ class AdminController extends BaseController {
                 $blogPostModel->attachTags($postId, $tagIds);
             }
 
+            // Notify subscribers if published
+            if (($postData['status'] ?? '') === 'published') {
+                $this->notifySubscribersOfNewPost($postId);
+            }
+
             Session::setFlash('success', 'Blog post created successfully!');
             header('Location: ' . $baseUrl . '/admin/blog');
         } else {
@@ -520,6 +525,11 @@ class AdminController extends BaseController {
                 $tagNames = !empty($_POST['tags']) ? array_map('trim', explode(',', $_POST['tags'])) : [];
                 $tagIds = $tagModel->findOrCreateTags($tagNames);
                 $blogPostModel->attachTags($id, $tagIds);
+            }
+
+            // Notify subscribers if published (isNotified check inside prevents duplicates)
+            if (($postData['status'] ?? '') === 'published') {
+                $this->notifySubscribersOfNewPost($id);
             }
 
             Session::setFlash('success', 'Blog post updated successfully!');
@@ -626,6 +636,76 @@ class AdminController extends BaseController {
         }
 
         exit;
+    }
+
+    /**
+     * Notify all verified subscribers about a new blog post
+     * @param int $postId
+     */
+    private function notifySubscribersOfNewPost($postId) {
+        try {
+            $blogPostModel = $this->model('BlogPost');
+            $subscriberModel = $this->model('Subscriber');
+
+            // Skip if already notified
+            if ($blogPostModel->isNotified($postId)) {
+                return;
+            }
+
+            $post = $blogPostModel->getPostById($postId);
+            if (!$post) {
+                error_log("[Notification] Post $postId not found, skipping notification");
+                return;
+            }
+
+            $subscribers = $subscriberModel->getAllVerified();
+            if (empty($subscribers)) {
+                error_log("[Notification] No verified subscribers to notify for post $postId");
+                $blogPostModel->markAsNotified($postId);
+                return;
+            }
+
+            $email = new \App\Core\Email();
+            $postData = [
+                'title' => $post->title,
+                'excerpt' => $post->excerpt ?? '',
+                'slug' => $post->slug,
+                'featured_image' => $post->featured_image ?? null
+            ];
+
+            $sent = 0;
+            $failed = 0;
+
+            foreach ($subscribers as $subscriber) {
+                $subscriberEmail = $subscriber['email'] ?? ($subscriber->email ?? null);
+                $unsubToken = $subscriber['verification_token'] ?? ($subscriber->verification_token ?? '');
+
+                if (!$subscriberEmail) {
+                    continue;
+                }
+
+                $result = $email->sendNewPostNotification($subscriberEmail, $unsubToken, $postData);
+                if ($result) {
+                    $sent++;
+                } else {
+                    $failed++;
+                }
+            }
+
+            $blogPostModel->markAsNotified($postId);
+
+            $logDir = dirname(__DIR__, 2) . '/logs';
+            if (!is_dir($logDir)) {
+                mkdir($logDir, 0755, true);
+            }
+            $logMessage = date('Y-m-d H:i:s') . " [Notification] Post '$post->title' (ID: $postId) - Sent: $sent, Failed: $failed\n";
+            file_put_contents($logDir . '/email-debug.log', $logMessage, FILE_APPEND);
+
+            error_log("[Notification] Post $postId: sent=$sent, failed=$failed");
+
+        } catch (\Exception $e) {
+            error_log("[Notification] Error notifying subscribers for post $postId: " . $e->getMessage());
+        }
     }
 
     /**

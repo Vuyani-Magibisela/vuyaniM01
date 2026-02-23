@@ -542,6 +542,36 @@ class BlogPost extends BaseModel {
     }
 
     /**
+     * Check if subscribers have been notified about a post
+     * @param int $id
+     * @return bool
+     */
+    public function isNotified($id) {
+        if (!$this->isConnected()) {
+            return false;
+        }
+
+        $query = "SELECT subscribers_notified FROM {$this->table} WHERE id = :id";
+        $result = $this->query($query, ['id' => $id], false);
+
+        return $result && (int)$result['subscribers_notified'] === 1;
+    }
+
+    /**
+     * Mark a post as having notified subscribers
+     * @param int $id
+     * @return bool
+     */
+    public function markAsNotified($id) {
+        if (!$this->isConnected()) {
+            return false;
+        }
+
+        $query = "UPDATE {$this->table} SET subscribers_notified = 1 WHERE id = :id";
+        return $this->query($query, ['id' => $id], false) !== false;
+    }
+
+    /**
      * Get tags for a post
      * @param int $postId
      * @return array

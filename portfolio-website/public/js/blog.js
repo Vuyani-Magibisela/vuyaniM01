@@ -160,6 +160,25 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     document.head.appendChild(toastStyle);
     
+    // Handle post-verification redirect (?subscribed=1 or ?subscription_error=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('subscribed') === '1') {
+      showSubscriptionToast('Your subscription is confirmed! Welcome to the blog.', 'success');
+      // Replace the subscribe form with a confirmed message
+      if (newsletterForm) {
+        newsletterForm.innerHTML = `
+          <div class="success-message">
+            <i class="fas fa-check-circle"></i>
+            <p>You're subscribed! You'll receive new post notifications.</p>
+          </div>`;
+      }
+      // Clean up the URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (urlParams.get('subscription_error') === '1') {
+      showSubscriptionToast('Verification failed. The link may have expired or is invalid.', 'error');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
     // Handle resource filtering
     const filterButtons = document.querySelectorAll('.filter-btn');
     const resourceCards = document.querySelectorAll('.resource-card');

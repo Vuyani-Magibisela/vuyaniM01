@@ -43,7 +43,10 @@ if (!isset($baseUrl)) {
   <script src="<?php echo $baseUrl; ?>/js/theme.js"></script>
   <script src="<?php echo $baseUrl; ?>/js/mobile-nav.js"></script>
 
-  <?php 
+  <!-- Set baseUrl for JavaScript -->
+  <script>window.baseUrl = '<?php echo $baseUrl; ?>';</script>
+
+  <?php
   // Load page-specific JavaScript files
   $url = $_GET['url'] ?? 'home/index';
   $urlParts = explode('/', $url);

@@ -200,6 +200,35 @@ class Email {
     }
 
     /**
+     * Send new blog post notification to a subscriber
+     *
+     * @param string $email Subscriber email
+     * @param string $unsubscribeToken Unsubscribe token
+     * @param array $postData Post data (title, excerpt, slug, featured_image)
+     * @return bool Success status
+     */
+    public function sendNewPostNotification($email, $unsubscribeToken, $postData) {
+        $baseUrl = $this->getBaseUrl();
+        $unsubscribeUrl = $baseUrl . '/subscription/unsubscribe/' . $unsubscribeToken;
+        $articleUrl = $baseUrl . '/blog/article/' . ($postData['slug'] ?? '');
+
+        return $this->sendTemplate(
+            $email,
+            'New Post: ' . ($postData['title'] ?? 'New Blog Post'),
+            'new_post_notification',
+            [
+                'email' => $email,
+                'title' => $postData['title'] ?? '',
+                'excerpt' => $postData['excerpt'] ?? '',
+                'slug' => $postData['slug'] ?? '',
+                'featured_image' => $postData['featured_image'] ?? null,
+                'articleUrl' => $articleUrl,
+                'unsubscribeUrl' => $unsubscribeUrl
+            ]
+        );
+    }
+
+    /**
      * Render an email template
      *
      * @param string $template Template filename (without .php)
