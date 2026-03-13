@@ -278,7 +278,7 @@ class Subscriber extends BaseModel {
      * @param int $id Subscriber ID
      * @return bool Success status
      */
-    public function delete($id) {
+    public function deleteSubscriber($id) {
         if (!$this->isConnected()) {
             return false;
         }

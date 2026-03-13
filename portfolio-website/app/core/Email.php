@@ -268,7 +268,7 @@ class Email {
         if ($host === 'localhost' || strpos($host, '127.0.0.1') !== false) {
             return $protocol . '://' . $host . '/vuyaniM01/portfolio-website/public';
         } else {
-            return $protocol . '://' . $host;
+            return $protocol . '://' . $host . '/public';
         }
     }
 

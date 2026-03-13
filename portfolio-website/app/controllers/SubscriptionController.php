@@ -12,6 +12,9 @@ class SubscriptionController extends BaseController {
      * POST /subscription/subscribe
      */
     public function subscribe() {
+        // Suppress display_errors for JSON endpoint — warnings corrupt JSON output
+        ini_set('display_errors', 0);
+        if (ob_get_length()) ob_clean();
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -47,15 +50,26 @@ class SubscriptionController extends BaseController {
         if ($token) {
             // Send verification email
             try {
+                error_log('[Subscription] Attempting to send verification email to: ' . $email);
                 $emailService = new Email();
-                $emailService->sendSubscriptionVerification($email, $token);
+                $result = $emailService->sendSubscriptionVerification($email, $token);
+                error_log('[Subscription] Email send result for ' . $email . ': ' . ($result ? 'SUCCESS' : 'FAILED'));
 
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Please check your email to confirm your subscription.'
-                ]);
+                if ($result === false) {
+                    $lastError = method_exists($emailService, 'getLastError') ? $emailService->getLastError() : 'unknown';
+                    error_log('[Subscription] Email send failed. Last error: ' . $lastError);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Could not send verification email. Please try again later.'
+                    ]);
+                } else {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Please check your email to confirm your subscription.'
+                    ]);
+                }
             } catch (\Exception $e) {
-                error_log('Subscription email error: ' . $e->getMessage());
+                error_log('[Subscription] Email exception for ' . $email . ': ' . $e->getMessage());
                 echo json_encode([
                     'success' => false,
                     'message' => 'An error occurred while sending the verification email. Please try again later.'
@@ -123,12 +137,49 @@ class SubscriptionController extends BaseController {
     }
 
     /**
+     * Temporary SMTP diagnostic endpoint
+     * GET /subscription/testEmail
+     * TODO: Remove after confirming SMTP works
+     */
+    public function testEmail() {
+        ini_set('display_errors', 0);
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        try {
+            error_log('[SMTP-Test] Starting SMTP diagnostic test');
+            $emailService = new Email();
+            $result = $emailService->sendSubscriptionVerification('admin@vuyanimagibisela.co.za', 'test-token-diagnostic');
+            $lastError = method_exists($emailService, 'getLastError') ? $emailService->getLastError() : null;
+
+            error_log('[SMTP-Test] Result: ' . ($result ? 'SUCCESS' : 'FAILED') . ($lastError ? ' Error: ' . $lastError : ''));
+
+            echo json_encode([
+                'smtp_test' => true,
+                'send_result' => $result ? 'success' : 'failed',
+                'error' => $lastError,
+                'timestamp' => date('Y-m-d H:i:s')
+            ]);
+        } catch (\Exception $e) {
+            error_log('[SMTP-Test] Exception: ' . $e->getMessage());
+            echo json_encode([
+                'smtp_test' => true,
+                'send_result' => 'exception',
+                'error' => $e->getMessage(),
+                'timestamp' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        exit;
+    }
+
+    /**
      * Get base URL for the application
      *
      * @return string Base URL
      */
     private function getBaseUrl() {
-        require_once dirname(__DIR__, 2) . '/config/config.php';
+        require_once dirname(__DIR__) . '/config/config.php';
         return $baseUrl;
     }
 }
