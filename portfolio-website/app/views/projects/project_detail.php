@@ -114,7 +114,7 @@
                         <a href="<?php echo $baseUrl; ?>/projects/detail/<?php echo htmlspecialchars($related['slug']); ?>" class="related-project">
                             <div class="related-image">
                                 <?php if (!empty($related['featured_image'])): ?>
-                                    <img src="<?php echo $baseUrl . htmlspecialchars($related['featured_image']); ?>"
+                                    <img src="<?php echo htmlspecialchars($related['featured_image']); ?>"
                                          alt="<?php echo htmlspecialchars($related['title']); ?>"
                                          onerror="this.src='<?php echo $baseUrl; ?>/images/skillsImg02.jpeg';">
                                 <?php else: ?>

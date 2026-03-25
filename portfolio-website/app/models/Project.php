@@ -472,6 +472,33 @@ class Project extends BaseModel
     }
 
     /**
+     * Sync project gallery images - removes all existing and re-inserts provided list
+     */
+    public function syncProjectImages($projectId, array $imagePaths)
+    {
+        if (!$this->isConnected()) {
+            return false;
+        }
+
+        try {
+            // Delete all existing gallery images for this project
+            $sql = "DELETE FROM project_images WHERE project_id = :project_id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':project_id' => $projectId]);
+
+            // Re-insert the ones that remain
+            foreach ($imagePaths as $index => $imagePath) {
+                $this->addProjectImage($projectId, $imagePath, null, $index + 1);
+            }
+
+            return true;
+        } catch (\PDOException $e) {
+            error_log("Error in Project::syncProjectImages - " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Update image display order
      */
     public function updateImageOrder($imageId, $displayOrder)

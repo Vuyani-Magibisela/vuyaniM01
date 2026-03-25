@@ -411,6 +411,11 @@
                                 </td>
                                 <td>
                                     <div class="actions" style="justify-content: center;">
+                                        <a href="<?php echo $baseUrl; ?>/blog/preview/<?php echo $post['id']; ?>"
+                                           class="btn btn-sm" style="background: #8b5cf6; color: white;"
+                                           target="_blank" title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <a href="<?php echo $baseUrl; ?>/admin/editBlogPost/<?php echo $post['id']; ?>"
                                            class="btn btn-sm btn-primary" title="Edit">
                                             <i class="fas fa-edit"></i>

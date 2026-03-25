@@ -1067,6 +1067,14 @@ class AdminController extends BaseController {
         $success = $projectModel->updateProject($id, $projectData);
 
         if ($success) {
+            // Sync gallery images
+            if (isset($_POST['gallery_images'])) {
+                $galleryImages = json_decode($_POST['gallery_images'], true);
+                if (is_array($galleryImages)) {
+                    $projectModel->syncProjectImages($id, $galleryImages);
+                }
+            }
+
             Session::setFlash('success', 'Project updated successfully!');
             header('Location: ' . $baseUrl . '/admin/projects');
         } else {
@@ -1601,7 +1609,7 @@ class AdminController extends BaseController {
         header('Content-Type: application/json');
 
         $subscriberModel = $this->model('Subscriber');
-        $success = $subscriberModel->delete($id);
+        $success = $subscriberModel->deleteSubscriber($id);
 
         echo json_encode(['success' => $success]);
         exit;

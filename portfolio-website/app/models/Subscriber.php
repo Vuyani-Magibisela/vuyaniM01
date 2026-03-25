@@ -264,7 +264,7 @@ class Subscriber extends BaseModel {
                 $result = $this->query($query, [], false);
             }
 
-            return $result ? (int)$result->count : 0;
+            return $result ? (int)$result['count'] : 0;
 
         } catch (Exception $e) {
             error_log('Count error: ' . $e->getMessage());

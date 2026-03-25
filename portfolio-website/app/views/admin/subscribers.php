@@ -15,109 +15,101 @@ ob_start();
     <!-- Statistics Cards -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon verified" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                <i class="fas fa-check-circle"></i>
+            <div class="stat-card-header">
+                <div class="stat-card-icon green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
             </div>
-            <div class="stat-info">
-                <h3><?php echo $stats['verified']; ?></h3>
-                <p>Verified Subscribers</p>
-            </div>
+            <div class="stat-card-value"><?php echo $stats['verified']; ?></div>
+            <div class="stat-card-label">Verified Subscribers</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon pending" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                <i class="fas fa-clock"></i>
+            <div class="stat-card-header">
+                <div class="stat-card-icon orange">
+                    <i class="fas fa-clock"></i>
+                </div>
             </div>
-            <div class="stat-info">
-                <h3><?php echo $stats['pending']; ?></h3>
-                <p>Pending Verification</p>
-            </div>
+            <div class="stat-card-value"><?php echo $stats['pending']; ?></div>
+            <div class="stat-card-label">Pending Verification</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon total" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
-                <i class="fas fa-envelope"></i>
+            <div class="stat-card-header">
+                <div class="stat-card-icon blue">
+                    <i class="fas fa-envelope"></i>
+                </div>
             </div>
-            <div class="stat-info">
-                <h3><?php echo $stats['total']; ?></h3>
-                <p>Total Subscribers</p>
-            </div>
+            <div class="stat-card-value"><?php echo $stats['total']; ?></div>
+            <div class="stat-card-label">Total Subscribers</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon unsubscribed" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
-                <i class="fas fa-user-slash"></i>
+            <div class="stat-card-header">
+                <div class="stat-card-icon purple">
+                    <i class="fas fa-user-slash"></i>
+                </div>
             </div>
-            <div class="stat-info">
-                <h3><?php echo $stats['unsubscribed']; ?></h3>
-                <p>Unsubscribed</p>
-            </div>
+            <div class="stat-card-value"><?php echo $stats['unsubscribed']; ?></div>
+            <div class="stat-card-label">Unsubscribed</div>
         </div>
     </div>
 
     <!-- Filters and Actions -->
-    <div class="table-controls" style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0 20px; flex-wrap: wrap; gap: 15px;">
-        <div class="filters" style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="filter-btn active" data-status="all" style="padding: 10px 20px; border: 2px solid #667eea; background: #667eea; color: white; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;">All</button>
-            <button class="filter-btn" data-status="verified" style="padding: 10px 20px; border: 2px solid #10b981; background: white; color: #10b981; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;">Verified</button>
-            <button class="filter-btn" data-status="pending" style="padding: 10px 20px; border: 2px solid #f59e0b; background: white; color: #f59e0b; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;">Pending</button>
-            <button class="filter-btn" data-status="unsubscribed" style="padding: 10px 20px; border: 2px solid #6b7280; background: white; color: #6b7280; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;">Unsubscribed</button>
+    <div class="subscribers-controls">
+        <div class="subscribers-filters">
+            <button class="filter-btn active" data-status="all">All</button>
+            <button class="filter-btn filter-verified" data-status="verified">Verified</button>
+            <button class="filter-btn filter-pending" data-status="pending">Pending</button>
+            <button class="filter-btn filter-unsubscribed" data-status="unsubscribed">Unsubscribed</button>
         </div>
 
-        <button class="btn btn-primary" onclick="exportSubscribers()" style="padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+        <button class="btn btn-primary" onclick="exportSubscribers()">
             <i class="fas fa-download"></i> Export CSV
         </button>
     </div>
 
     <!-- Subscribers Table -->
-    <div class="table-container" style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
+    <div class="subscribers-table-container">
         <?php if (empty($subscribers)): ?>
-            <div style="padding: 60px 20px; text-align: center; color: #6b7280;">
-                <i class="fas fa-inbox" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
-                <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">No Subscribers Yet</p>
+            <div class="subscribers-empty">
+                <i class="fas fa-inbox"></i>
+                <p class="subscribers-empty-title">No Subscribers Yet</p>
                 <p>Subscribers will appear here once people start subscribing to your blog.</p>
             </div>
         <?php else: ?>
-            <table class="admin-table" style="width: 100%; border-collapse: collapse;">
-                <thead style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+            <table class="admin-table subscribers-table">
+                <thead>
                     <tr>
-                        <th style="padding: 15px; text-align: left; font-weight: 600; color: #374151;">Email</th>
-                        <th style="padding: 15px; text-align: left; font-weight: 600; color: #374151;">Status</th>
-                        <th style="padding: 15px; text-align: left; font-weight: 600; color: #374151;">Subscribed</th>
-                        <th style="padding: 15px; text-align: left; font-weight: 600; color: #374151;">Verified</th>
-                        <th style="padding: 15px; text-align: center; font-weight: 600; color: #374151;">Actions</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Subscribed</th>
+                        <th>Verified</th>
+                        <th style="text-align: center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="subscribers-table">
                     <?php foreach ($subscribers as $subscriber): ?>
-                    <tr data-status="<?php echo htmlspecialchars($subscriber['status']); ?>" style="border-bottom: 1px solid #e5e7eb; transition: background 0.2s;">
-                        <td style="padding: 15px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <i class="fas fa-envelope" style="color: #667eea; font-size: 1.2rem;"></i>
-                                <span style="font-weight: 500; color: #111827;"><?php echo htmlspecialchars($subscriber['email']); ?></span>
+                    <tr data-status="<?php echo htmlspecialchars($subscriber['status']); ?>">
+                        <td>
+                            <div class="subscriber-email">
+                                <i class="fas fa-envelope"></i>
+                                <span><?php echo htmlspecialchars($subscriber['email']); ?></span>
                             </div>
                         </td>
-                        <td style="padding: 15px;">
-                            <?php
-                            $statusColors = [
-                                'verified' => '#10b981',
-                                'pending' => '#f59e0b',
-                                'unsubscribed' => '#6b7280'
-                            ];
-                            $statusColor = $statusColors[$subscriber['status']] ?? '#6b7280';
-                            ?>
-                            <span class="status-badge" style="display: inline-block; padding: 6px 12px; background: <?php echo $statusColor; ?>20; color: <?php echo $statusColor; ?>; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                        <td>
+                            <span class="status-badge status-<?php echo htmlspecialchars($subscriber['status']); ?>">
                                 <?php echo ucfirst($subscriber['status']); ?>
                             </span>
                         </td>
-                        <td style="padding: 15px; color: #6b7280;">
+                        <td class="text-muted">
                             <?php echo date('M d, Y', strtotime($subscriber['subscribed_at'])); ?>
                         </td>
-                        <td style="padding: 15px; color: #6b7280;">
+                        <td class="text-muted">
                             <?php echo $subscriber['verified_at'] ? date('M d, Y', strtotime($subscriber['verified_at'])) : '-'; ?>
                         </td>
-                        <td style="padding: 15px; text-align: center;">
-                            <button class="btn-delete" onclick="deleteSubscriber(<?php echo $subscriber['id']; ?>)" style="padding: 8px 16px; background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        <td style="text-align: center;">
+                            <button class="btn-delete" onclick="deleteSubscriber(<?php echo $subscriber['id']; ?>)">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -129,6 +121,173 @@ ob_start();
     </div>
 </div>
 
+<style>
+/* Subscribers page styles - uses admin.css CSS variables for dark mode support */
+.subscribers-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px 0 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.subscribers-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: 2px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-btn.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+.filter-btn.filter-verified.active {
+    background: #10b981;
+    border-color: #10b981;
+}
+
+.filter-btn.filter-pending.active {
+    background: #f59e0b;
+    border-color: #f59e0b;
+}
+
+.filter-btn.filter-unsubscribed.active {
+    background: #6b7280;
+    border-color: #6b7280;
+}
+
+.filter-btn:not(.active):hover {
+    background: var(--bg-color);
+}
+
+.subscribers-table-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.subscribers-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subscribers-table thead {
+    background: var(--bg-color);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.subscribers-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.subscribers-table td {
+    padding: 15px;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.subscribers-table tr {
+    transition: background 0.2s;
+}
+
+.subscribers-table tbody tr:hover {
+    background: var(--bg-color);
+}
+
+.subscriber-email {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.subscriber-email i {
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.subscriber-email span {
+    font-weight: 500;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-verified {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.status-pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.status-unsubscribed {
+    background: rgba(107, 114, 128, 0.15);
+    color: #6b7280;
+}
+
+.btn-delete {
+    padding: 8px 16px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+}
+
+.subscribers-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.subscribers-empty i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.subscribers-empty-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+</style>
+
 <script>
 // Filter functionality
 document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -138,12 +297,8 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
         // Update active button
         document.querySelectorAll('.filter-btn').forEach(b => {
             b.classList.remove('active');
-            b.style.background = 'white';
-            b.style.color = b.style.borderColor.split(' ')[2]; // Get color from border
         });
         btn.classList.add('active');
-        btn.style.background = btn.style.borderColor.split(' ')[2]; // Use border color as background
-        btn.style.color = 'white';
 
         // Filter table rows
         document.querySelectorAll('#subscribers-table tr').forEach(row => {

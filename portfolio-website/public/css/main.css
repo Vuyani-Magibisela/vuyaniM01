@@ -23,6 +23,7 @@
 
   /* Typography */
   --font-main: 'Courier New', monospace;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-size-base: 1rem;
   --font-size-lg: 1.5rem;
   --font-size-xl: 2.5rem;
@@ -2196,21 +2197,23 @@ body.dark-mode .no-results {
 }
 
 .article-content p {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .article-content h2 {
   font-size: 1.6rem;
-  margin: 2rem 0 1rem;
+  margin: 1.5rem 0 0.75rem;
+  padding-left: 12px;
+  border-left: 3px solid #f5b642;
 }
 
 .article-content h3 {
   font-size: 1.3rem;
-  margin: 1.8rem 0 1rem;
+  margin: 1.2rem 0 0.6rem;
 }
 
 .article-content ul, .article-content ol {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   padding-left: 1.5rem;
 }
 
@@ -2232,13 +2235,13 @@ body.dark-mode .no-results {
   padding-left: 1.5rem;
   font-style: italic;
   color: #666;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 .article-content img {
   max-width: 100%;
   height: auto;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   border-radius: 8px;
 }
 
@@ -2255,7 +2258,7 @@ body.dark-mode .no-results {
   padding: 1rem;
   border-radius: 5px;
   overflow-x: auto;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 .article-content pre code {
@@ -3115,7 +3118,21 @@ body.dark-mode .article-content {
   color: #ccc;
 }
 
-body.dark-mode .article-share, 
+body.dark-mode .article-content code {
+  background-color: #3a3a3a;
+  color: #e06c75;
+}
+
+body.dark-mode .article-content pre {
+  background-color: #2a2a2a;
+  color: #d4d4d4;
+}
+
+body.dark-mode .article-content pre code {
+  color: #d4d4d4;
+}
+
+body.dark-mode .article-share,
 body.dark-mode .article-author-bio {
   border-top-color: #555;
 }
@@ -3370,6 +3387,16 @@ body.dark-mode .related-title {
     text-align: left;
   }
 
+  /* Home posts grid - Stack on mobile */
+  .home-posts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Hero latest badge - full width on mobile */
+  .hero-latest-badge {
+    justify-content: center;
+  }
+
   /* Hero buttons - Stack vertically on mobile */
   .hero-buttons {
     flex-direction: column;
@@ -3387,4 +3414,128 @@ body.dark-mode .related-title {
   .nav-label {
     font-size: 0.75rem;
   }
+}
+
+/* ========================================
+   HOMEPAGE LATEST POSTS SECTION
+   ======================================== */
+.latest-posts-home {
+  margin-bottom: 40px;
+}
+
+.home-posts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+/* Hero Latest Post Badge */
+.hero-latest-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f5b642;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 30px;
+  text-decoration: none;
+  transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+  margin-top: 15px;
+  box-shadow: 0 2px 8px rgba(245, 182, 66, 0.3);
+}
+
+.hero-latest-badge:hover {
+  transform: translateY(-2px);
+  background-color: #e5a632;
+  box-shadow: 0 4px 12px rgba(245, 182, 66, 0.4);
+}
+
+.hero-latest-badge i {
+  font-size: 0.9rem;
+}
+
+body.dark-mode .hero-latest-badge {
+  background-color: #e5a632;
+  color: #1a1a1a;
+}
+
+body.dark-mode .hero-latest-badge:hover {
+  background-color: #f5b642;
+}
+
+/* Dark mode for home posts */
+body.dark-mode .latest-posts-home .post-card {
+  background-color: #3a3a3a;
+}
+
+body.dark-mode .latest-posts-home .post-title a {
+  color: #f9f9f9;
+}
+
+body.dark-mode .latest-posts-home .post-excerpt {
+  color: #ccc;
+}
+
+/* Responsive: home posts grid */
+@media (max-width: 992px) {
+  .home-posts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .home-posts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   ARTICLE BODY FONT (Inter sans-serif)
+   ======================================== */
+.article-content {
+  font-family: var(--font-body, 'Inter', sans-serif);
+}
+
+/* ========================================
+   PREVIEW BANNER
+   ======================================== */
+.preview-banner {
+  background-color: #fef3cd;
+  border-left: 4px solid #f5b642;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #856404;
+  border-radius: 0 8px 8px 0;
+}
+
+.preview-banner i {
+  font-size: 1.1rem;
+  color: #f5b642;
+}
+
+.preview-banner a {
+  margin-left: auto;
+  color: #f5b642;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.preview-banner a:hover {
+  text-decoration: underline;
+}
+
+body.dark-mode .preview-banner {
+  background-color: rgba(245, 182, 66, 0.15);
+  color: #f5b642;
+  border-left-color: #f5b642;
+}
+
+body.dark-mode .preview-banner i {
+  color: #f5b642;
 }

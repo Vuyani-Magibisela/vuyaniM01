@@ -404,8 +404,8 @@ $pageTitle = $isEdit ? 'Edit Project' : 'Create New Project';
                             <i class="fas fa-cloud-upload-alt fa-3x" style="color: var(--text-muted); margin-bottom: 1rem;"></i>
                             <p style="color: var(--text-color); margin-bottom: 0.5rem;">Click or drag image to upload</p>
                             <p style="color: var(--text-muted); font-size: 0.875rem;">Maximum file size: 5MB</p>
-                            <input type="file" id="featured-image-input" accept="image/*" style="display: none;">
                         </div>
+                        <input type="file" id="featured-image-input" accept="image/*" style="display: none;">
 
                         <div id="featured-image-preview" class="image-preview" style="display: none;">
                             <img id="featured-image-img" src="" alt="Featured image">
@@ -428,8 +428,8 @@ $pageTitle = $isEdit ? 'Edit Project' : 'Create New Project';
                             <i class="fas fa-images fa-3x" style="color: var(--text-muted); margin-bottom: 1rem;"></i>
                             <p style="color: var(--text-color); margin-bottom: 0.5rem;">Click or drag multiple images to upload</p>
                             <p style="color: var(--text-muted); font-size: 0.875rem;">You can upload multiple images at once</p>
-                            <input type="file" id="gallery-input" accept="image/*" multiple style="display: none;">
                         </div>
+                        <input type="file" id="gallery-input" accept="image/*" multiple style="display: none;">
 
                         <div id="gallery-grid" class="gallery-grid"></div>
                     </div>
@@ -615,9 +615,10 @@ $pageTitle = $isEdit ? 'Edit Project' : 'Create New Project';
 
                 if (data.success) {
                     featuredImageInput.value = data.url;
-                    featuredImg.src = baseUrl + data.url;
+                    featuredImg.src = data.url;
                     featuredUpload.style.display = 'none';
                     featuredPreview.style.display = 'block';
+                    featuredInput.value = '';
                 } else {
                     alert(data.error || 'Upload failed');
                     resetFeaturedUpload();
@@ -639,6 +640,7 @@ $pageTitle = $isEdit ? 'Edit Project' : 'Create New Project';
 
         function removeFeaturedImage() {
             featuredImageInput.value = '';
+            featuredInput.value = '';
             featuredPreview.style.display = 'none';
             featuredUpload.style.display = 'block';
             resetFeaturedUpload();
@@ -647,7 +649,7 @@ $pageTitle = $isEdit ? 'Edit Project' : 'Create New Project';
         // Load existing featured image
         <?php if (isset($project['featured_image']) && $project['featured_image']): ?>
         featuredImageInput.value = '<?php echo $project['featured_image']; ?>';
-        featuredImg.src = baseUrl + '<?php echo $project['featured_image']; ?>';
+        featuredImg.src = '<?php echo $project['featured_image']; ?>';
         featuredUpload.style.display = 'none';
         featuredPreview.style.display = 'block';
         <?php endif; ?>
@@ -704,6 +706,7 @@ $pageTitle = $isEdit ? 'Edit Project' : 'Create New Project';
                     galleryImages.push(data.url);
                     addGalleryItem(data.url);
                     updateGalleryInput();
+                    galleryInput.value = '';
                 } else {
                     alert(data.error || 'Upload failed');
                 }
@@ -717,7 +720,7 @@ $pageTitle = $isEdit ? 'Edit Project' : 'Create New Project';
             const item = document.createElement('div');
             item.className = 'gallery-item';
             item.innerHTML = `
-                <img src="${baseUrl}${imageUrl}" alt="Gallery image">
+                <img src="${imageUrl}" alt="Gallery image">
                 <div class="gallery-item-actions">
                     <button type="button" class="btn btn-sm btn-danger btn-icon" onclick="removeGalleryImage('${imageUrl}')">
                         <i class="fas fa-trash"></i>
@@ -765,6 +768,7 @@ $pageTitle = $isEdit ? 'Edit Project' : 'Create New Project';
 
         function saveDraft() {
             document.getElementById('status').value = 'draft';
+            document.getElementById('content_input').value = quill.root.innerHTML;
             document.getElementById('projectForm').submit();
         }
     </script>

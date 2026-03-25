@@ -9,14 +9,20 @@ class BlogController extends BaseController {
     public function index() {
         // Load blog posts for the main blog page
         $blogModel = $this->model('BlogPost');
-        $posts = $blogModel->getRecentPosts(10); // Get 10 most recent posts
         $featuredPosts = $blogModel->getFeaturedPosts(3); // Get 3 featured posts
-        
+
+        // Collect featured post IDs to exclude from latest
+        $excludeIds = array_map(function($post) {
+            return $post['id'];
+        }, $featuredPosts);
+
+        $posts = $blogModel->getRecentPosts(10, $excludeIds); // Exclude featured
+
         $data = [
             'posts' => $posts,
             'featuredPosts' => $featuredPosts
         ];
-        
+
         $this->view('blog/index', $data);
     }
     
@@ -40,14 +46,18 @@ class BlogController extends BaseController {
         // Increment view count
         $blogModel->incrementViews($post['id']);
 
+        // Parse markdown content if needed
+        $post['content'] = $this->parseContent($post['content']);
+
         // Get related posts
         $relatedPosts = $blogModel->getRelatedPosts($post['id'], $post['category_id'], 3);
-        
+
         $data = [
             'post' => $post,
-            'relatedPosts' => $relatedPosts
+            'relatedPosts' => $relatedPosts,
+            'isPreview' => false
         ];
-        
+
         $this->view('blog/article', $data);
     }
     
@@ -106,6 +116,85 @@ class BlogController extends BaseController {
         }
     }
     
+    public function preview($id = '') {
+        if (empty($id) || !isset($_SESSION['user_id'])) {
+            header('Location: /blog');
+            exit;
+        }
+
+        $blogModel = $this->model('BlogPost');
+        $post = $blogModel->getPostById($id);
+
+        if (!$post) {
+            header('Location: /admin/blog');
+            exit;
+        }
+
+        // Convert object to array for template compatibility
+        $postArr = (array)$post;
+
+        // Parse markdown content if needed
+        $postArr['content'] = $this->parseContent($postArr['content']);
+
+        // Ensure required fields exist for the template
+        if (empty($postArr['published_at'])) {
+            $postArr['published_at'] = $postArr['created_at'] ?? date('Y-m-d H:i:s');
+        }
+        if (empty($postArr['author_name'])) {
+            $postArr['author_name'] = 'Admin';
+        }
+        if (empty($postArr['views'])) {
+            $postArr['views'] = 0;
+        }
+        if (empty($postArr['category_slug'])) {
+            $postArr['category_slug'] = 'uncategorized';
+        }
+        if (empty($postArr['category_name'])) {
+            $postArr['category_name'] = $postArr['category_name'] ?? 'Uncategorized';
+        }
+
+        $relatedPosts = [];
+
+        $data = [
+            'post' => $postArr,
+            'relatedPosts' => $relatedPosts,
+            'isPreview' => true
+        ];
+
+        $this->view('blog/article', $data);
+    }
+
+    /**
+     * Detect if content is markdown (not HTML) and parse accordingly
+     */
+    private function parseContent($content) {
+        $trimmed = trim($content);
+
+        // If empty, return as-is
+        if (empty($trimmed)) {
+            return $content;
+        }
+
+        // Heuristic: if content starts with an HTML tag, treat as HTML
+        if (preg_match('/^<[a-z!]/i', $trimmed)) {
+            return $content;
+        }
+
+        // Content looks like markdown — parse it
+        $basePath = dirname(dirname(dirname(__FILE__)));
+        $parsedownPath = $basePath . '/app/libraries/Parsedown.php';
+
+        if (file_exists($parsedownPath)) {
+            require_once $parsedownPath;
+            $parsedown = new \Parsedown();
+            $parsedown->setSafeMode(true);
+            return $parsedown->text($trimmed);
+        }
+
+        // Fallback: return raw content wrapped in <p> tags
+        return '<p>' . nl2br(htmlspecialchars($content)) . '</p>';
+    }
+
     public function category($slug = '') {
         if (empty($slug)) {
             // Redirect to blog index if no slug provided

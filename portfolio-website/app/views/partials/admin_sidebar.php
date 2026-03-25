@@ -57,6 +57,10 @@ use App\Core\Session;
                 <i class="fas fa-envelope"></i>
                 <span>Contact Messages</span>
             </a>
+            <a href="<?php echo $baseUrl; ?>/admin/subscribers" class="nav-link">
+                <i class="fas fa-users"></i>
+                <span>Newsletter Subscribers</span>
+            </a>
         </div>
 
         <!-- Settings -->

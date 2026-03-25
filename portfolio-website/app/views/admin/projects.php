@@ -150,7 +150,7 @@ if (!Session::isAuthenticated()) {
                                         <td>
                                             <?php if ($project['featured_image']): ?>
                                                 <img
-                                                    src="<?php echo $baseUrl . htmlspecialchars($project['featured_image']); ?>"
+                                                    src="<?php echo htmlspecialchars($project['featured_image']); ?>"
                                                     alt="<?php echo htmlspecialchars($project['title']); ?>"
                                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"
                                                 >

@@ -701,13 +701,28 @@
       text-align: center;
       padding: 20px 15px;
     }
-    
+
     .expertise-icon {
       margin-right: 0;
       margin-bottom: 15px;
     }
-    
+
     .expertise-details {
       justify-content: center;
     }
   }
+
+/* ========================================
+   HOME POSTS GRID RESPONSIVE
+   ======================================== */
+@media (max-width: 992px) {
+  .home-posts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .home-posts-grid {
+    grid-template-columns: 1fr;
+  }
+}

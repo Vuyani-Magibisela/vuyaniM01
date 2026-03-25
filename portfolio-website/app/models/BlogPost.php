@@ -27,23 +27,41 @@ class BlogPost extends BaseModel {
         }
     }
     
-    public function getRecentPosts($limit = 10) {
+    public function getRecentPosts($limit = 10, $excludeIds = []) {
         // Check if we're using dummy data
         if (isset($this->dummyData)) {
-            $posts = array_slice($this->dummyData['posts'], 0, $limit);
-            return $posts;
+            $posts = $this->dummyData['posts'];
+            if (!empty($excludeIds)) {
+                $posts = array_filter($posts, function($post) use ($excludeIds) {
+                    return !in_array($post['id'], $excludeIds);
+                });
+                $posts = array_values($posts);
+            }
+            return array_slice($posts, 0, $limit);
         }
-        
+
         // Use database if available
-        $query = "SELECT p.*, c.name as category_name, c.slug as category_slug, u.username as author_name 
+        $query = "SELECT p.*, c.name as category_name, c.slug as category_slug, u.username as author_name
                   FROM {$this->table} p
                   LEFT JOIN blog_categories c ON p.category_id = c.id
                   LEFT JOIN users u ON p.author_id = u.id
-                  WHERE p.status = 'published' AND p.published_at <= NOW()
-                  ORDER BY p.published_at DESC
-                  LIMIT :limit";
-                  
-        return $this->query($query, ['limit' => $limit]);
+                  WHERE p.status = 'published' AND p.published_at <= NOW()";
+
+        $params = [];
+        if (!empty($excludeIds)) {
+            $placeholders = [];
+            foreach ($excludeIds as $i => $id) {
+                $key = 'exclude_' . $i;
+                $placeholders[] = ':' . $key;
+                $params[$key] = $id;
+            }
+            $query .= " AND p.id NOT IN (" . implode(',', $placeholders) . ")";
+        }
+
+        $query .= " ORDER BY p.published_at DESC LIMIT :limit";
+        $params['limit'] = $limit;
+
+        return $this->query($query, $params);
     }
     
     public function getPostBySlug($slug) {
@@ -352,9 +370,16 @@ class BlogPost extends BaseModel {
             // Handle published_at
             $publishedAt = $data['published_at'] ?? null;
             if ($data['status'] === 'published' && !$publishedAt) {
-                // Get current post to check if it's transitioning from draft
+                // Preserve existing published_at, or set to now if transitioning from draft
                 $currentPost = $this->getPostById($id);
                 if ($currentPost && $currentPost->status === 'draft') {
+                    // Transitioning from draft to published
+                    $publishedAt = date('Y-m-d H:i:s');
+                } elseif ($currentPost && $currentPost->published_at) {
+                    // Already published — keep existing published_at
+                    $publishedAt = $currentPost->published_at;
+                } else {
+                    // Fallback: set to now
                     $publishedAt = date('Y-m-d H:i:s');
                 }
             }
@@ -368,7 +393,7 @@ class BlogPost extends BaseModel {
                           category_id = :category_id,
                           status = :status,
                           is_featured = :is_featured,
-                          published_at = :published_at,
+                          published_at = COALESCE(:published_at, published_at, NOW()),
                           updated_at = NOW()
                       WHERE id = :id";
 
@@ -448,7 +473,7 @@ class BlogPost extends BaseModel {
         }
 
         $query = "UPDATE {$this->table}
-                  SET status = :status, published_at = :published_at
+                  SET status = :status, published_at = COALESCE(:published_at, published_at, NOW())
                   WHERE id = :id";
 
         return $this->query($query, [

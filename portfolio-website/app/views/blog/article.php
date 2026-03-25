@@ -1,6 +1,13 @@
 <?php require_once '../app/views/partials/header.php'; ?>
 
 <div class="container">
+    <?php if (!empty($isPreview)): ?>
+    <div class="preview-banner">
+        <i class="fas fa-eye"></i>
+        <span>You are previewing a draft — this post is not yet published.</span>
+        <a href="<?php echo $baseUrl; ?>/admin/editBlogPost/<?php echo $post['id']; ?>">Back to Editor</a>
+    </div>
+    <?php endif; ?>
     <article class="blog-article">
         <div class="article-header">
             <span class="article-category">

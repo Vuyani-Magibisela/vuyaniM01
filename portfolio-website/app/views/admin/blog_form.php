@@ -477,7 +477,7 @@
                 <label>Featured Image</label>
                 <div class="image-upload" id="imageUploadArea">
                     <?php if (isset($post->featured_image) && $post->featured_image): ?>
-                        <img src="<?php echo $baseUrl . $post->featured_image; ?>" alt="Featured image" class="image-preview" id="imagePreview">
+                        <img src="<?php echo $post->featured_image; ?>" alt="Featured image" class="image-preview" id="imagePreview">
                         <div class="image-actions">
                             <button type="button" class="btn btn-secondary btn-sm" onclick="changeImage()">
                                 <i class="fas fa-sync"></i> Change Image
@@ -534,6 +534,11 @@
                 <a href="<?php echo $baseUrl; ?>/admin/blog" class="btn btn-secondary">
                     <i class="fas fa-times"></i> Cancel
                 </a>
+                <?php if ($isEdit): ?>
+                <a href="<?php echo $baseUrl; ?>/blog/preview/<?php echo $post->id; ?>" target="_blank" class="btn" style="background: #8b5cf6; color: white;">
+                    <i class="fas fa-eye"></i> Preview
+                </a>
+                <?php endif; ?>
                 <button type="submit" name="status" value="draft" class="btn btn-secondary">
                     <i class="fas fa-save"></i> Save as Draft
                 </button>
@@ -559,7 +564,7 @@
             modules: {
                 toolbar: [
                     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
+                    ['bold', 'italic', 'underline', 'strike', 'code'],
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                     [{ 'indent': '-1'}, { 'indent': '+1' }],
                     ['blockquote', 'code-block'],
@@ -668,8 +673,9 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    displayImage('<?php echo $baseUrl; ?>' + data.url);
+                    displayImage(data.url);
                     featuredImageInput.value = data.url;
+                    imageInput.value = '';
                 } else {
                     alert('Upload failed: ' + data.error);
                 }
@@ -708,6 +714,7 @@
                 </div>
             `;
             featuredImageInput.value = '';
+            imageInput.value = '';
         }
 
         // Form submission

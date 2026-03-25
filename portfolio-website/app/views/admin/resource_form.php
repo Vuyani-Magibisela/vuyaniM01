@@ -320,8 +320,8 @@ $pageTitle = $isEdit ? 'Edit Resource' : 'Create New Resource';
                             <i class="fas fa-cloud-upload-alt fa-4x" style="color: var(--text-muted); margin-bottom: 1rem;"></i>
                             <p style="color: var(--text-color); font-size: 1.125rem; margin-bottom: 0.5rem;">Click or drag file to upload</p>
                             <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Maximum file size: 50MB</p>
-                            <input type="file" id="file-input" style="display: none;">
                         </div>
+                        <input type="file" id="file-input" style="display: none;">
 
                         <div id="file-info" class="file-info">
                             <div class="file-info-header">
@@ -373,8 +373,8 @@ $pageTitle = $isEdit ? 'Edit Resource' : 'Create New Resource';
                             <i class="fas fa-image fa-3x" style="color: var(--text-muted); margin-bottom: 1rem;"></i>
                             <p style="color: var(--text-color); margin-bottom: 0.5rem;">Click or drag image to upload</p>
                             <p style="color: var(--text-muted); font-size: 0.875rem;">Recommended size: 400x300px, Maximum: 5MB</p>
-                            <input type="file" id="thumbnail-input" accept="image/*" style="display: none;">
                         </div>
+                        <input type="file" id="thumbnail-input" accept="image/*" style="display: none;">
 
                         <div id="thumbnail-preview" class="image-preview" style="display: none;">
                             <img id="thumbnail-img" src="" alt="Thumbnail">
@@ -546,6 +546,7 @@ $pageTitle = $isEdit ? 'Edit Resource' : 'Create New Resource';
                     fileUpload.classList.add('has-file');
                     fileUpload.innerHTML = '<i class="fas fa-check-circle fa-4x" style="color: #10b981;"></i><p style="color: #10b981; font-weight: 600;">File uploaded successfully!</p>';
                     fileInfo.classList.add('active');
+                    fileInput.value = '';
                 } else {
                     alert(data.error || 'Upload failed');
                     resetFileUpload();
@@ -599,6 +600,7 @@ $pageTitle = $isEdit ? 'Edit Resource' : 'Create New Resource';
             document.getElementById('file_type_input').value = '';
             fileInfo.classList.remove('active');
             fileUpload.classList.remove('has-file');
+            fileInput.value = '';
             resetFileUpload();
         }
 
@@ -654,9 +656,10 @@ $pageTitle = $isEdit ? 'Edit Resource' : 'Create New Resource';
 
                 if (data.success) {
                     document.getElementById('thumbnail_input').value = data.url;
-                    thumbnailImg.src = baseUrl + data.url;
+                    thumbnailImg.src = data.url;
                     thumbnailUpload.style.display = 'none';
                     thumbnailPreview.style.display = 'block';
+                    thumbnailInput.value = '';
                 } else {
                     alert(data.error || 'Upload failed');
                 }
@@ -668,6 +671,7 @@ $pageTitle = $isEdit ? 'Edit Resource' : 'Create New Resource';
 
         function removeThumbnail() {
             document.getElementById('thumbnail_input').value = '';
+            thumbnailInput.value = '';
             thumbnailPreview.style.display = 'none';
             thumbnailUpload.style.display = 'block';
         }
@@ -675,7 +679,7 @@ $pageTitle = $isEdit ? 'Edit Resource' : 'Create New Resource';
         // Load existing thumbnail
         <?php if (isset($resource['thumbnail']) && $resource['thumbnail']): ?>
         document.getElementById('thumbnail_input').value = '<?php echo $resource['thumbnail']; ?>';
-        thumbnailImg.src = baseUrl + '<?php echo $resource['thumbnail']; ?>';
+        thumbnailImg.src = '<?php echo $resource['thumbnail']; ?>';
         thumbnailUpload.style.display = 'none';
         thumbnailPreview.style.display = 'block';
         <?php endif; ?>
