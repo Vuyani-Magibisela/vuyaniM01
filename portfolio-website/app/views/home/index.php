@@ -2,12 +2,10 @@
 <div class="container">
 
     <section class="hero">
-      <div class="hero-image">
-        <img src="<?php echo $baseUrl; ?>/images/headerImg.jpg" alt="Vuyani Magibisela at a science event wearing a white hat and shirt with a camera">
-      </div>
       <div class="hero-content">
-        <h1 class="hero-title">Empowering Technology & Creativity</h1>
-        <p class="hero-subtitle">Vuyani Magibisela - ICT Trainer, Web/App Developer, Maker and 3D Artist</p>
+        <div class="hero-label">Based in South Africa &mdash; ICT Trainer &amp; Developer</div>
+        <h1 class="hero-title">Empowering Technology &amp; Creativity</h1>
+        <p class="hero-subtitle">Vuyani Magibisela &mdash; ICT Trainer, Web/App Developer, Maker and 3D Artist</p>
         <?php if (!empty($latestPosts) && !empty($latestPosts[0])): ?>
           <a href="<?php echo $baseUrl; ?>/blog/article/<?php echo $latestPosts[0]['slug']; ?>" class="hero-latest-badge">
             <i class="fas fa-newspaper"></i>
@@ -15,53 +13,63 @@
           </a>
         <?php endif; ?>
       </div>
+      <div class="hero-image">
+        <img src="<?php echo $baseUrl; ?>/images/headerImg.jpg" alt="Vuyani Magibisela at a science event wearing a white hat and shirt with a camera">
+      </div>
     </section>
 
     <section class="services">
       <div class="service-card">
+        <div class="service-number">01</div>
         <div class="service-image">
           <img src="<?php echo $baseUrl; ?>/images/skillsImg01.png" alt="ICT Training">
         </div>
         <div class="service-content">
           <h3 class="service-title">ICT Training</h3>
-          <p class="service-description">Empowering youth with tech education.</p>
+          <p class="service-description">Empowering youth with technology education and digital skills for the modern world.</p>
         </div>
       </div>
 
       <div class="service-card">
+        <div class="service-number">02</div>
         <div class="service-image">
           <img src="<?php echo $baseUrl; ?>/images/skillsImg02.jpeg" alt="Web/App Development">
         </div>
         <div class="service-content">
           <h3 class="service-title">Web/App Development</h3>
-          <p class="service-description">Innovative solutions online</p>
+          <p class="service-description">Building innovative digital solutions — from responsive websites to full-stack applications.</p>
         </div>
       </div>
 
       <div class="service-card">
+        <div class="service-number">03</div>
         <div class="service-image">
           <img src="<?php echo $baseUrl; ?>/images/skillsImg03.jpeg" alt="3D Artistry">
         </div>
         <div class="service-content">
           <h3 class="service-title">3D Artistry</h3>
-          <p class="service-description">Bringing ideas to life</p>
+          <p class="service-description">Bringing ideas to life through 3D modelling, rendering, and immersive digital experiences.</p>
         </div>
       </div>
 
       <div class="service-card">
+        <div class="service-number">04</div>
         <div class="service-image">
           <img src="<?php echo $baseUrl; ?>/images/skillsImg04.jpeg" alt="Maker">
         </div>
         <div class="service-content">
           <h3 class="service-title">Maker</h3>
-          <p class="service-description">Product creation, experiments, explorations and repairs.</p>
+          <p class="service-description">Electronics, 3D printing, prototyping, and hands-on product creation and experimentation.</p>
         </div>
       </div>
     </section>
 
     <section class="about">
-      <h2 class="section-title">About Me</h2>
-      <p class="about-text">With a passion for technology and an eye for design, I've dedicated my career to helping others discover the power of digital innovation. Let's explore the possibilities together.</p>
+      <div class="about-quote">Passionate about technology, design, and helping others discover digital innovation.</div>
+      <div class="about-body">
+        <p class="about-text">With a passion for technology and an eye for design, I've dedicated my career to helping others discover the power of digital innovation. From ICT training to full-stack development, 3D artistry to maker projects — I bridge the gap between creativity and technology.</p>
+        <a href="<?php echo $baseUrl; ?>/clients" class="cta-button">Work With Me</a>
+      </div>
     </section>
 
     <?php if (!empty($latestPosts)): ?>
