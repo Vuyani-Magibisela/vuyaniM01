@@ -639,6 +639,227 @@ class AdminController extends BaseController {
     }
 
     /**
+     * Admin profile page (edit own name, email, bio, avatar, password)
+     */
+    public function profile() {
+        $userModel = $this->model('User');
+        $userId = Session::get('user_id');
+        $user = $userModel->findById($userId);
+
+        if (!$user) {
+            header('Location: ' . $this->getBaseUrl() . '/auth/login');
+            exit;
+        }
+
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $update = [
+                'first_name'    => trim($_POST['first_name'] ?? ''),
+                'last_name'     => trim($_POST['last_name'] ?? ''),
+                'email'         => trim($_POST['email'] ?? ''),
+                'bio'           => trim($_POST['bio'] ?? ''),
+            ];
+
+            if (!empty($_POST['profile_image'])) {
+                $update['profile_image'] = trim($_POST['profile_image']);
+            }
+
+            if (!filter_var($update['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Please provide a valid email address.';
+            }
+
+            // Optional password change
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+            if (!empty($newPassword) || !empty($confirmPassword)) {
+                if ($newPassword !== $confirmPassword) {
+                    $errors[] = 'New password and confirmation do not match.';
+                } elseif (strlen($newPassword) < 8) {
+                    $errors[] = 'Password must be at least 8 characters.';
+                }
+            }
+
+            if (empty($errors)) {
+                $ok = $userModel->updateProfile($userId, $update);
+
+                if ($ok && !empty($newPassword)) {
+                    $userModel->updatePassword($userId, $newPassword);
+                }
+
+                if ($ok) {
+                    // Refresh session email if changed
+                    Session::set('email', $update['email']);
+                    Session::setFlash('success', 'Profile updated successfully.');
+                    header('Location: ' . $this->getBaseUrl() . '/admin/profile');
+                    exit;
+                }
+
+                $errors[] = 'Failed to update profile. Please try again.';
+            }
+
+            // Reload user with submitted values for redisplay
+            $user = array_merge((array)$user, $update);
+        }
+
+        $this->view('admin/profile', [
+            'title'  => 'My Profile - Admin Dashboard',
+            'user'   => $user,
+            'errors' => $errors,
+            'success' => Session::getFlash('success'),
+        ]);
+    }
+
+    /**
+     * Upload profile/avatar image (AJAX)
+     */
+    public function uploadProfileImage() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'error' => 'Invalid request method']);
+            exit;
+        }
+
+        if (!isset($_FILES['image'])) {
+            echo json_encode(['success' => false, 'error' => 'No image provided']);
+            exit;
+        }
+
+        $file = $_FILES['image'];
+
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+        $maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!in_array($file['type'], $allowedTypes)) {
+            echo json_encode(['success' => false, 'error' => 'Invalid file type. Only JPG, PNG, WEBP, and GIF allowed.']);
+            exit;
+        }
+
+        if ($file['size'] > $maxSize) {
+            echo json_encode(['success' => false, 'error' => 'File too large. Maximum size is 5MB.']);
+            exit;
+        }
+
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $userId = (int) Session::get('user_id');
+        $filename = 'profile_' . $userId . '_' . time() . '.' . $extension;
+
+        $uploadDir = dirname(__DIR__, 2) . '/public/images/profiles/';
+        if (!is_dir($uploadDir)) {
+            @mkdir($uploadDir, 0755, true);
+        }
+        $uploadPath = $uploadDir . $filename;
+
+        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+            $baseUrl = $this->getBaseUrl();
+            $imageUrl = $baseUrl . '/images/profiles/' . $filename;
+
+            echo json_encode([
+                'success' => true,
+                'url' => $imageUrl,
+                'filename' => $filename
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to upload image']);
+        }
+
+        exit;
+    }
+
+    /**
+     * Return post stats as JSON for the admin blog modal.
+     * GET /admin/postStats/{id}
+     */
+    public function postStats($id = '') {
+        header('Content-Type: application/json');
+        $id = (int)$id;
+        if ($id <= 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid ID']);
+            exit;
+        }
+
+        $blogModel     = $this->model('BlogPost');
+        $reactionModel = $this->model('Reaction');
+        $commentModel  = $this->model('Comment');
+
+        $post = $blogModel->getPostById($id);
+        if (!$post) {
+            echo json_encode(['success' => false, 'error' => 'Post not found']);
+            exit;
+        }
+
+        $post = (array)$post;
+        $baseUrl = $this->getBaseUrl();
+
+        echo json_encode([
+            'success'         => true,
+            'post'            => [
+                'id'             => $post['id'],
+                'title'          => $post['title'],
+                'slug'           => $post['slug'],
+                'status'         => $post['status'],
+                'is_featured'    => (bool)$post['is_featured'],
+                'featured_image' => $post['featured_image'] ?? '',
+                'category_name'  => $post['category_name'] ?? '',
+                'views'          => (int)($post['views'] ?? 0),
+                'published_at'   => $post['published_at'] ?? '',
+                'created_at'     => $post['created_at'] ?? '',
+            ],
+            'reactions'       => $reactionModel->getCounts($id),
+            'pendingComments' => $commentModel->getCount($id, 'pending'),
+            'comments'        => $commentModel->getAllForAdmin($id),
+            'baseUrl'         => $baseUrl,
+        ]);
+        exit;
+    }
+
+    /**
+     * Approve a comment (AJAX POST).
+     * POST /admin/approveComment/{id}
+     */
+    public function approveComment($id = '') {
+        header('Content-Type: application/json');
+        $id = (int)$id;
+        if ($id <= 0) { echo json_encode(['success' => false]); exit; }
+
+        $commentModel = $this->model('Comment');
+        $ok = $commentModel->updateStatus($id, 'approved');
+        echo json_encode(['success' => $ok]);
+        exit;
+    }
+
+    /**
+     * Delete a comment (AJAX POST).
+     * POST /admin/deleteComment/{id}
+     */
+    public function deleteComment($id = '') {
+        header('Content-Type: application/json');
+        $id = (int)$id;
+        if ($id <= 0) { echo json_encode(['success' => false]); exit; }
+
+        $commentModel = $this->model('Comment');
+        $ok = $commentModel->deleteComment($id);
+        echo json_encode(['success' => $ok]);
+        exit;
+    }
+
+    /**
+     * Mark a comment as spam (AJAX POST).
+     * POST /admin/spamComment/{id}
+     */
+    public function spamComment($id = '') {
+        header('Content-Type: application/json');
+        $id = (int)$id;
+        if ($id <= 0) { echo json_encode(['success' => false]); exit; }
+
+        $commentModel = $this->model('Comment');
+        $ok = $commentModel->updateStatus($id, 'spam');
+        echo json_encode(['success' => $ok]);
+        exit;
+    }
+
+    /**
      * Notify all verified subscribers about a new blog post
      * @param int $postId
      */

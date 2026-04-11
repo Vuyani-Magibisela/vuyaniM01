@@ -1,502 +1,313 @@
+<?php
+require_once dirname(__DIR__, 2) . '/config/config.php';
+require_once dirname(__DIR__, 2) . '/core/Session.php';
+
+use App\Core\Session;
+
+if (!Session::isAuthenticated()) {
+    header('Location: ' . $baseUrl . '/auth/login');
+    exit;
+}
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $title ?? 'Manage Blog'; ?></title>
-
-    <?php
-    require_once dirname(__DIR__, 2) . '/config/config.php';
-    ?>
-
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo $baseUrl; ?>/images/favicon/favicon-32x32.png">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Styles -->
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/main.css">
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/css/admin.css">
-
-    <!-- Theme Initializer - Load immediately to prevent flash -->
     <script src="<?php echo $baseUrl; ?>/js/theme-init.js"></script>
-
-    <style>
-        /* Ensure CSS variables are defined */
-        :root {
-            --bg-color: #f5f5f5;
-            --card-bg: #ffffff;
-            --text-color: #1f2937;
-            --text-muted: #6b7280;
-            --border-color: #d1d5db;
-            --input-border: #9ca3af;
-            --input-bg: #ffffff;
-            --primary-color: #3b82f6;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --text-color: #f9f9f9;
-            --text-muted: #9ca3af;
-            --border-color: #404040;
-            --input-border: #555555;
-            --input-bg: #1f1f1f;
-            --primary-color: #3b82f6;
-        }
-
-        .admin-container {
-            min-height: 100vh;
-            background: var(--bg-color);
-            padding: 2rem;
-        }
-
-        .admin-header {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            border: none !important;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .btn-primary {
-            background: var(--primary-color) !important;
-            color: white !important;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb !important;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        .btn-success {
-            background: #10b981 !important;
-            color: white !important;
-        }
-
-        .btn-success:hover {
-            background: #059669 !important;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
-        }
-
-        .btn-danger {
-            background: #ef4444 !important;
-            color: white !important;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626 !important;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
-
-        .alert-success {
-            background: rgba(34, 197, 94, 0.1);
-            color: #16a34a;
-            border: 1px solid rgba(34, 197, 94, 0.2);
-        }
-
-        .alert-error {
-            background: rgba(239, 68, 68, 0.1);
-            color: #dc2626;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        .filters {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border-color);
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .filter-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-color);
-            font-weight: 500;
-        }
-
-        .filter-group input,
-        .filter-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--input-border) !important;
-            border-radius: 8px;
-            background: var(--input-bg) !important;
-            color: var(--text-color) !important;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
-            transition: all 0.3s;
-        }
-
-        .filter-group input:hover,
-        .filter-group select:hover {
-            border-color: var(--text-muted) !important;
-        }
-
-        .filter-group input:focus,
-        .filter-group select:focus {
-            outline: none !important;
-            border-color: var(--primary-color) !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
-        }
-
-        .filter-group select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 12px 12px;
-            padding-right: 2.5rem !important;
-            cursor: pointer;
-        }
-
-        .filter-group select:hover {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233b82f6' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
-        }
-
-        .table-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th,
-        .table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-color);
-        }
-
-        .table th {
-            background: var(--bg-color);
-            font-weight: 600;
-        }
-
-        .table tr:hover {
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-draft {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .badge-published {
-            background: #10b981;
-            color: white;
-        }
-
-        .featured-toggle {
-            cursor: pointer;
-            font-size: 1.25rem;
-            transition: transform 0.2s;
-        }
-
-        .featured-toggle:hover {
-            transform: scale(1.2);
-        }
-
-        .featured-toggle.active {
-            color: #f59e0b;
-        }
-
-        .actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 2rem;
-        }
-
-        .pagination a,
-        .pagination span {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-color);
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .pagination a:hover {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .pagination .active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-    </style>
 </head>
 <body>
-    <div class="admin-container">
-        <?php if (isset($success) && $success): ?>
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i>
-                <?php echo htmlspecialchars($success); ?>
-            </div>
-        <?php endif; ?>
+<div class="admin-wrapper">
+    <?php include dirname(__DIR__) . '/partials/admin_sidebar.php'; ?>
 
-        <?php if (isset($error) && $error): ?>
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation-circle"></i>
-                <?php echo htmlspecialchars($error); ?>
+    <main class="admin-main">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="admin-header-left">
+                <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+                <h1>Blog Posts</h1>
             </div>
-        <?php endif; ?>
-
-        <div class="admin-header">
-            <div>
-                <h1 style="color: var(--text-color); margin-bottom: 0.5rem;">Manage Blog Posts</h1>
-                <p style="color: var(--text-muted);">Total: <?php echo $totalPosts; ?> post(s)</p>
-            </div>
-            <div style="display: flex; gap: 1rem;">
-                <a href="<?php echo $baseUrl; ?>/admin/categories" class="btn btn-sm" style="background: #8b5cf6; color: white;">
-                    <i class="fas fa-folder"></i> Categories
+            <div class="header-actions">
+                <a href="<?php echo $baseUrl; ?>/admin/categories" class="btn btn-sm" style="background:#8b5cf6;color:#fff;">
+                    <i class="fas fa-folder"></i> <span class="btn-label">Categories</span>
                 </a>
-                <a href="<?php echo $baseUrl; ?>/admin/createBlogPost" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> New Post
+                <a href="<?php echo $baseUrl; ?>/admin/createBlogPost" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> <span class="btn-label">New Post</span>
                 </a>
-                <a href="<?php echo $baseUrl; ?>/admin" class="btn btn-sm" style="background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color);">
-                    <i class="fas fa-arrow-left"></i> Dashboard
+                <a href="<?php echo $baseUrl; ?>/admin" class="btn btn-sm btn-outline">
+                    <i class="fas fa-arrow-left"></i> <span class="btn-label">Dashboard</span>
                 </a>
             </div>
-        </div>
+        </header>
 
-        <!-- Filters -->
-        <form method="GET" action="<?php echo $baseUrl; ?>/admin/blog" class="filters">
-            <div class="filter-group">
-                <label for="search">Search</label>
-                <input type="text" id="search" name="search" placeholder="Search by title..." value="<?php echo htmlspecialchars($search ?? ''); ?>">
-            </div>
-            <div class="filter-group">
-                <label for="status">Status</label>
-                <select id="status" name="status">
-                    <option value="">All</option>
-                    <option value="draft" <?php echo ($status === 'draft') ? 'selected' : ''; ?>>Draft</option>
+        <div class="admin-content">
+            <?php if (!empty($success)): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success); ?>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Filters -->
+            <form method="GET" action="<?php echo $baseUrl; ?>/admin/blog" class="blog-filter-bar">
+                <input type="text" name="search" placeholder="Search by title…" value="<?php echo htmlspecialchars($search ?? ''); ?>" class="blog-filter-input">
+                <select name="status" class="blog-filter-select">
+                    <option value="">All statuses</option>
+                    <option value="draft"     <?php echo ($status === 'draft')     ? 'selected' : ''; ?>>Draft</option>
                     <option value="published" <?php echo ($status === 'published') ? 'selected' : ''; ?>>Published</option>
                 </select>
-            </div>
-            <div class="filter-group" style="display: flex; align-items: flex-end;">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-search"></i> Filter
-                </button>
-            </div>
-        </form>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
+            </form>
 
-        <!-- Posts Table -->
-        <div class="table-container">
+            <p class="blog-list-count"><?php echo $totalPosts; ?> post<?php echo $totalPosts !== 1 ? 's' : ''; ?></p>
+
+            <!-- Post list -->
             <?php if (empty($posts)): ?>
-                <div class="empty-state">
+                <div class="empty-state-card">
                     <i class="fas fa-inbox"></i>
-                    <h3 style="color: var(--text-color); margin-bottom: 0.5rem;">No posts found</h3>
-                    <p>Create your first blog post to get started!</p>
-                    <a href="<?php echo $baseUrl; ?>/admin/createBlogPost" class="btn btn-primary" style="margin-top: 1rem;">
+                    <h3>No posts found</h3>
+                    <p>Create your first blog post to get started.</p>
+                    <a href="<?php echo $baseUrl; ?>/admin/createBlogPost" class="btn btn-primary" style="margin-top:1rem;">
                         <i class="fas fa-plus"></i> Create Post
                     </a>
                 </div>
             <?php else: ?>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th style="text-align: center;">Featured</th>
-                            <th style="text-align: center;">Views</th>
-                            <th>Date</th>
-                            <th style="text-align: center;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($posts as $post): ?>
-                            <tr>
-                                <td>
-                                    <strong><?php echo htmlspecialchars($post['title']); ?></strong><br>
-                                    <small style="color: var(--text-muted);">
-                                        by <?php echo htmlspecialchars($post['author_name'] ?? 'Unknown'); ?>
-                                    </small>
-                                </td>
-                                <td><?php echo htmlspecialchars($post['category_name'] ?? 'Uncategorized'); ?></td>
-                                <td>
-                                    <span class="badge badge-<?php echo $post['status']; ?>">
-                                        <?php echo ucfirst($post['status']); ?>
-                                    </span>
-                                </td>
-                                <td style="text-align: center;">
-                                    <i class="fas fa-star featured-toggle <?php echo $post['is_featured'] ? 'active' : ''; ?>"
-                                       data-post-id="<?php echo $post['id']; ?>"
-                                       title="<?php echo $post['is_featured'] ? 'Remove from featured' : 'Mark as featured'; ?>"></i>
-                                </td>
-                                <td style="text-align: center;"><?php echo number_format($post['views']); ?></td>
-                                <td>
-                                    <small><?php echo date('M d, Y', strtotime($post['created_at'])); ?></small>
-                                </td>
-                                <td>
-                                    <div class="actions" style="justify-content: center;">
-                                        <a href="<?php echo $baseUrl; ?>/blog/preview/<?php echo $post['id']; ?>"
-                                           class="btn btn-sm" style="background: #8b5cf6; color: white;"
-                                           target="_blank" title="Preview">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="<?php echo $baseUrl; ?>/admin/editBlogPost/<?php echo $post['id']; ?>"
-                                           class="btn btn-sm btn-primary" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="<?php echo $baseUrl; ?>/admin/deleteBlogPost/<?php echo $post['id']; ?>"
-                                           class="btn btn-sm btn-danger"
-                                           onclick="return confirm('Are you sure you want to delete this post?')"
-                                           title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                <div class="blog-post-list">
+                    <?php foreach ($posts as $post): ?>
+                    <div class="blog-list-item" role="button" tabindex="0"
+                         onclick="openPostModal(<?php echo (int)$post['id']; ?>)"
+                         onkeydown="if(event.key==='Enter')openPostModal(<?php echo (int)$post['id']; ?>)">
+                        <div class="blog-list-thumb">
+                            <?php if (!empty($post['featured_image'])): ?>
+                                <img src="<?php echo $post['featured_image']; ?>" alt="" loading="lazy">
+                            <?php else: ?>
+                                <div class="blog-list-thumb-placeholder"><i class="fas fa-image"></i></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="blog-list-info">
+                            <span class="blog-list-title"><?php echo htmlspecialchars($post['title']); ?></span>
+                            <div class="blog-list-meta">
+                                <span class="badge badge-<?php echo $post['status']; ?>"><?php echo ucfirst($post['status']); ?></span>
+                                <?php if (!empty($post['category_name'])): ?>
+                                    <span class="blog-meta-item"><i class="fas fa-folder"></i> <?php echo htmlspecialchars($post['category_name']); ?></span>
+                                <?php endif; ?>
+                                <span class="blog-meta-item"><i class="fas fa-eye"></i> <?php echo number_format((int)$post['views']); ?></span>
+                                <span class="blog-meta-item"><i class="fas fa-calendar"></i> <?php echo date('M d, Y', strtotime($post['created_at'])); ?></span>
+                                <?php if ($post['is_featured']): ?>
+                                    <span class="blog-meta-item" style="color:#f59e0b;"><i class="fas fa-star"></i> Featured</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right blog-list-arrow"></i>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
 
                 <!-- Pagination -->
                 <?php if ($totalPages > 1): ?>
-                    <div class="pagination">
-                        <?php if ($currentPage > 1): ?>
-                            <a href="?page=<?php echo $currentPage - 1; ?><?php echo $status ? '&status=' . $status : ''; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>">
-                                <i class="fas fa-chevron-left"></i> Previous
-                            </a>
+                <div class="pagination">
+                    <?php
+                    $qs = ($status ? '&status='.$status : '') . ($search ? '&search='.urlencode($search) : '');
+                    if ($currentPage > 1): ?>
+                        <a href="?page=<?php echo $currentPage - 1; ?><?php echo $qs; ?>"><i class="fas fa-chevron-left"></i> Prev</a>
+                    <?php endif; ?>
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <?php if ($i == $currentPage): ?>
+                            <span class="active"><?php echo $i; ?></span>
+                        <?php else: ?>
+                            <a href="?page=<?php echo $i; ?><?php echo $qs; ?>"><?php echo $i; ?></a>
                         <?php endif; ?>
-
-                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                            <?php if ($i == $currentPage): ?>
-                                <span class="active"><?php echo $i; ?></span>
-                            <?php else: ?>
-                                <a href="?page=<?php echo $i; ?><?php echo $status ? '&status=' . $status : ''; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>">
-                                    <?php echo $i; ?>
-                                </a>
-                            <?php endif; ?>
-                        <?php endfor; ?>
-
-                        <?php if ($currentPage < $totalPages): ?>
-                            <a href="?page=<?php echo $currentPage + 1; ?><?php echo $status ? '&status=' . $status : ''; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>">
-                                Next <i class="fas fa-chevron-right"></i>
-                            </a>
-                        <?php endif; ?>
-                    </div>
+                    <?php endfor; ?>
+                    <?php if ($currentPage < $totalPages): ?>
+                        <a href="?page=<?php echo $currentPage + 1; ?><?php echo $qs; ?>">Next <i class="fas fa-chevron-right"></i></a>
+                    <?php endif; ?>
+                </div>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
+    </main>
+</div>
+
+<!-- Post Detail Modal -->
+<div id="postDetailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalPostTitle">
+    <div class="modal-content modal-content--wide">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalPostTitle">Loading…</h2>
+            <button class="modal-close" onclick="closeModal('postDetailModal')" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="modalPostBody">
+            <div class="modal-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+        </div>
     </div>
+</div>
 
-    <script>
-        // Theme management
-        const html = document.documentElement;
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
+<script>
+var BASE = '<?php echo $baseUrl; ?>';
 
-        // Featured toggle
-        document.querySelectorAll('.featured-toggle').forEach(toggle => {
-            toggle.addEventListener('click', async function() {
-                const postId = this.dataset.postId;
-                const isActive = this.classList.contains('active');
+function openPostModal(postId) {
+    var modal = document.getElementById('postDetailModal');
+    var title = document.getElementById('modalPostTitle');
+    var body  = document.getElementById('modalPostBody');
 
-                try {
-                    const response = await fetch(`<?php echo $baseUrl; ?>/admin/toggleFeatured/${postId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
+    title.textContent = 'Loading…';
+    body.innerHTML    = '<div class="modal-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
+    openModal('postDetailModal');
 
-                    const data = await response.json();
+    fetch(BASE + '/admin/postStats/' + postId)
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (!d.success) { body.innerHTML = '<p style="color:#dc2626;">Failed to load post data.</p>'; return; }
+            renderModal(d);
+        })
+        .catch(function(){ body.innerHTML = '<p style="color:#dc2626;">Network error. Please try again.</p>'; });
+}
 
-                    if (data.success) {
-                        this.classList.toggle('active');
-                        this.title = isActive ? 'Mark as featured' : 'Remove from featured';
-                    } else {
-                        alert('Failed to toggle featured status');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('An error occurred');
-                }
-            });
+function renderModal(d) {
+    var p = d.post;
+    var reactions = d.reactions;
+    var comments  = d.comments;
+    var pending   = d.pendingComments;
+    var base      = d.baseUrl;
+
+    document.getElementById('modalPostTitle').textContent = p.title;
+
+    var emojiMap = {like:'👍', love:'❤️', fire:'🔥', clap:'👏', wow:'😮'};
+
+    // Reactions row
+    var reactHtml = Object.keys(reactions).map(function(k){
+        return '<span class="modal-reaction"><span>' + (emojiMap[k]||k) + '</span> <strong>' + reactions[k] + '</strong></span>';
+    }).join('');
+
+    // Comments
+    var statusLabels = { pending: 'Pending', approved: 'Approved', spam: 'Spam' };
+    var commentRows = '';
+    if (comments && comments.length) {
+        commentRows = '<div class="modal-comments">';
+        comments.forEach(function(c){
+            var badgeClass = c.status === 'approved' ? 'badge-published' : (c.status === 'spam' ? 'badge-danger' : 'badge-draft');
+            commentRows += '<div class="modal-comment-item" id="mc-' + c.id + '">';
+            commentRows += '<div class="modal-comment-header">';
+            commentRows += '<strong>' + escHtml(c.author_name) + '</strong>';
+            commentRows += '<span class="badge ' + badgeClass + '">' + (statusLabels[c.status]||c.status) + '</span>';
+            commentRows += '<span style="color:#999;font-size:.8rem;">' + c.created_at.substring(0,10) + '</span>';
+            commentRows += '</div>';
+            commentRows += '<p class="modal-comment-text">' + escHtml(c.content) + '</p>';
+            commentRows += '<div class="modal-comment-actions">';
+            if (c.status !== 'approved') {
+                commentRows += '<button class="btn btn-sm btn-success" onclick="commentAction(\'' + base + '/admin/approveComment/' + c.id + '\', ' + c.id + ', \'approved\')"><i class="fas fa-check"></i> Approve</button>';
+            }
+            if (c.status !== 'spam') {
+                commentRows += '<button class="btn btn-sm" style="background:#f59e0b;color:#fff;" onclick="commentAction(\'' + base + '/admin/spamComment/' + c.id + '\', ' + c.id + ', \'spam\')"><i class="fas fa-ban"></i> Spam</button>';
+            }
+            commentRows += '<button class="btn btn-sm btn-danger" onclick="deleteComment(\'' + base + '/admin/deleteComment/' + c.id + '\', ' + c.id + ')"><i class="fas fa-trash"></i> Delete</button>';
+            commentRows += '</div></div>';
         });
-    </script>
+        commentRows += '</div>';
+    } else {
+        commentRows = '<p style="color:#999;font-size:.9rem;">No comments yet.</p>';
+    }
+
+    var thumb = p.featured_image
+        ? '<img src="' + p.featured_image + '" alt="" class="modal-thumb">'
+        : '';
+
+    document.getElementById('modalPostBody').innerHTML = [
+        thumb,
+        '<div class="modal-stats-grid">',
+            '<div class="modal-stat"><span class="modal-stat-label">Status</span><span class="badge badge-' + p.status + '">' + capitalise(p.status) + '</span></div>',
+            '<div class="modal-stat"><span class="modal-stat-label">Category</span><span>' + escHtml(p.category_name||'—') + '</span></div>',
+            '<div class="modal-stat"><span class="modal-stat-label">Views</span><span>' + p.views.toLocaleString() + '</span></div>',
+            '<div class="modal-stat"><span class="modal-stat-label">Featured</span><span>' + (p.is_featured ? '⭐ Yes' : 'No') + '</span></div>',
+            '<div class="modal-stat"><span class="modal-stat-label">Published</span><span>' + (p.published_at ? p.published_at.substring(0,10) : '—') + '</span></div>',
+            '<div class="modal-stat"><span class="modal-stat-label">Created</span><span>' + (p.created_at ? p.created_at.substring(0,10) : '—') + '</span></div>',
+        '</div>',
+
+        '<div class="modal-reactions-row"><span class="modal-section-label">Reactions</span>' + (reactHtml || '<span style="color:#999;">None yet</span>') + '</div>',
+
+        '<div class="modal-section-label" style="margin-bottom:.5rem;">Comments',
+            pending > 0 ? ' <span class="badge badge-draft">' + pending + ' pending</span>' : '',
+        '</div>',
+        commentRows,
+
+        '<div class="modal-footer">',
+            '<a href="' + base + '/blog/preview/' + p.id + '" class="btn btn-sm" style="background:#8b5cf6;color:#fff;" target="_blank"><i class="fas fa-eye"></i> Preview</a>',
+            '<a href="' + base + '/admin/editBlogPost/' + p.id + '" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> Edit</a>',
+            '<button class="btn btn-sm" style="background:#f59e0b;color:#fff;" onclick="toggleFeaturedModal(' + p.id + ', ' + (p.is_featured?'true':'false') + ', this)"><i class="fas fa-star"></i> ' + (p.is_featured ? 'Unfeature' : 'Feature') + '</button>',
+            '<button class="btn btn-sm btn-danger" onclick="deletePost(' + p.id + ')"><i class="fas fa-trash"></i> Delete</button>',
+        '</div>',
+    ].join('');
+}
+
+function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function capitalise(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function commentAction(url, id, newStatus) {
+    fetch(url, { method: 'POST' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d.success) {
+                var item = document.getElementById('mc-' + id);
+                if (item) {
+                    // Update badge and re-render action buttons based on new status
+                    var badge = item.querySelector('.badge');
+                    if (badge) {
+                        badge.className = 'badge ' + (newStatus === 'approved' ? 'badge-published' : 'badge-draft');
+                        badge.textContent = newStatus === 'approved' ? 'Approved' : 'Spam';
+                    }
+                    var actions = item.querySelector('.modal-comment-actions');
+                    if (actions) {
+                        var approveBtn = actions.querySelector('[onclick*="approveComment"]');
+                        if (approveBtn && newStatus === 'approved') approveBtn.remove();
+                        var spamBtn = actions.querySelector('[onclick*="spamComment"]');
+                        if (spamBtn && newStatus === 'spam') spamBtn.remove();
+                    }
+                }
+            }
+        });
+}
+
+function deleteComment(url, id) {
+    if (!confirm('Delete this comment permanently?')) return;
+    fetch(url, { method: 'POST' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d.success) {
+                var item = document.getElementById('mc-' + id);
+                if (item) item.remove();
+            }
+        });
+}
+
+function toggleFeaturedModal(postId, isFeatured, btn) {
+    fetch(BASE + '/admin/toggleFeatured/' + postId, { method: 'POST' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d.success) {
+                btn.innerHTML = '<i class="fas fa-star"></i> ' + (isFeatured ? 'Feature' : 'Unfeature');
+                btn.setAttribute('onclick', 'toggleFeaturedModal(' + postId + ', ' + (!isFeatured) + ', this)');
+            }
+        });
+}
+
+function deletePost(postId) {
+    if (!confirm('Delete this post permanently? This cannot be undone.')) return;
+    window.location.href = BASE + '/admin/deleteBlogPost/' + postId;
+}
+</script>
+
+<script src="<?php echo $baseUrl; ?>/js/admin.js"></script>
 </body>
 </html>

@@ -323,6 +323,42 @@ class User extends BaseModel {
     }
 
     /**
+     * Update a user's own profile (name, email, bio, profile_image).
+     * Only updates keys present in $data.
+     */
+    public function updateProfile($userId, $data) {
+        if (!$this->isConnected()) {
+            return false;
+        }
+
+        $allowed = ['first_name', 'last_name', 'email', 'bio', 'profile_image'];
+        $sets = [];
+        $params = ['id' => $userId];
+
+        foreach ($allowed as $field) {
+            if (array_key_exists($field, $data)) {
+                $sets[] = "$field = :$field";
+                $params[$field] = $data[$field];
+            }
+        }
+
+        if (empty($sets)) {
+            return true;
+        }
+
+        $sets[] = "updated_at = NOW()";
+        $query = "UPDATE {$this->table} SET " . implode(', ', $sets) . " WHERE id = :id";
+
+        try {
+            $result = $this->query($query, $params, false);
+            return $result !== false;
+        } catch (Exception $e) {
+            error_log('User profile update error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Delete user
      */
     public function deleteUser($userId) {

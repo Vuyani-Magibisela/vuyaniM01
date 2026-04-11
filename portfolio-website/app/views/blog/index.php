@@ -20,9 +20,9 @@
                                 <?php else: ?>
                                     <img src="<?php echo $baseUrl; ?>/images/blog/default-post.jpg" alt="Default post image">
                                 <?php endif; ?>
+                                <span class="post-category"><?php echo $post['category_name']; ?></span>
                             </div>
                             <div class="post-content">
-                                <span class="post-category"><?php echo $post['category_name']; ?></span>
                                 <h3 class="post-title"><?php echo $post['title']; ?></h3>
                                 <p class="post-excerpt"><?php echo $post['excerpt']; ?></p>
                                 <div class="post-meta">

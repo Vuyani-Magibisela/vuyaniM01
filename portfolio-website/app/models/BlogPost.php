@@ -76,7 +76,7 @@ class BlogPost extends BaseModel {
         }
         
         // Use database if available
-        $query = "SELECT p.*, c.name as category_name, c.slug as category_slug, u.username as author_name, u.first_name, u.last_name
+        $query = "SELECT p.*, c.name as category_name, c.slug as category_slug, u.username as author_name, u.first_name, u.last_name, u.profile_image, u.bio
                   FROM {$this->table} p
                   LEFT JOIN blog_categories c ON p.category_id = c.id
                   LEFT JOIN users u ON p.author_id = u.id

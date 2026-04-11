@@ -66,6 +66,10 @@ use App\Core\Session;
         <!-- Settings -->
         <div class="nav-section">
             <div class="nav-section-title">Settings</div>
+            <a href="<?php echo $baseUrl; ?>/admin/profile" class="nav-link">
+                <i class="fas fa-user-circle"></i>
+                <span>My Profile</span>
+            </a>
             <a href="<?php echo $baseUrl; ?>/admin/users" class="nav-link">
                 <i class="fas fa-users"></i>
                 <span>Users</span>

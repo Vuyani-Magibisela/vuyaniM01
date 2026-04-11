@@ -20,6 +20,7 @@ cache/
 # Backups
 backups/
 *.sql
+!portfolio-website/database/migrations/*.sql
 *.backup
 
 # IDE files

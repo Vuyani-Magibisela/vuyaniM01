@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Core\Session;
 
 class BlogController extends BaseController {
 
@@ -52,13 +53,146 @@ class BlogController extends BaseController {
         // Get related posts
         $relatedPosts = $blogModel->getRelatedPosts($post['id'], $post['category_id'], 3);
 
+        // Load reactions and approved comments
+        $reactionModel = $this->model('Reaction');
+        $commentModel  = $this->model('Comment');
+
         $data = [
-            'post' => $post,
-            'relatedPosts' => $relatedPosts,
-            'isPreview' => false
+            'post'           => $post,
+            'relatedPosts'   => $relatedPosts,
+            'reactionCounts' => $reactionModel->getCounts($post['id']),
+            'comments'       => $commentModel->getApproved($post['id']),
+            'isPreview'      => false,
         ];
 
         $this->view('blog/article', $data);
+    }
+
+    /**
+     * Handle emoji reaction toggle (AJAX POST)
+     * POST /blog/react
+     */
+    public function react() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+            exit;
+        }
+
+        // CSRF check
+        $token = $_POST['csrf_token'] ?? '';
+        if (!Session::verifyCsrfToken($token)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Invalid token']);
+            exit;
+        }
+
+        $postId = (int)($_POST['post_id'] ?? 0);
+        $emoji  = trim($_POST['emoji'] ?? '');
+
+        $reactionModel = $this->model('Reaction');
+
+        if ($postId <= 0 || !$reactionModel->isAllowed($emoji)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid input']);
+            exit;
+        }
+
+        // Session-based rate limit: max 30 reaction toggles per minute
+        $rateBucket = 'reaction_count_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
+        $rateWindow = 'reaction_window_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
+        $now = time();
+        if (Session::get($rateWindow, 0) < $now - 60) {
+            Session::set($rateWindow, $now);
+            Session::set($rateBucket, 0);
+        }
+        $count = (int)Session::get($rateBucket, 0);
+        if ($count >= 30) {
+            http_response_code(429);
+            echo json_encode(['success' => false, 'error' => 'Too many reactions. Please slow down.']);
+            exit;
+        }
+        Session::set($rateBucket, $count + 1);
+
+        $ipHash = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . ($_SERVER['HTTP_USER_AGENT'] ?? ''));
+        $result = $reactionModel->toggle($postId, $emoji, $ipHash);
+
+        echo json_encode(['success' => true, 'action' => $result['action'], 'emoji' => $emoji, 'count' => $result['count']]);
+        exit;
+    }
+
+    /**
+     * Handle comment submission (AJAX POST)
+     * POST /blog/comment
+     */
+    public function comment() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+            exit;
+        }
+
+        // CSRF check
+        $token = $_POST['csrf_token'] ?? '';
+        if (!Session::verifyCsrfToken($token)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Invalid token']);
+            exit;
+        }
+
+        // Honeypot — bots fill this, humans don't
+        if (!empty($_POST['website'])) {
+            // Silently succeed to fool bots
+            echo json_encode(['success' => true, 'message' => 'Comment submitted for review.']);
+            exit;
+        }
+
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $commentModel = $this->model('Comment');
+
+        // Rate limit: max 5 comments per 5 minutes per IP
+        if ($commentModel->countByIp($ip, 300) >= 5) {
+            http_response_code(429);
+            echo json_encode(['success' => false, 'error' => 'Too many comments. Please wait a few minutes before commenting again.']);
+            exit;
+        }
+
+        $postId  = (int)($_POST['post_id'] ?? 0);
+        $name    = strip_tags(trim($_POST['author_name'] ?? ''));
+        $email   = trim($_POST['author_email'] ?? '');
+        $content = strip_tags(trim($_POST['content'] ?? ''));
+
+        // Validate
+        $errors = [];
+        if ($postId <= 0)                            $errors[] = 'Invalid post.';
+        if (mb_strlen($name) < 2 || mb_strlen($name) > 100) $errors[] = 'Name must be 2–100 characters.';
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL))       $errors[] = 'Please provide a valid email address.';
+        if (mb_strlen($content) < 10 || mb_strlen($content) > 2000) $errors[] = 'Comment must be 10–2000 characters.';
+
+        if (!empty($errors)) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'error' => implode(' ', $errors)]);
+            exit;
+        }
+
+        $id = $commentModel->createComment([
+            'post_id'      => $postId,
+            'author_name'  => $name,
+            'author_email' => $email,
+            'content'      => $content,
+            'ip_address'   => $ip,
+            'user_agent'   => $_SERVER['HTTP_USER_AGENT'] ?? '',
+        ]);
+
+        if ($id) {
+            echo json_encode(['success' => true, 'message' => 'Thank you! Your comment has been submitted for review and will appear once approved.']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'Could not save your comment. Please try again.']);
+        }
+        exit;
     }
     
     public function resources() {
@@ -156,9 +290,11 @@ class BlogController extends BaseController {
         $relatedPosts = [];
 
         $data = [
-            'post' => $postArr,
-            'relatedPosts' => $relatedPosts,
-            'isPreview' => true
+            'post'           => $postArr,
+            'relatedPosts'   => $relatedPosts,
+            'reactionCounts' => [],
+            'comments'       => [],
+            'isPreview'      => true,
         ];
 
         $this->view('blog/article', $data);
