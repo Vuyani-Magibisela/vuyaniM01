@@ -1,0 +1,93 @@
+# Development stack for vuyanimagibisela.co.za
+#   app         -> http://localhost:8080
+#   phpMyAdmin  -> http://localhost:8081
+#   Mailpit     -> http://localhost:8025
+#   MariaDB     -> localhost:3307 (from the host)
+#
+# Start:  docker compose up -d --build
+# Logs:   docker compose logs -f app
+# Shell:  docker compose exec app bash
+
+services:
+  app:
+    build:
+      context: ./docker
+      dockerfile: php/Dockerfile
+    container_name: vuyanim_app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./portfolio-website:/var/www/html
+    env_file:
+      - .env
+    environment:
+      XDEBUG_MODE: "${XDEBUG_MODE:-debug,develop}"
+      PHP_IDE_CONFIG: "serverName=vuyanim"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [vuyanim]
+
+  db:
+    # Matches production: MariaDB 10.6 (cPanel / cll-lve build)
+    image: mariadb:10.6
+    container_name: vuyanim_db
+    restart: unless-stopped
+    ports:
+      - "${DB_HOST_PORT:-3307}:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-root}"
+      MARIADB_DATABASE: "${DB_NAME:-vuyanim}"
+      MARIADB_USER: "${DB_USER:-vuyanim}"
+      MARIADB_PASSWORD: "${DB_PASSWORD:-vuyanim}"
+    volumes:
+      - db_data:/var/lib/mysql
+      # *.sql here runs once, on first creation of the volume.
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks: [vuyanim]
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: vuyanim_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 256M
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-root}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [vuyanim]
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: vuyanim_mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"   # web inbox
+      - "${MAILPIT_SMTP_PORT:-1025}:1025" # SMTP
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks: [vuyanim]
+
+volumes:
+  db_data:
+
+networks:
+  vuyanim:
+    driver: bridge

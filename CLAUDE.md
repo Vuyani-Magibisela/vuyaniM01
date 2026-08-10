@@ -23,36 +23,40 @@ This is a custom PHP MVC portfolio website with the following key architectural 
 - **Helpers** (`app/core/Helpers.php`): Utility functions
 
 ### Environment Configuration
-- **Local development**: Uses `/vuyaniM01/portfolio-website/public` base URL
-- **Production**: Uses `/public` base URL with automatic environment detection
-- Database credentials auto-switch based on hostname detection
+Configuration is environment-driven via `App\Core\Env` (`app/core/Env.php`).
+There is **no hostname sniffing and there are no credentials in the repo.**
+Precedence: real env vars → `.env` file → code defaults. See `.env.example`.
+
+| Setting | Docker | cPanel production |
+|---|---|---|
+| `APP_BASE_URL` | `` (empty — DocumentRoot is `public/`) | `/public` |
+| `APP_DEBUG` | `true` | `false` |
+| `DB_HOST` | `db` | `localhost` |
+| `MAIL_HOST` | `mailpit` (no auth, no TLS) | `mail.vuyanimagibisela.co.za` (SSL 465) |
 
 ## Development Commands
 
-This project uses PHP without a build system. Common development tasks:
+Development runs in Docker. See `DOCKER.md` for the full guide.
 
-### Local Development Setup
-```bash
-# Start local server (from portfolio-website/public/)
-php -S localhost:8000
-
-# Or use XAMPP/WAMP pointing to public/ directory
+```powershell
+.\dev.ps1 up          # build + start (site :8080, phpMyAdmin :8081, Mailpit :8025)
+.\dev.ps1 shell       # bash inside the app container
+.\dev.ps1 db          # mariadb CLI
+.\dev.ps1 migrate     # run database/run_migrations.php
+.\dev.ps1 lint        # php -l over the codebase
+.\dev.ps1 logs        # follow Apache + PHP output
 ```
 
-### Database Management
-```bash
-# Connect to local MySQL
-mysql -u vuksDev -p Vu13#k*s3D3V
+`make up`, `make shell`, etc. work identically from Git Bash or WSL.
 
-# Test database connection
-php public/test-db.php
-```
+Never run PHP or MySQL directly on the Windows host — the container is the
+only supported environment, and it matches production (PHP 8.3, MariaDB 10.6).
 
 ### Composer Dependencies
 ```bash
-# Install dependencies (minimal composer.json for PSR-4 autoloading)
-composer install
+.\dev.ps1 composer require some/package
 ```
+`vendor/` is git-ignored; `composer.lock` pins PHPMailer 7.0.2.
 
 ## Key Technical Details
 
@@ -92,9 +96,15 @@ composer install
 4. Update CSS in `public/css/` following existing organization
 
 ### Database Changes
-- Update both local and production database configurations
+- Add a numbered file to `database/migrations/`, then `.\dev.ps1 migrate`
 - Use prepared statements via `BaseModel` methods
-- Environment-specific credentials handled automatically
+- Credentials come from `.env` — never edit them into `app/config/`
+
+### Things that must not happen
+- No credentials, dumps, logs, or uploads committed to Git
+- No diagnostic or debug scripts inside `public/` — they belong in `tools/`,
+  which is outside the document root
+- No manual edits on the production server; deploy from Git
 
 ### Responsive Design
 - Mobile-first approach implemented

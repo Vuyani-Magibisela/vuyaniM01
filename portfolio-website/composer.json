@@ -1,10 +1,15 @@
 {
-    "require": {
-        "phpmailer/phpmailer": "^6.9"
-    },
     "autoload": {
         "psr-4": {
             "App\\": "app/"
-        }
+        },
+          "classmap": [
+              "app/models/",
+              "app/controllers/",
+              "app/core/"
+          ]
+      },
+    "require": {
+        "phpmailer/phpmailer": "^7.0"
     }
 }

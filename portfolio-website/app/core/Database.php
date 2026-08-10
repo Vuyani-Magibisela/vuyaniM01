@@ -42,7 +42,13 @@ class Database {
             
             try {
                 $dsn = "mysql:host=" . self::$config['host'];
-                
+
+                // Add port to DSN if provided (Docker maps MariaDB on a
+                // non-default host port; inside the network it is 3306)
+                if (!empty(self::$config['port'])) {
+                    $dsn .= ";port=" . self::$config['port'];
+                }
+
                 // Add database name to DSN if provided
                 if (!empty(self::$config['dbname'])) {
                     $dsn .= ";dbname=" . self::$config['dbname'];
@@ -111,6 +117,7 @@ class Database {
                 // If config file doesn't exist, use default values
                 self::$config = [
                     'host' => 'localhost',
+                    'port' => 3306,
                     'dbname' => 'vuyanim',
                     'user' => 'root',
                     'password' => '',

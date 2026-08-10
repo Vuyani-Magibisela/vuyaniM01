@@ -5,6 +5,8 @@ namespace App\Core;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+require_once __DIR__ . '/Env.php';
+
 /**
  * Email Service Class
  *
@@ -33,11 +35,23 @@ class Email {
             // Server settings
             $this->mailer->isSMTP();
             $this->mailer->Host = $this->config['smtp_host'];
-            $this->mailer->SMTPAuth = true;
-            $this->mailer->Username = $this->config['smtp_username'];
-            $this->mailer->Password = $this->config['smtp_password'];
-            $this->mailer->SMTPSecure = $this->config['smtp_encryption'];
             $this->mailer->Port = $this->config['smtp_port'];
+
+            // Mailpit (local dev) accepts unauthenticated, unencrypted mail.
+            // Production SMTP requires both.
+            $this->mailer->SMTPAuth = !empty($this->config['smtp_auth']);
+
+            if ($this->mailer->SMTPAuth) {
+                $this->mailer->Username = $this->config['smtp_username'];
+                $this->mailer->Password = $this->config['smtp_password'];
+            }
+
+            if (!empty($this->config['smtp_encryption'])) {
+                $this->mailer->SMTPSecure = $this->config['smtp_encryption'];
+            } else {
+                $this->mailer->SMTPSecure = false;
+                $this->mailer->SMTPAutoTLS = false;
+            }
 
             // From address
             $this->mailer->setFrom($this->config['from_email'], $this->config['from_name']);
@@ -261,15 +275,17 @@ class Email {
      * @return string Base URL
      */
     private function getBaseUrl() {
+        // APP_URL is authoritative — emails are often rendered from CLI or
+        // cron where $_SERVER carries no usable host.
+        $appUrl = Env::get('APP_URL', '');
+        if (!empty($appUrl)) {
+            return rtrim($appUrl, '/') . Env::get('APP_BASE_URL', '');
+        }
+
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-        // Detect local vs production environment
-        if ($host === 'localhost' || strpos($host, '127.0.0.1') !== false) {
-            return $protocol . '://' . $host . '/vuyaniM01/portfolio-website/public';
-        } else {
-            return $protocol . '://' . $host . '/public';
-        }
+        return $protocol . '://' . $host . Env::get('APP_BASE_URL', '');
     }
 
     /**

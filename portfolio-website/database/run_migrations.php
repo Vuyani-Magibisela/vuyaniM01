@@ -21,7 +21,7 @@ echo "=== Database Migration Runner ===\n\n";
 try {
     // Get database connection directly using PDO
     $pdo = new PDO(
-        "mysql:host={$dbConfig['host']};dbname={$dbConfig['dbname']};charset={$dbConfig['charset']}",
+        "mysql:host={$dbConfig['host']};port=" . ($dbConfig['port'] ?? 3306) . ";dbname={$dbConfig['dbname']};charset={$dbConfig['charset']}",
         $dbConfig['user'],
         $dbConfig['password'],
         $dbConfig['options']

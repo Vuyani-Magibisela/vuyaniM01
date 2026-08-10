@@ -1,0 +1,10 @@
+[mysqld]
+character-set-server = utf8mb4
+collation-server     = utf8mb4_general_ci
+# Match the permissive mode typical of shared cPanel hosting so local
+# behaviour mirrors production rather than being stricter.
+sql_mode = "NO_AUTO_VALUE_ON_ZERO,NO_ENGINE_SUBSTITUTION"
+max_allowed_packet = 64M
+
+[client]
+default-character-set = utf8mb4
