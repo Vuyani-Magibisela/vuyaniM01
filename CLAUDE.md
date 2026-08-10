@@ -39,7 +39,7 @@ Precedence: real env vars → `.env` file → code defaults. See `.env.example`.
 Development runs in Docker. See `DOCKER.md` for the full guide.
 
 ```powershell
-.\dev.ps1 up          # build + start (site :8080, phpMyAdmin :8081, Mailpit :8025)
+.\dev.ps1 up          # build + start (site :8090, phpMyAdmin :8091, Mailpit :8025)
 .\dev.ps1 shell       # bash inside the app container
 .\dev.ps1 db          # mariadb CLI
 .\dev.ps1 migrate     # run database/run_migrations.php

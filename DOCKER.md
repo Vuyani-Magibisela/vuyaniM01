@@ -18,8 +18,8 @@ Subsequent starts are seconds.
 
 | Service | URL | Notes |
 |---|---|---|
-| Site | http://localhost:8080 | |
-| phpMyAdmin | http://localhost:8081 | user `root`, password = `DB_ROOT_PASSWORD` |
+| Site | http://localhost:8090 | |
+| phpMyAdmin | http://localhost:8091 | user `root`, password = `DB_ROOT_PASSWORD` |
 | Mailpit | http://localhost:8025 | every outbound email lands here |
 | MariaDB | `127.0.0.1:3307` | for DBeaver / TablePlus / VS Code |
 

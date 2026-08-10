@@ -1,8 +1,12 @@
 # Development stack for vuyanimagibisela.co.za
-#   app         -> http://localhost:8080
-#   phpMyAdmin  -> http://localhost:8081
+#   app         -> http://localhost:8090
+#   phpMyAdmin  -> http://localhost:8091
 #   Mailpit     -> http://localhost:8025
 #   MariaDB     -> localhost:3307 (from the host)
+#
+# Ports deliberately avoid the sci-bono projects (8080/8081/8082, 8000,
+# 8001, 5050, 5173/5174, 3306, 3308, 5433) so both stacks can run at once.
+# Every port is overridable from .env.
 #
 # Start:  docker compose up -d --build
 # Logs:   docker compose logs -f app
@@ -20,7 +24,7 @@ services:
     container_name: vuyanim_app
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-8080}:80"
+      - "${APP_PORT:-8090}:80"
     volumes:
       - ./portfolio-website:/var/www/html
     env_file:
@@ -65,7 +69,7 @@ services:
     container_name: vuyanim_phpmyadmin
     restart: unless-stopped
     ports:
-      - "${PMA_PORT:-8081}:80"
+      - "${PMA_PORT:-8091}:80"
     environment:
       PMA_HOST: db
       PMA_PORT: 3306

@@ -5,8 +5,8 @@ up:
 	@test -f .env || cp .env.example .env
 	docker compose up -d --build
 	@echo ""
-	@echo "  Site         http://localhost:8080"
-	@echo "  phpMyAdmin   http://localhost:8081"
+	@echo "  Site         http://localhost:8090"
+	@echo "  phpMyAdmin   http://localhost:8091"
 	@echo "  Mailpit      http://localhost:8025"
 	@echo "  MariaDB      127.0.0.1:3307"
 
