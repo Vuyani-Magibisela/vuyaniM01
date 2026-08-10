@@ -8,6 +8,10 @@
 # Logs:   docker compose logs -f app
 # Shell:  docker compose exec app bash
 
+# Groups all four containers under "vuyanim" in Docker Desktop, rather
+# than defaulting to the directory name.
+name: vuyanim
+
 services:
   app:
     build:
