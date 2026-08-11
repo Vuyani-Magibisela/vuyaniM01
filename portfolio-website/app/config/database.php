@@ -1,36 +1,27 @@
 <?php
-// Detect environment and return appropriate database configuration
-if ($_SERVER['HTTP_HOST'] === 'localhost' || 
-    strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false || 
-    strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
-    
-    // Local development configuration
-    return [
-        'host' => 'localhost',
-        'dbname' => 'vuyanim',
-        'user' => 'vuksDev',
-        'password' => 'Vu13#k*s3D3V',
-        'charset' => 'utf8mb4',
-        'options' => [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    ];
-    
-} else {
-    
-    // Production server configuration
-    return [
-        'host' => 'localhost',
-        'dbname' => 'vuyanjcb_vuyanim',
-        'user' => 'vuyanjcb_vuyaniM',
-        'password' => '=bQw^WUglto@IhRJ',
-        'charset' => 'utf8mb4',
-        'options' => [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    ];
-}
+/**
+ * Database Configuration
+ *
+ * Values come from the environment (Docker Compose) or an untracked .env
+ * file. No credentials live in version control.
+ *
+ * See .env.example for the full list of supported keys.
+ */
+
+require_once dirname(__DIR__) . '/core/Env.php';
+
+use App\Core\Env;
+
+return [
+    'host'     => Env::get('DB_HOST', 'localhost'),
+    'port'     => Env::int('DB_PORT', 3306),
+    'dbname'   => Env::get('DB_NAME', 'vuyanim'),
+    'user'     => Env::get('DB_USER', 'root'),
+    'password' => Env::get('DB_PASSWORD', ''),
+    'charset'  => Env::get('DB_CHARSET', 'utf8mb4'),
+    'options'  => [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+    ],
+];

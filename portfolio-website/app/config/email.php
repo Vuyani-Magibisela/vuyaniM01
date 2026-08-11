@@ -2,43 +2,30 @@
 /**
  * Email Configuration
  *
- * Environment-specific SMTP configuration for email sending
- * Detects local development vs production environment
+ * Values come from the environment (Docker Compose) or an untracked .env
+ * file. Locally this points at Mailpit, so no mail ever reaches a real
+ * inbox during development.
+ *
+ * See .env.example for the full list of supported keys.
  */
 
-// Detect environment (same pattern as database.php)
-$httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
-if ($httpHost === 'localhost' ||
-    strpos($httpHost, '127.0.0.1') !== false ||
-    strpos($httpHost, 'localhost') !== false) {
+require_once dirname(__DIR__) . '/core/Env.php';
 
-    // Local development configuration
-    // Using production SMTP for local testing
-    return [
-        'smtp_host' => 'mail.vuyanimagibisela.co.za',
-        'smtp_port' => 465, // SSL port
-        'smtp_username' => 'admin@vuyanimagibisela.co.za',
-        'smtp_password' => '@*7.dQ.I=NkO7X]v',
-        'smtp_encryption' => 'ssl',
-        'from_email' => 'admin@vuyanimagibisela.co.za',
-        'from_name' => 'Vuyani Magibisela',
-        'admin_email' => 'admin@vuyanimagibisela.co.za',
-        'admin_name' => 'Vuyani Magibisela'
-    ];
+use App\Core\Env;
 
-} else {
+return [
+    'smtp_host'       => Env::get('MAIL_HOST', 'mailpit'),
+    'smtp_port'       => Env::int('MAIL_PORT', 1025),
+    'smtp_username'   => Env::get('MAIL_USERNAME', ''),
+    'smtp_password'   => Env::get('MAIL_PASSWORD', ''),
+    // '' | 'tls' | 'ssl' — Mailpit needs no encryption.
+    'smtp_encryption' => Env::get('MAIL_ENCRYPTION', ''),
+    'smtp_auth'       => Env::bool('MAIL_AUTH', false),
 
-    // Production server configuration
-    // Using admin@vuyanimagibisela.co.za domain email
-    return [
-        'smtp_host' => 'mail.vuyanimagibisela.co.za',
-        'smtp_port' => 465, // SSL port
-        'smtp_username' => 'admin@vuyanimagibisela.co.za',
-        'smtp_password' => '@*7.dQ.I=NkO7X]v',
-        'smtp_encryption' => 'ssl',
-        'from_email' => 'admin@vuyanimagibisela.co.za',
-        'from_name' => 'Vuyani Magibisela',
-        'admin_email' => 'admin@vuyanimagibisela.co.za', // Where contact notifications are sent
-        'admin_name' => 'Vuyani Magibisela'
-    ];
-}
+    'from_email'      => Env::get('MAIL_FROM_EMAIL', 'admin@vuyanimagibisela.co.za'),
+    'from_name'       => Env::get('MAIL_FROM_NAME', 'Vuyani Magibisela'),
+
+    // Where contact-form notifications are delivered.
+    'admin_email'     => Env::get('MAIL_ADMIN_EMAIL', 'admin@vuyanimagibisela.co.za'),
+    'admin_name'      => Env::get('MAIL_ADMIN_NAME', 'Vuyani Magibisela'),
+];

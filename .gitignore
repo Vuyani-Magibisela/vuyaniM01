@@ -1,41 +1,97 @@
+# =====================================================================
+#  Never commit anything from this section.
+# =====================================================================
+
+# Environment / credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*credentials*
+*secret*
+
 # Hosting structure - contains sensitive production configs
 hosting-structure/
 
-# Environment files
-.env
-.env.local
-.env.production
+# Raw copies of the live server (FileZilla pulls, cPanel backups).
+# These carry credentials, logs, uploads and customer data.
+public_html/
+github-snapshot/
+github-repo/
+github-repo-clean/
 
-# Database credentials
-database.php
+# =====================================================================
+#  Database
+# =====================================================================
+
+# All SQL is ignored by default; migrations and seeds are the exceptions.
+*.sql
+!portfolio-website/database/migrations/*.sql
+!portfolio-website/database/seeds/*.sql
+
+# Production data snapshots used to hydrate the local dev database.
+# Real contact submissions and subscriber addresses live in here.
+docker/mysql/init/*.sql
+*_db_dump.sql
+*dump*.sql
+backups/
+*.backup
+
+# =====================================================================
+#  Generated / runtime
+# =====================================================================
+
+vendor/
+node_modules/
 
 # Logs
 *.log
 logs/
+error_log
 
 # Cache
 cache/
 *.cache
+.php-cs-fixer.cache
 
-# Backups
-backups/
-*.sql
-!portfolio-website/database/migrations/*.sql
-*.backup
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS files
-.DS_Store
-Thumbs.db
+# User-generated uploads — regenerated per environment, not source.
+portfolio-website/public/uploads/
+portfolio-website/public/images/blog/uploads/*
+!portfolio-website/public/images/blog/uploads/.htaccess
+portfolio-website/public/images/projects/uploads/*
+!portfolio-website/public/images/projects/uploads/.htaccess
+portfolio-website/public/images/projects/gallery/*
+!portfolio-website/public/images/projects/gallery/.htaccess
 
 # Temporary files
 tmp/
 temp/
+*~
+*.bak
 
-# Commit files
+# =====================================================================
+#  Editor / OS
+# =====================================================================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+*.sublime-workspace
+*.sublime-project
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Windows "downloaded from the internet" metadata streams. These produce
+# filenames Git cannot check out on Windows.
+*:Zone.Identifier
+*Zone.Identifier
+
+# =====================================================================
+#  Project notes
+# =====================================================================
+
 docs/Commit_Messages
