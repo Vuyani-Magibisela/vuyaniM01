@@ -6,6 +6,7 @@ use App\Core\Session;
 
 // Explicitly require AuthController since it's not auto-loaded
 require_once dirname(__DIR__) . '/controllers/AuthController.php';
+require_once dirname(__DIR__) . '/config/config.php';
 
 use App\Controllers\AuthController;
 
@@ -20,16 +21,7 @@ class AdminController extends BaseController {
      * Override view method to automatically include baseUrl and stats
      */
     protected function view(string $view, array $data = []) {
-        // Detect environment and set base URL
-        if ($_SERVER['HTTP_HOST'] === 'localhost' ||
-            strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
-            strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
-            $baseUrl = '/vuyaniM01/portfolio-website/public';
-        } else {
-            $baseUrl = '/public';
-        }
-
-        $data['baseUrl'] = $baseUrl;
+        $data['baseUrl'] = $this->getBaseUrl();
 
         // Add sidebar badge stats if not already present
         if (!isset($data['stats'])) {
@@ -45,16 +37,10 @@ class AdminController extends BaseController {
     }
 
     /**
-     * Get the base URL based on environment
+     * Get the base URL from APP_BASE_URL (see app/config/config.php)
      */
     private function getBaseUrl() {
-        if ($_SERVER['HTTP_HOST'] === 'localhost' ||
-            strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
-            strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
-            return '/vuyaniM01/portfolio-website/public';
-        } else {
-            return '/public';
-        }
+        return BASE_URL;
     }
 
     /**
