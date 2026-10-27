@@ -147,7 +147,7 @@ switch ($Command.ToLower()) {
     }
 
     'migrate' {
-        docker compose exec app php database/run_migrations.php
+        docker compose exec app php database/run_migrations.php @Rest
     }
 
     'composer' {

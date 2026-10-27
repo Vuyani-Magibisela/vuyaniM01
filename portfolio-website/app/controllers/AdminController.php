@@ -12,6 +12,11 @@ use App\Controllers\AuthController;
 
 class AdminController extends BaseController {
 
+    public function todo() {
+        require_once __DIR__ . '/TodoController.php';
+        (new TodoController())->index();
+    }
+
     public function __construct() {
         // Require authentication for all admin pages
         AuthController::requireAuth();

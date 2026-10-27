@@ -209,6 +209,7 @@ if (!Session::isAuthenticated()) {
                     <p>Here's what's happening with your portfolio today.</p>
                 </div>
 
+                <?php include dirname(__DIR__) . '/partials/worklog_shortcut.php'; ?>
                 <!-- Statistics Grid -->
                 <div class="stats-grid">
                     <!-- Blog Posts -->
