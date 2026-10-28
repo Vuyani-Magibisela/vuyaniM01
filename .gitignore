@@ -59,10 +59,14 @@ cache/
 portfolio-website/public/uploads/
 portfolio-website/public/images/blog/uploads/*
 !portfolio-website/public/images/blog/uploads/.htaccess
+portfolio-website/public/images/profiles/
 portfolio-website/public/images/projects/uploads/*
 !portfolio-website/public/images/projects/uploads/.htaccess
 portfolio-website/public/images/projects/gallery/*
 !portfolio-website/public/images/projects/gallery/.htaccess
+
+# Agent handover archives — local hand-off material, not source.
+docs/Todo App/*.zip
 
 # Temporary files
 tmp/
