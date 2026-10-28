@@ -53,6 +53,8 @@
                     </a>
                 </div>
 
+                <?php include dirname(__DIR__) . '/partials/worklog_nav.php'; ?>
+
                 <!-- Content Management -->
                 <div class="nav-section">
                     <div class="nav-section-title">Content</div>
@@ -183,7 +185,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="<?php echo $baseUrl; ?>/js/admin.js"></script>
+    <script src="<?php echo $baseUrl; ?>/js/admin.js?v=<?= filemtime(dirname(__DIR__, 3).'/public/js/admin.js') ?>"></script>
 
     <?php if (isset($additionalJS)): ?>
         <?php foreach ($additionalJS as $js): ?>

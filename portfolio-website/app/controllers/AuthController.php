@@ -20,7 +20,7 @@ class AuthController extends BaseController {
 
         // Check if already authenticated
         if (Session::isAuthenticated()) {
-            header('Location: ' . $baseUrl . '/admin');
+            header('Location: ' . BASE_URL . '/admin');
             exit;
         }
 
@@ -34,7 +34,7 @@ class AuthController extends BaseController {
                 'error' => Session::getFlash('error'),
                 'success' => Session::getFlash('success'),
                 'csrf_token' => Session::generateCsrfToken(),
-                'baseUrl' => $baseUrl
+                'baseUrl' => BASE_URL
             ];
 
             $this->view('auth/login', $data);
@@ -45,11 +45,19 @@ class AuthController extends BaseController {
      * Process login attempt
      */
     public function authenticate() {
+        require_once dirname(__DIR__).'/core/WorklogRateLimit.php';
+        try {
+            \App\Core\WorklogRateLimit::check('login:'.($_SERVER['REMOTE_ADDR']??'unknown'),40);
+        } catch (\RuntimeException $e) {
+            http_response_code($e->getCode()===429?429:503);
+            echo 'Login temporarily unavailable. Please try again in a minute.';
+            return;
+        }
         require_once dirname(dirname(__DIR__)) . '/app/config/config.php';
 
         // Only accept POST requests
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . $baseUrl . '/auth');
+            header('Location: ' . BASE_URL . '/auth');
             exit;
         }
 
@@ -57,7 +65,7 @@ class AuthController extends BaseController {
         $csrfToken = $_POST['csrf_token'] ?? '';
         if (!Session::verifyCsrfToken($csrfToken)) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header('Location: ' . $baseUrl . '/auth');
+            header('Location: ' . BASE_URL . '/auth');
             exit;
         }
 
@@ -69,7 +77,7 @@ class AuthController extends BaseController {
         // Validate input
         if (empty($username) || empty($password)) {
             Session::setFlash('error', 'Please provide both username and password.');
-            header('Location: ' . $baseUrl . '/auth');
+            header('Location: ' . BASE_URL . '/auth');
             exit;
         }
 
@@ -78,7 +86,7 @@ class AuthController extends BaseController {
             $remaining = Session::getLockoutRemaining($username);
             $minutes = ceil($remaining / 60);
             Session::setFlash('error', "Too many failed login attempts. Please try again in {$minutes} minute(s).");
-            header('Location: ' . $baseUrl . '/auth');
+            header('Location: ' . BASE_URL . '/auth');
             exit;
         }
 
@@ -100,7 +108,7 @@ class AuthController extends BaseController {
                 Session::setFlash('error', 'Too many failed attempts. Account locked for 15 minutes.');
             }
 
-            header('Location: ' . $baseUrl . '/auth');
+            header('Location: ' . BASE_URL . '/auth');
             exit;
         }
 
@@ -118,7 +126,7 @@ class AuthController extends BaseController {
 
         // Redirect to admin dashboard
         Session::setFlash('success', 'Welcome back, ' . $user->first_name . '!');
-        header('Location: ' . $baseUrl . '/admin');
+        header('Location: ' . BASE_URL . '/admin');
         exit;
     }
 
@@ -142,9 +150,9 @@ class AuthController extends BaseController {
         // Destroy session
         Session::logout();
 
-        // Redirect to home page
+        // Redirect to login page
         Session::setFlash('success', 'You have been logged out successfully.');
-        header('Location: ' . $baseUrl);
+        header('Location: ' . BASE_URL . '/auth');
         exit;
     }
 
@@ -225,7 +233,7 @@ class AuthController extends BaseController {
             $this->setRememberMeCookie($user->id);
 
             // Redirect to admin
-            header('Location: ' . $baseUrl . '/admin');
+            header('Location: ' . BASE_URL . '/admin');
             exit;
         } else {
             // Invalid token, clear cookie
@@ -241,7 +249,7 @@ class AuthController extends BaseController {
 
         // Check if already authenticated
         if (Session::isAuthenticated()) {
-            header('Location: ' . $baseUrl . '/admin');
+            header('Location: ' . BASE_URL . '/admin');
             exit;
         }
 
@@ -250,7 +258,7 @@ class AuthController extends BaseController {
             'error' => Session::getFlash('error'),
             'success' => Session::getFlash('success'),
             'csrf_token' => Session::generateCsrfToken(),
-            'baseUrl' => $baseUrl
+            'baseUrl' => BASE_URL
         ];
 
         $this->view('auth/register', $data);
@@ -264,7 +272,7 @@ class AuthController extends BaseController {
 
         // Only accept POST requests
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . $baseUrl . '/auth/register');
+            header('Location: ' . BASE_URL . '/auth/register');
             exit;
         }
 
@@ -272,7 +280,7 @@ class AuthController extends BaseController {
         $csrfToken = $_POST['csrf_token'] ?? '';
         if (!Session::verifyCsrfToken($csrfToken)) {
             Session::setFlash('error', 'Invalid request. Please try again.');
-            header('Location: ' . $baseUrl . '/auth/register');
+            header('Location: ' . BASE_URL . '/auth/register');
             exit;
         }
 
@@ -330,7 +338,7 @@ class AuthController extends BaseController {
         // If validation errors, redirect back
         if (!empty($errors)) {
             Session::setFlash('error', implode(' ', $errors));
-            header('Location: ' . $baseUrl . '/auth/register');
+            header('Location: ' . BASE_URL . '/auth/register');
             exit;
         }
 
@@ -348,11 +356,11 @@ class AuthController extends BaseController {
 
         if ($userId) {
             Session::setFlash('success', 'Registration successful! Please login.');
-            header('Location: ' . $baseUrl . '/auth');
+            header('Location: ' . BASE_URL . '/auth');
             exit;
         } else {
             Session::setFlash('error', 'Registration failed. Please try again.');
-            header('Location: ' . $baseUrl . '/auth/register');
+            header('Location: ' . BASE_URL . '/auth/register');
             exit;
         }
     }
@@ -370,7 +378,7 @@ class AuthController extends BaseController {
 
         // TODO: Implement password reset view
         Session::setFlash('info', 'Password reset functionality will be available soon.');
-        header('Location: ' . $baseUrl . '/auth');
+        header('Location: ' . BASE_URL . '/auth');
         exit;
     }
 
@@ -387,14 +395,14 @@ class AuthController extends BaseController {
         // Check session timeout
         if (!Session::checkTimeout()) {
             Session::setFlash('error', 'Your session has expired. Please login again.');
-            header('Location: ' . $baseUrl . '/auth');
+            header('Location: ' . BASE_URL . '/auth');
             exit;
         }
 
         // Check if authenticated
         if (!Session::isAuthenticated()) {
             Session::setFlash('error', 'Please login to access this page.');
-            header('Location: ' . $baseUrl . '/auth');
+            header('Location: ' . BASE_URL . '/auth');
             exit;
         }
     }
@@ -410,7 +418,7 @@ class AuthController extends BaseController {
 
         if (!Session::isAdmin()) {
             Session::setFlash('error', 'Access denied. Admin privileges required.');
-            header('Location: ' . $baseUrl . '/');
+            header('Location: ' . BASE_URL . '/');
             exit;
         }
     }

@@ -73,12 +73,13 @@
         // Set active nav link based on current page
         const currentPath = window.location.pathname;
         const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
+        const candidates = [...navLinks].filter(link => {
             const href = link.getAttribute('href');
-            if (href && currentPath.includes(href.split('?')[0])) {
-                link.classList.add('active');
-            }
-        });
+            if (!href || link.target === '_blank') return false;
+            const target = new URL(href, location.href).pathname.replace(/\/$/, '') || '/';
+            return currentPath === target || (target !== '/' && currentPath.startsWith(target + '/'));
+        }).sort((a,b) => b.getAttribute('href').length - a.getAttribute('href').length);
+        navLinks.forEach(link => link.classList.toggle('active', link === candidates[0]));
     });
 
     // ============================================

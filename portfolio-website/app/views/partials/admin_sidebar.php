@@ -29,6 +29,8 @@ use App\Core\Session;
             </a>
         </div>
 
+        <?php include dirname(__DIR__) . '/partials/worklog_nav.php'; ?>
+
         <!-- Content Management -->
         <div class="nav-section">
             <div class="nav-section-title">Content</div>

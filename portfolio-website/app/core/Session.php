@@ -338,6 +338,7 @@ class Session {
      */
     public static function verifyCsrfToken($token) {
         self::init();
-        return hash_equals(self::get('csrf_token', ''), $token);
+        $stored = self::get('csrf_token', '');
+        return is_string($token) && is_string($stored) && $stored !== '' && $token !== '' && hash_equals($stored, $token);
     }
 }

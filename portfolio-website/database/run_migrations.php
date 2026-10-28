@@ -37,8 +37,13 @@ try {
     $migrationPath = __DIR__ . '/migrations';
     $seedPath = __DIR__ . '/seeds';
 
-    $migrationFiles = glob($migrationPath . '/*.sql');
-    $seedFiles = glob($seedPath . '/*.sql');
+    $options = getopt('', ['file:']);
+    $selected = $options['file'] ?? null;
+    if ($selected !== null && (!preg_match('/^\d{3}_[a-z0-9_]+\.sql$/D', $selected) || !is_file($migrationPath . '/' . $selected))) {
+        throw new RuntimeException('Invalid migration filename.');
+    }
+    $migrationFiles = $selected ? [$migrationPath . '/' . $selected] : glob($migrationPath . '/*.sql');
+    $seedFiles = $selected ? [] : glob($seedPath . '/*.sql');
 
     sort($migrationFiles); // Ensure migrations run in order
 
@@ -57,6 +62,7 @@ try {
             $pdo->exec($sql);
             echo "✓ SUCCESS\n";
         } catch (PDOException $e) {
+            if ($selected) { throw $e; }
             echo "✗ FAILED: " . $e->getMessage() . "\n";
         }
     }
@@ -72,6 +78,7 @@ try {
             $pdo->exec($sql);
             echo "✓ SUCCESS\n";
         } catch (PDOException $e) {
+            if ($selected) { throw $e; }
             echo "✗ FAILED: " . $e->getMessage() . "\n";
         }
     }
