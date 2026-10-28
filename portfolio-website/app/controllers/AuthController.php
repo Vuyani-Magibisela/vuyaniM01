@@ -150,9 +150,9 @@ class AuthController extends BaseController {
         // Destroy session
         Session::logout();
 
-        // Redirect to home page
+        // Redirect to login page
         Session::setFlash('success', 'You have been logged out successfully.');
-        header('Location: ' . BASE_URL);
+        header('Location: ' . BASE_URL . '/auth');
         exit;
     }
 
