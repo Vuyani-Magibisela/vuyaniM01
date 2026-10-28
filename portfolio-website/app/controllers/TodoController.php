@@ -140,7 +140,13 @@ class TodoController extends BaseController {
             $existingWeek=null;
             foreach ($snapshot['records'] as $r) if ($r['kind']==='week' && $r['data']['starts_on']===$start) $existingWeek=$r;
             $weekId=$parsed['id']??$existingWeek['id']??$stable('worklog-week:'.Worklog::ownerId().':'.$start);
-            if ($existingWeek && $existingWeek['id']!==$weekId) throw new \RuntimeException('This date already has a different weekly note.',409);
+            if ($existingWeek && $existingWeek['id']!==$weekId) {
+                // The page auto-creates an empty current week; adopt it rather than refusing the import.
+                foreach ($snapshot['records'] as $r) {
+                    if ($r['kind']==='task' && !$r['deleted'] && $r['data']['week_id']===$existingWeek['id']) throw new \RuntimeException('This date already has a different weekly note.',409);
+                }
+                $weekId=$existingWeek['id'];
+            }
             $existingTasks=array_values(array_filter($snapshot['records'],fn($r)=>$r['kind']==='task' && $r['data']['week_id']===$weekId));
             $week=Worklog::validate('week',['title'=>$parsed['title'],'starts_on'=>$start,'ends_on'=>$end,'related'=>$parsed['related'],'review'=>$parsed['review'] ?: ($existingWeek['data']['review']??'')]);
             $operations=[['id'=>$weekId,'kind'=>'week','data'=>$week]];
