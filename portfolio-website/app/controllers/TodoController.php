@@ -62,7 +62,20 @@ class TodoController extends BaseController {
 
     public function state(): void {
         if ($_SERVER['REQUEST_METHOD']!=='GET') $this->json(['error'=>'Method not allowed.'],405);
-        $this->run(fn()=>array_merge($this->worklog->snapshot(),['conflicts'=>$this->worklog->conflicts(),'devices'=>$this->worklog->devices()]));
+        $this->run(fn()=>array_merge($this->worklog->snapshot(),['conflicts'=>$this->worklog->conflicts(),'devices'=>$this->worklog->devices(),'areas'=>$this->worklog->areas()]));
+    }
+
+    /** POST adds, PATCH renames or merges ({from,to}), DELETE removes an unused area. */
+    public function areas(): void {
+        $method=$_SERVER['REQUEST_METHOD'];
+        if (!in_array($method,['POST','PATCH','DELETE'])) $this->json(['error'=>'Method not allowed.'],405);
+        $this->run(function() use($method) {
+            $body=$this->body();
+            if ($method==='POST') $name=$this->worklog->addArea($body['name']??null);
+            elseif ($method==='PATCH') $changed=$this->worklog->renameArea($body['from']??null,$body['to']??null);
+            else $this->worklog->deleteArea($body['name']??null);
+            return ['areas'=>$this->worklog->areas(),'name'=>$name??null,'changed'=>$changed??0];
+        });
     }
 
     public function tasks(?string $id=null): void { $this->mutate('task',$id); }
@@ -155,13 +168,15 @@ class TodoController extends BaseController {
                 $id=$task['id']??$stable($weekId.':row:'.$i);
                 $existing=$this->worklog->record($id);
                 $data=$task['data']; $data['week_id']=$weekId;
+                // Notes never carry website-only time tracking; keep what the website already holds.
+                foreach (['time_log','timer_started_at'] as $field) if (isset($existing['data'][$field])) $data[$field]=$existing['data'][$field];
                 $data['position']=$existing['data']['position']??$nextPosition++;
                 $operations[]=['id'=>$id,'kind'=>'task','data'=>Worklog::validate('task',$data)];
             }
             // Refuse edits through bulk import: ongoing edits use the versioned bridge.
             foreach ($operations as $op) {
                 $current=$this->worklog->record($op['id']);
-                if ($current && $op['kind']!=='week' && ($current['data']!=$op['data'] || $current['deleted'])) throw new \RuntimeException('This note already has different data in workLOG. Use sync to reconcile it.',409);
+                if ($current && $op['kind']!=='week' && (Worklog::validate('task',$current['data'])!=$op['data'] || $current['deleted'])) throw new \RuntimeException('This note already has different data in workLOG. Use sync to reconcile it.',409);
             }
             if (($body['commit']??false)!==true) return ['preview'=>['week'=>$week,'tasks'=>count($parsed['tasks']),'records'=>$operations,'revision'=>$snapshot['revision']]];
             $this->worklog->importRecords($operations,(int)($body['expected_revision']??-1));

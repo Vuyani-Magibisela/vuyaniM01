@@ -17,6 +17,7 @@ ob_start();
         <button data-view="inbox">03 / Inbox</button>
         <button data-view="review">04 / Review</button>
         <button data-view="sync">05 / Obsidian</button>
+        <button data-view="time">06 / Time</button>
         <button data-view="trash">Archive bin</button>
     </nav>
     <form id="wl-capture" class="wl-capture">
@@ -27,6 +28,8 @@ ob_start();
     <div class="wl-tools" id="wl-tools">
         <label class="wl-grow"><span class="wl-sr">Search</span><input id="wl-search" type="search" placeholder="Find a task, area, or person…"></label>
         <label><span class="wl-sr">Status</span><select id="wl-filter"><option value="all">All states</option><option value="open">Open</option><option value="waiting">Waiting</option><option value="done">Done</option></select></label>
+        <label><span class="wl-sr">Sort</span><select id="wl-sort"><option value="priority">Sort: Priority</option><option value="manual">Sort: Manual</option></select></label>
+        <button id="wl-areas">Areas</button>
         <button id="wl-new-week">+ New week</button>
         <button id="wl-import">Import note</button>
         <button id="wl-refresh">Refresh</button>

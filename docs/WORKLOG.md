@@ -11,15 +11,23 @@ Sign in as the configured owner and choose **To Do / workLOG** in the admin navi
 - **Obsidian:** inspect bridge acknowledgement, pair/revoke devices and resolve conflicts.
 - **Archive bin:** restore removed tasks.
 
+- **Time:** totals per area and the tasks that took the most time, for this week, the last seven days, this month or all time.
+
+**Time tracking.** Each task card has **▶ Start / ■ Stop**. Stopping logs the run for today; starting another task stops and logs the running one first. A run longer than eight hours asks for the real duration. Forgotten sessions can be added under *Plan, schedule, time & details* → **Time log** (`45`, `1h30` or `1:30`). Time is website-only: Obsidian notes never show or change it.
+
+**Sorting.** *Sort: Priority* (the default) lists open and waiting tasks High → Medium → Low, with Done tasks last; ↑↓ reorders within a priority group. *Sort: Manual* shows the note's row order. The choice is remembered per browser and does not reorder Obsidian notes.
+
+**Areas.** A task's Area is chosen from a list; **＋ Add new area…** reuses an existing name whatever its capitalisation. **Areas** in the toolbar renames an area, merges duplicates by renaming one into the other, or deletes an unused one. Renames rewrite the affected tasks, so they also reach Obsidian. Areas typed in Obsidian appear in the list automatically.
+
 Planned dates and deadlines are separate. Dates use Africa/Johannesburg. Search covers task text, area and waiting-on person. Markdown links and emphasis remain editable text.
 
 ## Architecture and access
 
-The existing PHP MVC application and MariaDB store the authoritative, versioned records. Migration 010 adds six tables: workspaces, records, changes, operations, devices and conflicts. Task/week payloads are validated JSON; ownership, versions and revisions are relational columns. Workspace locks serialize writes and imports; operation IDs make device retries idempotent.
+The existing PHP MVC application and MariaDB store the authoritative, versioned records. Migration 010 adds six tables: workspaces, records, changes, operations, devices and conflicts. Migration 011 adds the workspace's managed area list. Task time entries (`time_log`) and a running timer (`timer_started_at`) live in the task's JSON data; the bridge carries fields a note cannot express through unchanged. Task/week payloads are validated JSON; ownership, versions and revisions are relational columns. Workspace locks serialize writes and imports; operation IDs make device retries idempotent.
 
 Only the administrator whose user ID matches WORKLOG_OWNER_ID can access the page, browser APIs or navigation entry. Browser writes require a session and CSRF token. Device APIs accept a separate revocable bearer token, stored as a hash in the database. Private responses disable caching.
 
-Browser routes are /todo/state, /todo/tasks, /todo/weeks, /todo/import, /todo/export/{week-id}, /todo/devices and /todo/conflicts/{id}. The Windows bridge uses /todosync/pull, /todosync/push and /todosync/ack. Production URLs include the site's configured BASE_URL, such as /public.
+Browser routes are /todo/state, /todo/tasks, /todo/weeks, /todo/areas, /todo/import, /todo/export/{week-id}, /todo/devices and /todo/conflicts/{id}. The Windows bridge uses /todosync/pull, /todosync/push and /todosync/ack. Production URLs include the site's configured BASE_URL, such as /public.
 
 ## Install or deploy the website
 

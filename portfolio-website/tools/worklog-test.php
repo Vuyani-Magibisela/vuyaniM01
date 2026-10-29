@@ -12,6 +12,7 @@ use App\Models\Worklog;
 if (Env::get('DB_NAME') !== 'worklog_test') {fwrite(STDERR,"Tests require the isolated worklog_test database.\n");exit(1);}
 $pdo=Database::connect();
 $pdo->exec(file_get_contents(dirname(__DIR__).'/database/migrations/010_create_worklog_tables.sql'));
+$pdo->exec(file_get_contents(dirname(__DIR__).'/database/migrations/011_add_worklog_areas.sql'));
 foreach (['conflicts','operations','changes','devices','records','workspaces'] as $table) $pdo->exec('DELETE FROM worklog_'.$table);
 $count=0;
 function check($condition,$message) {global $count;if(!$condition)throw new RuntimeException('FAIL: '.$message);$count++;}
@@ -62,4 +63,31 @@ rejects(fn()=>$model->importRecords([
 ],$revision),422);
 check($model->record($importId)===null && $model->snapshot()['revision']===$revision,'failed import rolls back every record and revision');
 rejects(fn()=>$model->importRecords([['id'=>$task['id'],'kind'=>'week','data'=>$week['data']]],$revision),422);
+// Time tracking is website-only and must survive bridge pushes.
+$entry=['id'=>Worklog::uuid(),'on'=>'2026-10-28','minutes'=>90,'note'=>'Draft'];
+check(Worklog::validate('task',['description'=>'x','time_log'=>[$entry]])['time_log']===[$entry],'time entry accepted');
+foreach ([['minutes'=>0],['minutes'=>1441],['minutes'=>'90'],['on'=>'2026-02-31'],['extra'=>1],['id'=>'nope']] as $bad) {
+    rejects(fn()=>Worklog::validate('task',['description'=>'x','time_log'=>[array_replace($entry,$bad)]]),422);
+}
+rejects(fn()=>Worklog::validate('task',['description'=>'x','timer_started_at'=>'yesterday']),422);
+check(Worklog::validate('task',['description'=>'x','timer_started_at'=>'2026-10-28T07:00:00.000Z'])['timer_started_at']==='2026-10-28T07:00:00.000Z','timer start accepted');
+// Simulate a record saved before these fields existed, as the bridge still holds it.
+$pdo->prepare("UPDATE worklog_records SET data=JSON_REMOVE(data,'$.time_log','$.timer_started_at') WHERE id=?")->execute([$task['id']]);
+$pdo->prepare("UPDATE worklog_changes SET snapshot=JSON_REMOVE(snapshot,'$.data.time_log','$.data.timer_started_at') WHERE record_id=?")->execute([$task['id']]);
+$legacy=$model->record($task['id']);
+check(!array_key_exists('time_log',$legacy['data']),'legacy record lacks time fields');
+$timed=$model->apply(['operation_id'=>Worklog::uuid(),'id'=>$task['id'],'kind'=>'task','version'=>$legacy['version'],'data'=>array_replace($legacy['data'],['time_log'=>[$entry]])])['record'];
+$pushed=$model->apply(['operation_id'=>Worklog::uuid(),'id'=>$task['id'],'kind'=>'task','version'=>$legacy['version'],'base'=>$legacy,'data'=>array_replace($legacy['data'],['schedule'=>'Evening'])],true);
+check(!isset($pushed['conflict'])&&$pushed['record']['data']['time_log']===[$entry]&&$pushed['record']['data']['schedule']==='Evening','bridge push from a legacy base keeps logged time');
+// Managed areas: case-insensitive reuse, merge by rename, delete only when unused.
+check($model->addArea(' obsidian ')==='Obsidian','existing area reused regardless of case');
+check($model->addArea('Teaching')==='Teaching','new area added');
+rejects(fn()=>$model->addArea(str_repeat('a',101)),422);
+check($model->renameArea('OBSIDIAN','teaching')===1,'merge rewrites matching tasks');
+$after=$model->record($task['id']);
+check($after['data']['area']==='Teaching'&&$after['data']['time_log']===[$entry],'merged task keeps its time');
+check(array_column($model->areas(),'name')===['Teaching'],'duplicate area removed after merge');
+rejects(fn()=>$model->deleteArea('teaching'),409);
+$model->addArea('Spare');$model->deleteArea('SPARE');
+check(array_column($model->areas(),'name')===['Teaching'],'unused area deleted');
 echo "$count workLOG assertions passed.\n";

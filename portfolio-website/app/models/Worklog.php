@@ -100,17 +100,24 @@ class Worklog extends BaseModel {
 
     public static function validate(string $kind, array $data): array {
         $fields = $kind === 'task'
-            ? ['week_id','position','status','priority','area','description','schedule','started_on','finished_on','planned_on','due_on','waiting_on','follow_up_on']
+            ? ['week_id','position','status','priority','area','description','schedule','started_on','finished_on','planned_on','due_on','waiting_on','follow_up_on','time_log','timer_started_at']
             : ['title','starts_on','ends_on','related','review'];
         if (!in_array($kind, ['task','week'], true) || array_diff(array_keys($data), $fields)) {
             throw new \InvalidArgumentException('Unknown record field or type.', 422);
         }
         $out = $kind === 'task'
-            ? ['week_id'=>null,'position'=>0,'status'=>'open','priority'=>'medium','area'=>'','description'=>'','schedule'=>'','started_on'=>null,'finished_on'=>null,'planned_on'=>null,'due_on'=>null,'waiting_on'=>'','follow_up_on'=>null]
+            ? ['week_id'=>null,'position'=>0,'status'=>'open','priority'=>'medium','area'=>'','description'=>'','schedule'=>'','started_on'=>null,'finished_on'=>null,'planned_on'=>null,'due_on'=>null,'waiting_on'=>'','follow_up_on'=>null,'time_log'=>[],'timer_started_at'=>null]
             : ['title'=>'','starts_on'=>null,'ends_on'=>null,'related'=>'## Related Notes' . "\n\n" . '- [[Work]]','review'=>''];
         foreach ($data as $key => $value) {
             if (in_array($key, ['started_on','finished_on','planned_on','due_on','follow_up_on','starts_on','ends_on'], true)) $out[$key] = self::date($value);
-            elseif ($key === 'week_id') {
+            elseif ($key === 'time_log') $out[$key] = self::timeLog($value);
+            elseif ($key === 'timer_started_at') {
+                // Website-only running timer, stored as UTC ISO-8601 so every device agrees.
+                if ($value !== null && (!is_string($value) || !preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/D', $value) || strtotime($value) === false)) {
+                    throw new \InvalidArgumentException('Invalid timer start.', 422);
+                }
+                $out[$key] = $value;
+            } elseif ($key === 'week_id') {
                 if ($value !== null && !self::validId($value)) throw new \InvalidArgumentException('Invalid week.', 422);
                 $out[$key] = $value;
             } elseif ($key === 'position') {
@@ -132,6 +139,118 @@ class Worklog extends BaseModel {
             throw new \InvalidArgumentException('A week needs a title and valid date boundaries.', 422);
         }
         return $out;
+    }
+
+    private static function normalize(string $kind, array $data): array {
+        return $data ? self::validate($kind, $data) : [];
+    }
+
+    /** Website-only time entries; the Obsidian table never carries them. */
+    private static function timeLog($value): array {
+        if (!is_array($value) || !array_is_list($value) || count($value) > 1000) throw new \InvalidArgumentException('Invalid time log.', 422);
+        $out = [];
+        foreach ($value as $entry) {
+            if (!is_array($entry) || array_diff(array_keys($entry), ['id','on','minutes','note'])) throw new \InvalidArgumentException('Invalid time entry.', 422);
+            $minutes = $entry['minutes'] ?? null;
+            $note = $entry['note'] ?? '';
+            if (!self::validId($entry['id'] ?? null) || !is_int($minutes) || $minutes < 1 || $minutes > 1440) throw new \InvalidArgumentException('Time entries need 1 to 1440 minutes.', 422);
+            if (!is_string($note) || strlen($note) > 200) throw new \InvalidArgumentException('Time entry notes are limited to 200 characters.', 422);
+            $on = self::date($entry['on'] ?? null);
+            if (!$on) throw new \InvalidArgumentException('Time entries need a date.', 422);
+            $out[] = ['id'=>$entry['id'],'on'=>$on,'minutes'=>$minutes,'note'=>trim($note)];
+        }
+        return $out;
+    }
+
+    private static function areaKey(string $name): string {
+        return mb_strtolower(trim($name));
+    }
+
+    /** Saved areas plus any typed elsewhere (e.g. Obsidian), one entry per name ignoring case. */
+    public function areas(): array {
+        $saved = json_decode((string) $this->executeSql('SELECT areas FROM worklog_workspaces WHERE owner_id=?', [$this->owner])->fetchColumn(), true) ?: [];
+        $areas = [];
+        foreach ($saved as $name) $areas[self::areaKey($name)] ??= ['name'=>$name,'tasks'=>0];
+        foreach ($this->snapshot()['records'] as $r) {
+            if ($r['kind'] !== 'task' || $r['deleted'] || trim($r['data']['area']) === '') continue;
+            $areas[self::areaKey($r['data']['area'])] ??= ['name'=>trim($r['data']['area']),'tasks'=>0];
+            $areas[self::areaKey($r['data']['area'])]['tasks']++;
+        }
+        uasort($areas, fn($a, $b) => strcasecmp($a['name'], $b['name']));
+        return array_values($areas);
+    }
+
+    private function saveAreas(array $names): void {
+        $this->executeSql('UPDATE worklog_workspaces SET areas=? WHERE owner_id=?', [json_encode(array_values($names), JSON_UNESCAPED_UNICODE), $this->owner]);
+    }
+
+    private function savedAreas(): array {
+        return json_decode((string) $this->executeSql('SELECT areas FROM worklog_workspaces WHERE owner_id=? FOR UPDATE', [$this->owner])->fetchColumn(), true) ?: [];
+    }
+
+    private static function areaName($name): string {
+        if (!is_string($name) || trim($name) === '' || mb_strlen(trim($name)) > 100) throw new \InvalidArgumentException('Area names need 1 to 100 characters.', 422);
+        return trim($name);
+    }
+
+    /** Returns the existing spelling when the name already exists in any case. */
+    public function addArea($name): string {
+        $name = self::areaName($name);
+        foreach ($this->areas() as $area) if (self::areaKey($area['name']) === self::areaKey($name)) return $area['name'];
+        $this->db->beginTransaction();
+        try {
+            $saved = $this->savedAreas();
+            $saved[] = $name;
+            $this->saveAreas($saved);
+            $this->db->commit();
+            return $name;
+        } catch (\Throwable $error) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
+            throw $error;
+        }
+    }
+
+    /** Renaming into an existing name merges the two areas. Task edits sync to Obsidian. */
+    public function renameArea($from, $to): int {
+        $from = self::areaName($from);
+        $to = self::areaName($to);
+        foreach ($this->areas() as $area) if (self::areaKey($area['name']) === self::areaKey($to)) $to = $area['name'];
+        $this->db->beginTransaction();
+        try {
+            $this->executeSql('SELECT revision FROM worklog_workspaces WHERE owner_id=? FOR UPDATE', [$this->owner]);
+            $changed = 0;
+            $rows = $this->executeSql("SELECT * FROM worklog_records WHERE owner_id=? AND kind='task' AND deleted_at IS NULL", [$this->owner])->fetchAll(PDO::FETCH_ASSOC);
+            foreach (array_map([$this, 'decode'], $rows) as $task) {
+                if (self::areaKey($task['data']['area']) !== self::areaKey($from) || $task['data']['area'] === $to) continue;
+                $this->write($task['id'], 'task', array_merge($task['data'], ['area'=>$to]), false, $task);
+                $changed++;
+            }
+            $saved = array_filter($this->savedAreas(), fn($n) => !in_array(self::areaKey($n), [self::areaKey($from), self::areaKey($to)], true));
+            $saved[] = $to;
+            $this->saveAreas($saved);
+            $this->db->commit();
+            return $changed;
+        } catch (\Throwable $error) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
+            throw $error;
+        }
+    }
+
+    public function deleteArea($name): void {
+        $name = self::areaName($name);
+        foreach ($this->areas() as $area) {
+            if (self::areaKey($area['name']) === self::areaKey($name) && $area['tasks'] > 0) {
+                throw new \RuntimeException('Tasks still use this area. Merge it into another area instead.', 409);
+            }
+        }
+        $this->db->beginTransaction();
+        try {
+            $this->saveAreas(array_filter($this->savedAreas(), fn($n) => self::areaKey($n) !== self::areaKey($name)));
+            $this->db->commit();
+        } catch (\Throwable $error) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
+            throw $error;
+        }
     }
 
     /** Three-way merge. Null is a real field value, not an absent field. */
@@ -182,7 +301,8 @@ class Worklog extends BaseModel {
                     if ($old['version'] === $expected && $old['data'] === ($base['data'] ?? []) && $old['deleted'] === ($base['deleted'] ?? false)) $validBase = true;
                 }
                 if (!$validBase) throw new \InvalidArgumentException('Unknown synchronization base; refresh required.', 409);
-                $merge = self::merge($base['data'], $current['data'], $data);
+                // Normalize first: records saved before a field existed must not read as changing it.
+                $merge = self::merge(self::normalize($kind, $base['data'] ?? []), self::normalize($kind, $current['data']), $data);
                 $data = $merge['data'];
                 $conflictFields = $merge['fields'];
                 if ($current['deleted'] !== $base['deleted'] || $deleted !== $base['deleted']) {
@@ -279,7 +399,8 @@ class Worklog extends BaseModel {
             if ($choice === 'note') {
                 $incoming = $detail['incoming'];
                 // Keep subsequent website changes to fields untouched by the original local edit.
-                $merge = self::merge($detail['current']['data'] ?? [], $current['data'] ?? [], $incoming['data']);
+                $kind = $incoming['kind'];
+                $merge = self::merge(self::normalize($kind, $detail['current']['data'] ?? []), self::normalize($kind, $current['data'] ?? []), self::normalize($kind, $incoming['data']));
                 $current = $this->write($row['record_id'], $incoming['kind'], $merge['data'], $incoming['deleted'], $current);
             }
             $this->executeSql('UPDATE worklog_conflicts SET resolved_at=UTC_TIMESTAMP() WHERE id=? AND owner_id=?', [$id,$this->owner]);

@@ -64,7 +64,8 @@ export class Bridge {
         const entries=snapshot.records.filter(r=>r.kind==='task'&&!r.deleted&&r.data.week_id===week.id).sort((a,b)=>a.data.position-b.data.position);
         const matched=new Set();
         parsed.tasks.forEach((row,i)=>{
-            const withoutPosition = data => {const copy={...data};delete copy.position;delete copy.week_id;return copy;};
+            // Compare only what a note can express; time tracking is website-only.
+            const withoutPosition = data => {const copy={...data};for(const key of ['position','week_id','time_log','timer_started_at'])delete copy[key];return copy;};
             const candidate=row.id?entries.find(r=>r.id===row.id):entries.find(r=>!matched.has(r.id)&&same(withoutPosition(row.data),withoutPosition(r.data)));
             if(!candidate||!same(withoutPosition(row.data),withoutPosition(candidate.data)))throw new Error('Initial note differs from website at row '+(i+1)+'. Nothing was overwritten.');
             matched.add(candidate.id);

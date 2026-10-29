@@ -4,7 +4,22 @@
     if (!root) return;
     const $ = selector => root.querySelector(selector);
     const base = root.dataset.base;
-    const state = { records: [], conflicts: [], devices: [], revision: 0, view: 'weeks', dirty: new Map(), timers: new Map(), busy: new Set() };
+    const stored = key => { try { return localStorage.getItem(key); } catch { return null; } };
+    const store = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
+    const state = { records: [], conflicts: [], devices: [], areas: [], revision: 0, view: 'weeks', sort: stored('wl-sort')==='manual'?'manual':'priority', dirty: new Map(), timers: new Map(), busy: new Set() };
+    const rank = task => (task.data.status==='done'?3:0)+({high:0,medium:1,low:2}[task.data.priority]??1);
+    const minutesLogged = (task, from, to) => (task.data.time_log||[]).filter(e=>(!from||e.on>=from)&&(!to||e.on<=to)).reduce((n,e)=>n+e.minutes,0);
+    const duration = minutes => { const h=Math.floor(minutes/60), m=minutes%60; return h?h+'h'+(m?' '+m+'m':''):m+'m'; };
+    const clock = ms => { const s=Math.max(0,Math.floor(ms/1000)); return [Math.floor(s/3600),Math.floor(s/60)%60,s%60].map(n=>String(n).padStart(2,'0')).join(':'); };
+    /** Accepts 90, 1h30, 1h 30m, 1:30 or 45m; returns minutes or null. */
+    function parseDuration(text) {
+        const t=String(text).trim().toLowerCase();let m;
+        if(/^\d+$/.test(t))m=Number(t);
+        else if((m=t.match(/^(\d+):([0-5]\d)$/)))m=Number(m[1])*60+Number(m[2]);
+        else if((m=t.match(/^(?:(\d+)\s*h)?\s*(?:(\d+)\s*m?)?$/))&&(m[1]||m[2]))m=Number(m[1]||0)*60+Number(m[2]||0);
+        else return null;
+        return m>=1&&m<=1440?m:null;
+    }
     const uuid = () => crypto.randomUUID();
     const today = () => new Intl.DateTimeFormat('en-CA', {timeZone:'Africa/Johannesburg',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
     const plusDays = (day, amount) => { const d = new Date(day + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+amount); return d.toISOString().slice(0,10); };
@@ -108,18 +123,31 @@
             set('status',value);d.finished_on=value==='done'?(d.finished_on||today()):null;
         });statusSelect.field.setAttribute('aria-label','Task status');
         const priority=select('',[['high','High priority'],['medium','Medium priority'],['low','Low priority']],d.priority,v=>set('priority',v));priority.field.setAttribute('aria-label','Task priority');
-        top.append(statusSelect.field,priority.field);card.append(top);
+        top.append(statusSelect.field,priority.field);
+        if(!record.deleted){
+            const timer=el('div',undefined,'wl-timer');
+            const total=minutesLogged(record);if(total)timer.append(el('span','⏱ '+duration(total),'wl-total'));
+            if(d.timer_started_at){
+                const running=el('span',clock(Date.now()-Date.parse(d.timer_started_at)),'wl-running');running.dataset.since=d.timer_started_at;
+                timer.append(running,button('■ Stop',()=>stopTimer(record),'wl-stop'));
+            } else timer.append(button('▶ Start',()=>startTimer(record),'wl-start'));
+            top.append(timer);
+        }
+        card.append(top);
         const description=input('Task / next action','textarea',d.description,v=>set('description',v));
         description.field.className='wl-description';description.field.maxLength=20000;card.append(description.wrap);
-        const details=el('details'), summary=el('summary','Plan, schedule & details');details.append(summary);
+        const details=el('details'), summary=el('summary','Plan, schedule, time & details');details.append(summary);
         const fields=el('div',undefined,'wl-fields');
         fields.append(select('Week',[['','Inbox'],...weeks().map(w=>[w.id,w.data.title])],d.week_id,v=>set('week_id',v||null)).wrap);
+        fields.append(areaSelect(record,set).wrap);
         for(const [key,label,type] of [
-            ['area','Area','text'],['schedule','Flexible schedule','text'],['planned_on','Plan to work on','date'],
+            ['schedule','Flexible schedule','text'],['planned_on','Plan to work on','date'],
             ['due_on','Deadline','date'],['waiting_on','Waiting on','text'],['follow_up_on','Follow up on','date'],
             ['started_on','Started','date'],['finished_on','Finished','date']
         ]){const f=input(label,type,d[key],v=>set(key,type==='date'?(v||null):v));if(type==='text')f.field.maxLength=500;fields.append(f.wrap);}
-        details.append(fields);card.append(details);
+        details.append(fields);
+        if(!record.deleted)details.append(timeLog(record));
+        card.append(details);
         const foot=el('div',undefined,'wl-card-foot');
         foot.append(el('small',[d.area,d.planned_on?'Planned '+d.planned_on:'',d.due_on?'Due '+d.due_on:''].filter(Boolean).join(' · ')||'Keep the next action obvious.'));
         if(record.deleted)foot.append(button('Restore',async()=>{record.deleted=false;mark(record);await save(record.id);render();}));
@@ -128,15 +156,77 @@
         foot.querySelectorAll('button').forEach(b=>{if(b.textContent==='↑')b.setAttribute('aria-label','Move task up');if(b.textContent==='↓')b.setAttribute('aria-label','Move task down');});
         card.append(foot);return card;
     }
+    function areaSelect(record,set) {
+        const d=record.data,names=state.areas.map(a=>a.name);
+        if(d.area&&!names.some(n=>n.toLowerCase()===d.area.toLowerCase()))names.push(d.area);
+        const area=select('Area',[['','No area'],...names.map(n=>[n,n]),['__new','＋ Add new area…']],d.area,value=>{
+            if(value!=='__new'){set('area',value);return;}
+            area.field.value=d.area;
+            const box=dialog('Add an area'),name=input('Area name','text','');name.field.maxLength=100;
+            box.append(name.wrap,el('p','Existing names are reused, whatever their capitalisation.'));
+            box.append(button('Add area',async()=>{
+                const result=await api('areas',{name:name.field.value});state.areas=result.areas;
+                set('area',result.name);$('#wl-dialog').close();render();
+            },'wl-primary'));
+            name.field.focus();
+        });
+        return area;
+    }
+    function timeLog(record) {
+        const d=record.data,section=el('div',undefined,'wl-timelog');
+        section.append(el('strong','Time log · '+duration(minutesLogged(record))));
+        const entries=[...(d.time_log||[])].sort((a,b)=>b.on.localeCompare(a.on));
+        for(const entry of entries){
+            const row=el('div',undefined,'wl-time-row');
+            row.append(el('span',entry.on),el('span',duration(entry.minutes)),el('span',entry.note||''),
+                button('Remove',()=>{d.time_log=d.time_log.filter(e=>e.id!==entry.id);mark(record);render();}));
+            section.append(row);
+        }
+        const add=el('div',undefined,'wl-time-add'),on=input('Date','date',today()),spent=input('Time spent','text',''),note=input('Note (optional)','text','');
+        spent.field.placeholder='e.g. 45, 1h30, 1:30';note.field.maxLength=200;
+        add.append(on.wrap,spent.wrap,note.wrap,button('Log time',()=>{
+            const minutes=parseDuration(spent.field.value);
+            if(!minutes)throw new Error('Enter time spent between 1 minute and 24 hours, e.g. 45, 1h30 or 1:30.');
+            if(!on.field.value)throw new Error('Choose the date you worked on this task.');
+            logTime(record,on.field.value,minutes,note.field.value);render();
+        }));
+        section.append(add);return section;
+    }
+    function logTime(record,on,minutes,note='') {
+        record.data.time_log=[...(record.data.time_log||[]),{id:uuid(),on,minutes,note:note.trim().slice(0,200)}];
+        record.data.started_on??=on;mark(record);
+    }
+    async function startTimer(record) {
+        // One timer at a time: starting another task logs the running one first.
+        for(const other of tasks().filter(t=>t.id!==record.id&&t.data.timer_started_at))await stopTimer(other,true);
+        record.data.timer_started_at=new Date().toISOString();record.data.started_on??=today();
+        mark(record);await save(record.id);render();
+    }
+    async function stopTimer(record,quiet=false) {
+        const started=Date.parse(record.data.timer_started_at),minutes=Math.max(1,Math.round((Date.now()-started)/60000));
+        const finish=(spent)=>{record.data.timer_started_at=null;if(spent)logTime(record,today(),spent);else mark(record);};
+        if(minutes<=480||quiet){finish(Math.min(minutes,1440));await save(record.id);render();return;}
+        // A long run usually means the timer was left on; confirm the real duration.
+        const box=dialog('Timer ran for '+duration(Math.min(minutes,1440))),spent=input('Time actually spent','text',duration(Math.min(minutes,1440)));
+        box.append(el('p','Was the timer left running? Correct the time before it is logged.'),spent.wrap);
+        box.append(button('Log this time',async()=>{
+            const value=parseDuration(spent.field.value);if(!value)throw new Error('Enter between 1 minute and 24 hours.');
+            finish(value);$('#wl-dialog').close();await save(record.id);render();
+        },'wl-primary'),button('Discard this run',async()=>{finish(0);$('#wl-dialog').close();await save(record.id);render();}));
+    }
     async function move(record,direction) {
         await flush();
         const group=tasks().filter(t=>!t.deleted&&t.data.week_id===record.data.week_id).sort(order);
         const i=group.findIndex(t=>t.id===record.id), j=i+direction;if(j<0||j>=group.length)return;
-        [group[i],group[j]]=[group[j],group[i]];
-        for(let n=0;n<group.length;n++){if(group[n].data.position!==n){group[n].data.position=n;mark(group[n]);await save(group[n].id);}}
-        render();
+        const a=group[i],b=group[j];
+        if(state.sort==='priority'&&rank(a)!==rank(b))throw new Error('Tasks are sorted by priority. Change the priority, or switch to manual sort, to move this task past that group.');
+        // Swap only the two positions so the Obsidian order changes as little as possible.
+        if(a.data.position===b.data.position)[...group].sort(manualOrder).forEach((t,n)=>{if(t.data.position!==n){t.data.position=n;mark(t);}});
+        [a.data.position,b.data.position]=[b.data.position,a.data.position];mark(a);mark(b);
+        await flush();render();
     }
-    const order=(a,b)=>a.data.position-b.data.position||a.id.localeCompare(b.id);
+    const manualOrder=(a,b)=>a.data.position-b.data.position||a.id.localeCompare(b.id);
+    const order=(a,b)=>(state.sort==='priority'?rank(a)-rank(b):0)||manualOrder(a,b);
     function list(records) {const container=el('div',undefined,'wl-list');const visible=records.filter(matches).sort(order);container.append(...visible.map(taskCard));if(!visible.length)container.append(el('p','A little breathing room. No tasks in this view.','wl-empty'));return container;}
     function render() {
         updateStats();
@@ -146,8 +236,9 @@
         capture.replaceChildren(new Option('Inbox',''),...weeks().map(w=>new Option(w.data.title,w.id)));
         capture.value=weeks().some(w=>w.id===previous)?previous:'';
         state.openWeeks??=new Map();root.querySelectorAll('.wl-group').forEach(g=>state.openWeeks.set(g.dataset.week,g.open));
-        const box=$('#wl-content');box.replaceChildren();$('#wl-capture').hidden=['sync','review','trash'].includes(state.view);
+        const box=$('#wl-content');box.replaceChildren();$('#wl-capture').hidden=['sync','review','trash','time'].includes(state.view);
         if(state.view==='sync'){renderSync(box);return;}
+        if(state.view==='time'){renderTime(box);return;}
         if(state.view==='review'){renderReview(box);return;}
         if(state.view==='weeks'){
             const ordered=weeks().sort((a,b)=>(b.id===currentWeek()?.id)-(a.id===currentWeek()?.id)||b.data.starts_on.localeCompare(a.data.starts_on));
@@ -184,6 +275,46 @@
             if(state.dirty.size)throw new Error('Some tasks could not be moved. Review the retained edits.');
             await load();status('Selected tasks carried forward · history retained');
         },'wl-primary'));box.append(panel);
+    }
+    function renderTime(box) {
+        const panel=el('section',undefined,'wl-panel');panel.append(el('h3','Where your time went.'));
+        const t=today(),ranges={week:['This week',monday(t),t],days:['Last 7 days',plusDays(t,-6),t],month:['This month',t.slice(0,8)+'01',t],all:['All time',null,null]};
+        state.timeRange??='week';
+        panel.append(select('Period',Object.entries(ranges).map(([k,[label]])=>[k,label]),state.timeRange,v=>{state.timeRange=v;render();}).wrap);
+        const [,from,to]=ranges[state.timeRange],timed=tasks().filter(x=>!x.deleted).map(x=>[x,minutesLogged(x,from,to)]).filter(([,m])=>m);
+        const byArea=new Map();
+        for(const [x,m] of timed){const key=x.data.area.trim()||'No area',k=key.toLowerCase(),cur=byArea.get(k)||{name:key,minutes:0,tasks:0};cur.minutes+=m;cur.tasks++;byArea.set(k,cur);}
+        const areas=[...byArea.values()].sort((a,b)=>b.minutes-a.minutes),sum=areas.reduce((n,a)=>n+a.minutes,0);
+        if(!sum){panel.append(el('p','No time logged in this period. Start a timer on a task, or log time in its details.','wl-empty'));box.append(panel);return;}
+        panel.append(el('p',duration(sum)+' logged across '+timed.length+' task'+(timed.length===1?'':'s')+'.'));
+        for(const a of areas){
+            const row=el('div',undefined,'wl-bar-row'),bar=el('div',undefined,'wl-bar'),fill=el('span');
+            fill.style.width=Math.max(2,Math.round(a.minutes/sum*100))+'%';bar.append(fill);
+            row.append(el('strong',a.name),bar,el('span',duration(a.minutes)+' · '+Math.round(a.minutes/sum*100)+'%'));panel.append(row);
+        }
+        panel.append(el('h3','Most time by task'));
+        for(const [x,m] of timed.sort((a,b)=>b[1]-a[1]).slice(0,10)){
+            const row=el('div',undefined,'wl-time-row');row.append(el('span',duration(m)),el('span',x.data.area||'No area'),el('span',x.data.description.split('\n')[0]));panel.append(row);
+        }
+        box.append(panel);
+    }
+    function areasDialog() {
+        const box=dialog('Manage areas');
+        box.append(el('p','Rename an area to tidy its spelling, or rename it to an existing area to merge duplicates. Changes update every task and sync to Obsidian.'));
+        const options=el('datalist');options.id='wl-area-options';options.append(...state.areas.map(a=>new Option(a.name)));box.append(options);
+        if(!state.areas.length)box.append(el('p','No areas yet. Add one from a task’s Area field.','wl-empty'));
+        for(const a of state.areas){
+            const row=el('div',undefined,'wl-area-row'),to=input('Rename or merge into','text','');
+            to.field.setAttribute('list','wl-area-options');to.field.maxLength=100;
+            row.append(el('strong',a.name),el('small',a.tasks+' task'+(a.tasks===1?'':'s')),to.wrap,button('Apply',async()=>{
+                await flush();const result=await api('areas',{from:a.name,to:to.field.value},'PATCH');
+                await load();areasDialog();status(result.changed+' task'+(result.changed===1?'':'s')+' updated · Obsidian pending');
+            }));
+            if(!a.tasks)row.append(button('Delete',async()=>{await api('areas',{name:a.name},'DELETE');await load();areasDialog();}));
+            box.append(row);
+        }
+        const name=input('New area','text','');name.field.maxLength=100;
+        box.append(name.wrap,button('Add area',async()=>{const result=await api('areas',{name:name.field.value});state.areas=result.areas;areasDialog();},'wl-primary'));
     }
     function renderSync(box) {
         const panel=el('section',undefined,'wl-panel');panel.append(el('h3','Your notebook, connected.'));
@@ -224,6 +355,10 @@
     });
     root.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{state.view=b.dataset.view;render();}));
     $('#wl-search').addEventListener('input',render);$('#wl-filter').addEventListener('change',render);
+    $('#wl-sort').value=state.sort;
+    $('#wl-sort').addEventListener('change',()=>{state.sort=$('#wl-sort').value;store('wl-sort',state.sort);render();});
+    $('#wl-areas').addEventListener('click',()=>areasDialog());
+    setInterval(()=>root.querySelectorAll('.wl-running').forEach(e=>{e.textContent=clock(Date.now()-Date.parse(e.dataset.since));}),1000);
     $('#wl-refresh').addEventListener('click',()=>load().catch(e=>error(e.message)));
     $('#wl-new-week').addEventListener('click',()=>{
         const box=dialog('Start a weekly page'),date=input('Week begins (Monday)','date',monday(today()));
