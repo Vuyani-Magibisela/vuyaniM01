@@ -114,7 +114,7 @@ class ContactController extends BaseController {
     
     private function getBaseUrl() {
         // Get base URL from config
-        require_once dirname(__DIR__, 2) . '/config/config.php';
-        return $baseUrl;
+        require_once dirname(__DIR__) . '/config/config.php';
+        return BASE_URL;
     }
 }

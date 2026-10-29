@@ -180,6 +180,6 @@ class SubscriptionController extends BaseController {
      */
     private function getBaseUrl() {
         require_once dirname(__DIR__) . '/config/config.php';
-        return $baseUrl;
+        return BASE_URL;
     }
 }
